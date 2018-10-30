@@ -90,11 +90,11 @@ import java_cup.runtime.*;
 /***********************/
 /* MACRO DECALARATIONS */
 /***********************/
-LineTerminator		        = (\r|\n|\r\n)
-WhiteSpace			        = {LineTerminator} | [ \t\f]
-INTEGER				        = -?[0-9]+
-ID					        = [a-zA-Z][a-zA-Z0-9]*
-STRING				        = "\"" [a-z|A-Z]* "\""
+LineTerminator                = (\r|\n|\r\n)
+WhiteSpace                    = {LineTerminator} | [ \t\f]
+INTEGER                        = -?[0-9]+
+ID                            = [a-zA-Z][a-zA-Z0-9]*
+STRING                        = "\"" [a-z|A-Z]* "\""
 
 COMMENT_CHAR_PARTIAL        = [a-zA-Z0-9 \t\f\(\)\[\]\{\}?!+\-.;] // missing the chars: "*", "/"
 SINGLE_LINE_COMMENT         = "//" ({COMMENT_CHAR_PARTIAL} | "*" | "/")*
@@ -121,59 +121,59 @@ MULTILINE_NORMAL_CHAR       = ({COMMENT_CHAR_PARTIAL} | {LineTerminator})
 
 <YYINITIAL> {
     /* keywords */
-    "class"				          { return symbol(TokenNames.CLASS); }
-    "array"				          { return symbol(TokenNames.ARRAY); }
-    "while"				          { return symbol(TokenNames.WHILE); }
-    "extends"			          { return symbol(TokenNames.EXTENDS); }
-    "return"			          { return symbol(TokenNames.RETURN); }
-    "new"				          { return symbol(TokenNames.NEW); }
-    "if"				          { return symbol(TokenNames.IF); }
+    "class"                          { return symbol(TokenNames.CLASS); }
+    "array"                          { return symbol(TokenNames.ARRAY); }
+    "while"                          { return symbol(TokenNames.WHILE); }
+    "extends"                        { return symbol(TokenNames.EXTENDS); }
+    "return"                         { return symbol(TokenNames.RETURN); }
+    "new"                            { return symbol(TokenNames.NEW); }
+    "if"                             { return symbol(TokenNames.IF); }
 
     /* null literal */
-    "nil"				          { return symbol(TokenNames.NIL); }
+    "nil"                            { return symbol(TokenNames.NIL); }
 
     /* separators */
-    "("					          { return symbol(TokenNames.LPAREN); }
-    ")"					          { return symbol(TokenNames.RPAREN); }
-    "["					          { return symbol(TokenNames.LBRACK); }
-    "]"					          { return symbol(TokenNames.RBRACK); }
-    "{"					          { return symbol(TokenNames.LBRACE); }
-    "}"					          { return symbol(TokenNames.RBRACE); }
-    ","					          { return symbol(TokenNames.COMMA); }
-    ";"					          { return symbol(TokenNames.SEMICOLON); }
-    "."					          { return symbol(TokenNames.DOT); }
+    "("                              { return symbol(TokenNames.LPAREN); }
+    ")"                              { return symbol(TokenNames.RPAREN); }
+    "["                              { return symbol(TokenNames.LBRACK); }
+    "]"                              { return symbol(TokenNames.RBRACK); }
+    "{"                              { return symbol(TokenNames.LBRACE); }
+    "}"                              { return symbol(TokenNames.RBRACE); }
+    ","                              { return symbol(TokenNames.COMMA); }
+    ";"                              { return symbol(TokenNames.SEMICOLON); }
+    "."                              { return symbol(TokenNames.DOT); }
 
     /* comments */
-    {SINGLE_LINE_COMMENT}         { /* ignore */ }
-    {SINGLE_LINE_INVALID_COMMENT} { throw new UnsupportedOperationException("Illegal single line comment: "+yytext()); }
-    "/*"                          { yybegin(COMMENT); }
+    {SINGLE_LINE_COMMENT}            { /* ignore */ }
+    {SINGLE_LINE_INVALID_COMMENT}    { throw new UnsupportedOperationException("Illegal single line comment: "+yytext()); }
+    "/*"                             { yybegin(COMMENT); }
 
 
     /* operators */
-    "="					          { return symbol(TokenNames.EQ); }
-    "<"					          { return symbol(TokenNames.LT); }
-    ">"					          { return symbol(TokenNames.GT); }
-    "+"					          { return symbol(TokenNames.PLUS); }
-    "-"					          { return symbol(TokenNames.MINUS); }
-    "*"					          { return symbol(TokenNames.TIMES); }
-    "/"					          { return symbol(TokenNames.DIVIDE); }
-    ":="				          { return symbol(TokenNames.ASSIGN); }
+    "="                              { return symbol(TokenNames.EQ); }
+    "<"                              { return symbol(TokenNames.LT); }
+    ">"                              { return symbol(TokenNames.GT); }
+    "+"                              { return symbol(TokenNames.PLUS); }
+    "-"                              { return symbol(TokenNames.MINUS); }
+    "*"                              { return symbol(TokenNames.TIMES); }
+    "/"                              { return symbol(TokenNames.DIVIDE); }
+    ":="                             { return symbol(TokenNames.ASSIGN); }
 
     /* others */
-    {ID}				          { return symbol(TokenNames.ID, new String(yytext())); }
-    {INTEGER}			          { return symbol(TokenNames.INT, parseOrThrow(yytext())); }
-    {STRING}			          { return symbol(TokenNames.STRING, parseString(yytext())); }
-    {WhiteSpace}		          { /* just skip what was found, do nothing */ }
-    {LineTerminator}	          { /* just skip what was found, do nothing */ }
-    <<EOF>>				          { return symbol(TokenNames.EOF); }
-    [^] 				          { throw new UnsupportedOperationException("Illegal character <"+yytext()+">"); }
+    {ID}                             { return symbol(TokenNames.ID, new String(yytext())); }
+    {INTEGER}                        { return symbol(TokenNames.INT, parseOrThrow(yytext())); }
+    {STRING}                         { return symbol(TokenNames.STRING, parseString(yytext())); }
+    {WhiteSpace}                     { /* just skip what was found, do nothing */ }
+    {LineTerminator}                 { /* just skip what was found, do nothing */ }
+    <<EOF>>                          { return symbol(TokenNames.EOF); }
+    [^]                              { throw new UnsupportedOperationException("Illegal character <"+yytext()+">"); }
 }
 
 <COMMENT> {
-    "*/"                          { yybegin(YYINITIAL); }
-    {MULTILINE_NORMAL_CHAR}       { /* ignore */ }
-    "*"                           {  /* ignore */ }
-    "/"                           { /* ignore */ }
-    <<EOF>>				          { throw new UnsupportedOperationException("Illegal ending of comment"); }
-    [^] 				          { throw new UnsupportedOperationException("Illegal char in comment"); }
+    "*/"                             { yybegin(YYINITIAL); }
+    {MULTILINE_NORMAL_CHAR}          { /* ignore */ }
+    "*"                              {  /* ignore */ }
+    "/"                              { /* ignore */ }
+    <<EOF>>                          { throw new UnsupportedOperationException("Illegal ending of comment"); }
+    [^]                              { throw new UnsupportedOperationException("Illegal char in comment"); }
 }
