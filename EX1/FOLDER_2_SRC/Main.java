@@ -26,7 +26,7 @@ public class Main {
 			e.printStackTrace();
 			
 			try(PrintWriter newFileWriter = new PrintWriter(outputFilename)) {
-				newFileWriter.write("ERROR");
+				newFileWriter.write("ERROR\n");
 			} catch(IOException ignored) {
 				e.printStackTrace();
 			}

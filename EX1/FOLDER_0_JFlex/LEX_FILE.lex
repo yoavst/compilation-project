@@ -57,8 +57,8 @@ import java_cup.runtime.*;
 	/*********************************************************************************/
 	/* Create a new java_cup.runtime.Symbol with information about the current token */
 	/*********************************************************************************/
-	private Symbol symbol(int type)               {return new Symbol(type, yyline, yycolumn);}
-	private Symbol symbol(int type, Object value) {return new Symbol(type, yyline, yycolumn, value);}
+	private Symbol symbol(int type)               { return new Symbol(type, yyline, yycolumn); }
+	private Symbol symbol(int type, Object value) { return new Symbol(type, yyline, yycolumn, value); }
 
 	/*******************************************/
 	/* Enable line number extraction from main */
@@ -72,7 +72,11 @@ import java_cup.runtime.*;
 	
 	private Integer parseOrThrow(String num) {
 		int parsed = Integer.parseInt(num);
-		if (parsed < -32768 || parsed > 32767) 
+		if (num.matches("-?0+[1-9][0-9]*")) {
+			throw new UnsupportedOperationException("Invalid integer format. \"" + num + "\" should not start with leading zeros");
+		} else if (num.matches("00+|-0+")) {
+			throw new UnsupportedOperationException("Invalid integer format. \"" + num + "\" should be just \"0\"");
+		} else if (parsed < -32768 || parsed > 32767) 
 			throw new UnsupportedOperationException("Invalid integer: " + num);
 		return parsed;
 	}
@@ -86,18 +90,22 @@ import java_cup.runtime.*;
 /***********************/
 /* MACRO DECALARATIONS */
 /***********************/
-LineTerminator		= \r|\n|\r\n
-WhiteSpace			= {LineTerminator} | [ \t\f]
-INTEGER				= 0 | -?[1-9][0-9]*
-ID					= [a-zA-Z][a-zA-Z0-9]*
-STRING				= "\"" [a-z|A-Z]* "\""
-COMMENT_CHAR		= [a-zA-Z0-9 \t\f\(\)\[\]\{\}?!+\-*\/.;]
-SINGLE_LINE_COMMENT = "//" {COMMENT_CHAR}*
-MULTI_LINE_COMMENT  = "/*" ({COMMENT_CHAR} | LineTerminator)* ~"*/"
+LineTerminator		        = (\r|\n|\r\n)
+WhiteSpace			        = {LineTerminator} | [ \t\f]
+INTEGER				        = -?[0-9]+
+ID					        = [a-zA-Z][a-zA-Z0-9]*
+STRING				        = "\"" [a-z|A-Z]* "\""
+
+COMMENT_CHAR_PARTIAL        = [a-zA-Z0-9 \t\f\(\)\[\]\{\}?!+\-.;] // missing the chars: "*", "/"
+SINGLE_LINE_COMMENT         = "//" ({COMMENT_CHAR_PARTIAL} | "*" | "/")*
+SINGLE_LINE_INVALID_COMMENT = "//" [^\r\n]*
+MULTILINE_NORMAL_CHAR       = ({COMMENT_CHAR_PARTIAL} | {LineTerminator})
 
 /******************************/
 /* DOLAR DOLAR - DON'T TOUCH! */
 /******************************/
+
+%state COMMENT
 
 %%
 
@@ -112,45 +120,60 @@ MULTI_LINE_COMMENT  = "/*" ({COMMENT_CHAR} | LineTerminator)* ~"*/"
 /**************************************************************/
 
 <YYINITIAL> {
-/* keywords */
-"class"				{ return symbol(TokenNames.CLASS); }
-"array"				{ return symbol(TokenNames.ARRAY); }
-"while"				{ return symbol(TokenNames.WHILE); }
-"extends"			{ return symbol(TokenNames.EXTENDS); }
-"return"			{ return symbol(TokenNames.RETURN); }
-"new"				{ return symbol(TokenNames.NEW); }
-"if"				{ return symbol(TokenNames.IF); }
+	/* keywords */
+	"class"				          { return symbol(TokenNames.CLASS); }
+	"array"				          { return symbol(TokenNames.ARRAY); }
+	"while"				          { return symbol(TokenNames.WHILE); }
+	"extends"			          { return symbol(TokenNames.EXTENDS); }
+	"return"			          { return symbol(TokenNames.RETURN); }
+	"new"				          { return symbol(TokenNames.NEW); }
+	"if"				          { return symbol(TokenNames.IF); }
 
-/* null literal */
-"nil"				{ return symbol(TokenNames.NIL); }
+	/* null literal */
+	"nil"				          { return symbol(TokenNames.NIL); }
 
-/* separators */
-"("					{ return symbol(TokenNames.LPAREN); }
-")"					{ return symbol(TokenNames.RPAREN); }
-"["					{ return symbol(TokenNames.LBRACK); }
-"]"					{ return symbol(TokenNames.RBRACK); }
-"{"					{ return symbol(TokenNames.LBRACE); }
-"}"					{ return symbol(TokenNames.RBRACE); }
-","					{ return symbol(TokenNames.COMMA); }
-";"					{ return symbol(TokenNames.SEMICOLON); }
-"."					{ return symbol(TokenNames.DOT); }
+	/* separators */
+	"("					          { return symbol(TokenNames.LPAREN); }
+	")"					          { return symbol(TokenNames.RPAREN); }
+	"["					          { return symbol(TokenNames.LBRACK); }
+	"]"					          { return symbol(TokenNames.RBRACK); }
+	"{"					          { return symbol(TokenNames.LBRACE); }
+	"}"					          { return symbol(TokenNames.RBRACE); }
+	","					          { return symbol(TokenNames.COMMA); }
+	";"					          { return symbol(TokenNames.SEMICOLON); }
+	"."					          { return symbol(TokenNames.DOT); }
 
-/* operators */
-"="					{ return symbol(TokenNames.EQ); }
-"<"					{ return symbol(TokenNames.LT); }
-"+"					{ return symbol(TokenNames.PLUS); }
-"-"					{ return symbol(TokenNames.MINUS); }
-"*"					{ return symbol(TokenNames.TIMES); }
-"/"					{ return symbol(TokenNames.DIVIDE); }
-":="				{ return symbol(TokenNames.ASSIGN); }
+	/* comments */
+	{SINGLE_LINE_COMMENT}         { /* ignore */ }
+	{SINGLE_LINE_INVALID_COMMENT} { throw new UnsupportedOperationException("Illegal single line comment: "+yytext()); }
+	"/*"                          { yybegin(COMMENT); }
 
-{ID}				{ return symbol(TokenNames.ID, new String(yytext())); }
-{INTEGER}			{ return symbol(TokenNames.INT, parseOrThrow(yytext())); }
-{STRING}			{ return symbol(TokenNames.STRING, parseString(yytext())); }
-{WhiteSpace}		{ /* just skip what was found, do nothing */ }
-{LineTerminator}	{ /* just skip what was found, do nothing */ }
-{SINGLE_LINE_COMMENT} { /* just skip what was found, do nothing */ }
-{MULTI_LINE_COMMENT} { /* just skip what was found, do nothing */ } 
-<<EOF>>				{ return symbol(TokenNames.EOF); }
-[^] 				{ throw new UnsupportedOperationException("Illegal character <"+yytext()+">"); }
+
+	/* operators */
+	"="					          { return symbol(TokenNames.EQ); }
+	"<"					          { return symbol(TokenNames.LT); }
+	">"					          { return symbol(TokenNames.GT); }
+	"+"					          { return symbol(TokenNames.PLUS); }
+	"-"					          { return symbol(TokenNames.MINUS); }
+	"*"					          { return symbol(TokenNames.TIMES); }
+	"/"					          { return symbol(TokenNames.DIVIDE); }
+	":="				          { return symbol(TokenNames.ASSIGN); }
+
+	/* others */
+	{ID}				          { return symbol(TokenNames.ID, new String(yytext())); }
+	{INTEGER}			          { return symbol(TokenNames.INT, parseOrThrow(yytext())); }
+	{STRING}			          { return symbol(TokenNames.STRING, parseString(yytext())); }
+	{WhiteSpace}		          { /* just skip what was found, do nothing */ }
+	{LineTerminator}	          { /* just skip what was found, do nothing */ }
+	<<EOF>>				          { return symbol(TokenNames.EOF); }
+	[^] 				          { throw new UnsupportedOperationException("Illegal character <"+yytext()+">"); }
+}
+
+<COMMENT> {
+	"*/"                          { yybegin(YYINITIAL); }
+	{MULTILINE_NORMAL_CHAR}       { /* ignore */ }
+	"*"                           {  /* ignore */ }
+	"/"                           { /* ignore */ }
+	<<EOF>>				          { throw new UnsupportedOperationException("Illegal ending of comment"); }
+	[^] 				          { throw new UnsupportedOperationException("Illegal char in comment"); }
 }
