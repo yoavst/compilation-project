@@ -22,21 +22,6 @@ CLASS_FILES          = ${BIN_DIR}/*.class
 EXTERNAL_JAR_FILES   = ${EXTERNAL_JARS_DIR}/java-cup-11b-runtime.jar
 MANIFEST_FILE        = ${MANIFEST_DIR}/MANIFEST.MF
 
-##############
-# TEST FILES #
-##############
-TEST_FILE_1             = ${INPUT_DIR}/TEST_01_Print_Primes.txt
-TEST_FILE_1_OUTPUT      = ${OUTPUT_DIR}/TEST_01_Print_Primes_Output.txt
-TEST_FILE_1_EXPECTED    = ${EXPECTED_OUTPUT_DIR}/TEST_01_Print_Primes_Expected_Output.txt
-
-TEST_FILE_2             = ${INPUT_DIR}/TEST_02_Bubble_Sort.txt
-TEST_FILE_2_OUTPUT      = ${OUTPUT_DIR}/TEST_02_Bubble_Sort_Output.txt
-TEST_FILE_2_EXPECTED    = ${EXPECTED_OUTPUT_DIR}/TEST_02_Bubble_Sort_Expected_Output.txt
-
-TEST_FILE_3             = ${INPUT_DIR}/TEST_03_Merge_Lists.txt
-TEST_FILE_3_OUTPUT      = ${OUTPUT_DIR}/TEST_03_Merge_Lists_Output.txt
-TEST_FILE_3_EXPECTED    = ${EXPECTED_OUTPUT_DIR}/TEST_03_Merge_Lists_Expected_Output.txt
-
 
 ########################
 # DEFINITIONS :: JFlex #
@@ -108,65 +93,7 @@ all:
 	@echo "*****************************"
 	java -jar LEXER ${INPUT} ${OUTPUT}
 	
-test1:
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T1]   Run First test     *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
+.PHONY: test
 
-	java -jar LEXER ${TEST_FILE_1} ${TEST_FILE_1_OUTPUT} >/dev/null
-
-	diff ${TEST_FILE_1_OUTPUT} ${TEST_FILE_1_EXPECTED}
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T1]   Test 1 passed      *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
-
-test2:
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T2]   Run second test    *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
-
-	java -jar LEXER ${TEST_FILE_2} ${TEST_FILE_2_OUTPUT} >/dev/null
-
-	diff ${TEST_FILE_2_OUTPUT} ${TEST_FILE_2_EXPECTED}
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T2]   Test 2 passed      *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
-
-test3:
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T3]   Run third test     *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
-
-	java -jar LEXER ${TEST_FILE_3} ${TEST_FILE_3_OUTPUT} >/dev/null
-
-	diff ${TEST_FILE_3_OUTPUT} ${TEST_FILE_3_EXPECTED}
-	@echo "*****************************"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "* [T3]   Test 3 passed      *"
-	@echo "*                           *"
-	@echo "*                           *"
-	@echo "*****************************"
-
-test: test1 test2 test3
-.PHONY: test1 test2 test3 test
+test: 
+	./test.sh

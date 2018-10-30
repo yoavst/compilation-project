@@ -1,0 +1,8 @@
+/*Keywords and Identifiers*/
+class Main
+
+class"seperate"Main
+
+class	Main
+class
+Main

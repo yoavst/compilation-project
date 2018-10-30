@@ -1,0 +1,108 @@
+class Test extends SomeClass {
+	//---------------SOME SAMPLE PROGRAMS----------------
+	/*
+		Compute gcd of x and y
+	*/
+	int gcd(int a, int b){
+		
+	    // Everything divides 0  
+	    if (a == 0) 
+	       return b; 
+	    if (b == 0) 
+	       return a; 
+	   
+	    // base case 
+	    if (a == b) 
+	        return a; 
+	   
+	    // a is greater 
+	    if (a > b) 
+	        return gcd(a-b, b); 
+	    return gcd(a, b-a); 	
+	}
+
+
+	/*
+		Modulo function
+	*/
+	int mod(int x, int y){
+		while(y > x){
+			y = y-x;
+		}
+
+		if(y == 0) return "true";
+		return "false";
+	}
+
+	/*
+		Length of array
+	*/
+	int length(array A){
+		int i=0;
+		while(i < 1000){
+			if(A[i] == nil) return i;
+			i++;
+		}
+		return i;
+	}
+
+
+	//----------OOP TEST---------------
+	/*
+		toying with oop syntax
+	*/
+	void passThisCourseSuccessfully(Student s,Course c){
+		if(c.getName() == "Compliation"){
+			if(s.workHard() == "true"){
+				c.setStudentGrade(s,100);
+				s.isHappy("true");
+			}
+		}
+	}
+
+	Student s = new Student();
+	Course c = new Course();
+	c.setName("Compliaton");
+	passThisCourseSuccessfully(s,c);
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//-----PARSING TESTS----
+	/*
+		Test whether keywords identifiers and string are parsed correctly
+	*/
+	void KeywordOrIdentifier(){ //keyword or identifier??
+		String ifif = "identifier";
+		if (ifif = "if") return "false";
+		array nilarray;
+		if (nilarray = "nil") return "false";
+		if (nil = "nil") return "true";
+	}
+
+	void StringOrKeyword(){
+		if("if" = if) return "false";
+		if("nil" = nil) return "false";
+		if("class" = class) return "false";
+		if(extends = "extends") return "false";
+	}
+
+	fgg"asa"fgg //identifier string identifier
+	9852dsas; //int and id
+	128 - 111 //int minus int
+	"" //string
+	-32768
+	32767
+
+}

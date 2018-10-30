@@ -1,0 +1,6 @@
+ID(int)[2,1]
+INT(9)[2,5]
+ID(i)[2,6]
+ASSIGN[2,8]
+INT(8)[2,11]
+SEMICOLON[2,12]
