@@ -71,12 +71,13 @@ import java_cup.runtime.*;
     public int getTokenStartPosition() { return yycolumn + 1; } 
     
     private Integer parseOrThrow(String num) {
+		// FIXME remember to check for the case that the integer is not 32768 (since now minus is not part of the number)
         int parsed = Integer.parseInt(num);
-        if (num.matches("-?0+[1-9][0-9]*")) {
+        if (num.matches("0+[1-9][0-9]*")) {
             throw new UnsupportedOperationException("Invalid integer format. \"" + num + "\" should not start with leading zeros");
         } else if (num.matches("00+|-0+")) {
             throw new UnsupportedOperationException("Invalid integer format. \"" + num + "\" should be just \"0\"");
-        } else if (parsed < -32768 || parsed > 32767) 
+        } else if (parsed > 32768) 
             throw new UnsupportedOperationException("Invalid integer: " + num);
         return parsed;
     }
@@ -92,7 +93,7 @@ import java_cup.runtime.*;
 /***********************/
 LineTerminator                = (\r|\n|\r\n)
 WhiteSpace                    = {LineTerminator} | [ \t\f]
-INTEGER                        = -?[0-9]+
+INTEGER                        = [0-9]+
 ID                            = [a-zA-Z][a-zA-Z0-9]*
 STRING                        = "\"" [a-z|A-Z]* "\""
 
