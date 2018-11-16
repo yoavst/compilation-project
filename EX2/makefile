@@ -17,7 +17,7 @@ MANIFEST_DIR      = ${BASEDIR}/FOLDER_8_MANIFEST
 JFlex_GENERATED_FILE      = ${SRC_DIR}/Lexer.java
 CUP_GENERATED_FILES       = ${SRC_DIR}/Parser.java ${SRC_DIR}/TokenNames.java
 JFlex_CUP_GENERATED_FILES = ${JFlex_GENERATED_FILE} ${CUP_GENERATED_FILES}
-SRC_FILES                 = ${SRC_DIR}/*.java ${SRC_DIR}/AST/*.java
+SRC_FILES                 = ${SRC_DIR}/*.java ${SRC_DIR}/*/*.java ${SRC_DIR}/*/*/*.java ${SRC_DIR}/*/*/*/*.java
 EXTERNAL_JAR_FILES        = ${EXTERNAL_JARS_DIR}/java-cup-11b-runtime.jar
 MANIFEST_FILE             = ${MANIFEST_DIR}/MANIFEST.MF
 
@@ -75,7 +75,7 @@ all:
 	@echo "*     TokenNames.java                                      *"
 	@echo "*                                                          *"
 	@echo "************************************************************"
-	rm -rf ${JFlex_CUP_GENERATED_FILES} ${BIN_DIR}/*.class ${BIN_DIR}/AST/*.class
+	rm -rf ${JFlex_CUP_GENERATED_FILES} ${BIN_DIR}/*.class ${BIN_DIR}/ast/*.class
 	@echo "\n"
 	@echo "************************************************************"
 	@echo "*                                                          *"
@@ -125,18 +125,18 @@ all:
 	@echo "***************************************"
 	@echo "*                                     *"
 	@echo "*                                     *"
-	@echo "* [7] Create a jpeg AST visualization *"
+	@echo "* [7] Create a jpeg ast visualization *"
 	@echo "*                                     *"
 	@echo "*                                     *"
 	@echo "***************************************"
-	dot -Tjpeg -o${OUTPUT_DIR}/AST.jpeg ${OUTPUT_DIR}/AST_IN_GRAPHVIZ_DOT_FORMAT.txt
+	dot -Tjpeg -o${OUTPUT_DIR}/ast.jpeg ${OUTPUT_DIR}/AST_IN_GRAPHVIZ_DOT_FORMAT.txt
 	@echo "\n"
 	@echo "************************************************"
 	@echo "*                                              *"
 	@echo "*                                              *"
-	@echo "* [8] Open the jpeg AST visualization with eog *"
+	@echo "* [8] Open the jpeg ast visualization with eog *"
 	@echo "*                                              *"
 	@echo "*                                              *"
 	@echo "************************************************"
-	eog ${OUTPUT_DIR}/AST.jpeg &
+	eog ${OUTPUT_DIR}/ast.jpeg &
 

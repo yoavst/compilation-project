@@ -64,7 +64,8 @@ import java_cup.runtime.*;
     /* Enable line number extraction from main */
     /*******************************************/
     public int getLine() { return yyline + 1; } 
-
+    public int getCharPos() { return yycolumn; }
+    
     /**********************************************/
     /* Enable token position extraction from main */
     /**********************************************/
