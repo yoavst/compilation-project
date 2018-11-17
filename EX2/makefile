@@ -140,3 +140,18 @@ all:
 	@echo "************************************************"
 	eog ${OUTPUT_DIR}/ast.jpeg &
 
+run: clear
+	@echo "Run parser on input"
+	java -jar PARSER ${INPUT} ${OUTPUT}
+	@echo "\n"
+	@echo "create a jpeg ast visualization"
+	dot -Tjpeg -o${OUTPUT_DIR}/ast.jpeg ${OUTPUT_DIR}/AST_IN_GRAPHVIZ_DOT_FORMAT.txt
+
+clear:
+	rm -rf ${OUTPUT_DIR}/*
+
+test: clear
+	./run_tests.sh --ast --hide
+
+all_tests: clear
+	./run_tests.sh --ast --hide
