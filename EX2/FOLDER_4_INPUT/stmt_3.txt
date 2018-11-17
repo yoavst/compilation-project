@@ -1,1 +1,1 @@
-func func1(){var := new class1[nil-7];
+func func1(){var := new class1[nil-7];}

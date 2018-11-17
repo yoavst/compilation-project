@@ -115,7 +115,7 @@ varDec      ::=     ID:type ID:name SEMICOLON                                   
 					| ID:type ID:name ASSIGN newExp:e SEMICOLON                             {: RESULT = new AST_DEC_VAR_NEW(type, name, e); :}
 			;
 
-funcDec     ::=     ID:type ID:name LPAREN RPAREN LBRACE stmtList:s  RBRACE                 {: RESULT = new AST_DEC_FUNC(type, name, s); :}
+funcDec     ::=     ID:type ID:name LPAREN RPAREN LBRACE stmtList:s RBRACE                  {: RESULT = new AST_DEC_FUNC(type, name, s); :}
 					| ID:type ID:name LPAREN idList:i RPAREN LBRACE stmtList:s RBRACE       {: RESULT = new AST_DEC_FUNC(type, name, s, i); :}
 			;
 
@@ -123,7 +123,6 @@ classDec    ::=     CLASS ID:name LBRACE cFieldList:l RBRACE                    
 				    | CLASS ID:name EXTENDS ID:parent LBRACE cFieldList:l RBRACE            {: RESULT = new AST_DEC_CLASS(name, l, parent); :}
 			;
 
-// TODO check if need semi-colon.
 arrayDec    ::=     ARRAY ID:name EQ ID:type LBRACK RBRACK                                  {: RESULT = new AST_DEC_ARRAY(type, name); :}
 			;
 // endregion

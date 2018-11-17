@@ -151,7 +151,7 @@ clear:
 	rm -rf ${OUTPUT_DIR}/*
 
 test: clear
-	./run_tests.sh --ast --hide
+	./run_tests.sh --ast
 
 all_tests: clear
-	./run_tests.sh --ast --hide
+	./run_tests.sh --ast
