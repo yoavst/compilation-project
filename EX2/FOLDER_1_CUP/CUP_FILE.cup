@@ -13,7 +13,7 @@ import ast.expressions.AST_EXP_BINOP.Op;
 parser code 
 {:
 	public Lexer lexer;
-
+    public int line;
 	public Parser(Lexer lexer)
 	{
 		super(lexer);
@@ -21,39 +21,10 @@ parser code
 	}
 	public void report_error(String message, Object info)
 	{
-		System.out.print("ERROR >> ");		
-		System.out.print("[");
-		System.out.print(lexer.getLine());
-		System.out.print(":");
-		System.out.print(lexer.getCharPos());
-		System.out.print("] ");
-		System.exit(0);
+	    line = lexer.getLine();
+		throw new IllegalStateException(message + " " + info);
 	}
 :}
-
-/************************/
-/* CUSTOMIZE CUP PARSER */
-/************************/
-scan with
-{:
-	Symbol s;
-	s = lexer.next_token();
-	//System.out.print(s.sym);
-	System.out.print("[");
-	System.out.print(lexer.getLine());
-	System.out.print(":");
-	System.out.print(lexer.getCharPos());
-	System.out.print("] ");
-	System.out.print(TokenNames.terminalNames[s.sym]);
-	if (s.value != null)
-	{
-		System.out.print("( ");
-		System.out.print(s.value);
-		System.out.print(" )");
-	}
-	System.out.print("\n");
-	return s;
-:};
 
 /*************/
 /* TERMINALS */
@@ -168,7 +139,7 @@ exp			::=		ID:name	callVarCont:c							                        {: RESULT = AST_C
 					| exp:e1 MINUS exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Minus); :}
                     | exp:e1 TIMES exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Times); :}
 					| exp:e1 DIVIDE exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Divide); :}
-		            | MINUS INT:i								                            {: RESULT = new AST_EXP_INT(-i); :}
+		            | MINUS INT:i								                            {: RESULT = new AST_EXP_INT(i, false); :}
 					| INT:i								                                    {: RESULT = new AST_EXP_INT(i); :}
 					| NIL								                                    {: RESULT = new AST_EXP_NIL(); :}
 					| STRING:s							                                    {: RESULT = new AST_EXP_STRING(s); :}

@@ -1,61 +1,35 @@
-import utils.Graphwiz;
 import ast.AST_PROGRAM;
-import java_cup.runtime.Symbol;
+import utils.Graphwiz;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Main {
     static public void main(String argv[]) {
-        Lexer l;
-        Parser p;
-        Symbol s;
-        AST_PROGRAM AST;
-        FileReader file_reader;
-        PrintWriter file_writer;
         String inputFilename = argv[0];
         String outputFilename = argv[1];
-
-        try {
-            /********************************/
-            /* [1] Initialize a file reader */
-            /********************************/
-            file_reader = new FileReader(inputFilename);
-
-            /********************************/
-            /* [2] Initialize a file writer */
-            /********************************/
-            file_writer = new PrintWriter(outputFilename);
-
-            /******************************/
-            /* [3] Initialize a new lexer */
-            /******************************/
-            l = new Lexer(file_reader);
-
-            /*******************************/
-            /* [4] Initialize a new parser */
-            /*******************************/
-            p = new Parser(l);
-
-            /***********************************/
-            /* [5] 3 ... 2 ... 1 ... Parse !!! */
-            /***********************************/
-            AST = (AST_PROGRAM) p.parse().value;
-
-            /*************************/
-            /* [6] Print the AST ... */
-            /*************************/
-            AST.printMe();
-
-            /*************************/
-            /* [7] Close output file */
-            /*************************/
-            file_writer.close();
-
-            /*************************************/
-            /* [8] Finalize AST GRAPHIZ DOT file */
-            /*************************************/
-            Graphwiz.getInstance().finalizeFile();
+        try (FileReader fileReader = new FileReader(inputFilename);
+             PrintWriter fileWriter = new PrintWriter(outputFilename)) {
+            Lexer lexer = new Lexer(fileReader);
+            Parser parser = new Parser(lexer);
+            try {
+                AST_PROGRAM AST = (AST_PROGRAM) parser.parse().value;
+                fileWriter.write("OK\n");
+                AST.printMe();
+                Graphwiz.getInstance().finalizeFile();
+            } catch (IllegalStateException e) {
+                // Invalid syntax
+                fileWriter.write("ERROR(" + parser.line + ")\n");
+            } catch (ClassCastException e) {
+                // Valid syntax but program doesn't start as AST_PROGRAM
+                fileWriter.write("ERROR(1)\n");
+            } catch (UnsupportedOperationException e) {
+                // Lexer throws error
+                fileWriter.write("ERROR(" + lexer.getLine() + ")\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
