@@ -116,8 +116,6 @@ precedence left EQ;
 precedence left LT,GT;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE;
-precedence nonassoc LBRACK;
-precedence nonassoc LPAREN;
 precedence left DOT;
 /************************/
 /* START WITH: program */
@@ -170,8 +168,7 @@ exp			::=		ID:name	callVarCont:c							                        {: RESULT = AST_C
 					| exp:e1 MINUS exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Minus); :}
                     | exp:e1 TIMES exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Times); :}
 					| exp:e1 DIVIDE exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Divide); :}
-		// FIXME handle minus
-//		            | MINUS INT:i								                            {: RESULT = new AST_EXP_INT(-i); :}
+		            | MINUS INT:i								                            {: RESULT = new AST_EXP_INT(-i); :}
 					| INT:i								                                    {: RESULT = new AST_EXP_INT(i); :}
 					| NIL								                                    {: RESULT = new AST_EXP_NIL(); :}
 					| STRING:s							                                    {: RESULT = new AST_EXP_STRING(s); :}
@@ -189,7 +186,7 @@ varCont     ::=     LBRACK exp:e RBRACK varCont:c                               
             ;
 
 
-expList	    ::=		exp:e COMMA expList:l		                                                    {: RESULT = new AST_EXP_LIST(e,l); :}
+expList	    ::=		exp:e COMMA expList:l		                                            {: RESULT = new AST_EXP_LIST(e,l); :}
 					| exp:e				                                                    {: RESULT = new AST_EXP_LIST(e,null); :}
 			;
 
@@ -233,7 +230,7 @@ cFieldList  ::=     cField:d cFieldList:l	                                      
 				    | cField:d				                                                {: RESULT = new AST_DEC_LIST(d,null); :}
 			;
 
-idList		::=		ID:type ID:name	COMMA idList:l		                                        {: RESULT = new AST_ID_LIST(type, name ,l);    :}
+idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = new AST_ID_LIST(type, name ,l);    :}
 					| ID:type ID:name				                                        {: RESULT = new AST_ID_LIST(type, name); :}
 			;
 // endregion
