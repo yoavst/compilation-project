@@ -9,10 +9,10 @@ This is the source of our compilation project. WORK IN PROGRESS!
 ## Running
 
 ```
-$ cd EX1
+$ cd EX2
 $ make
 $ make test
-$ java -jar LEXER ${input_file} ${output_file}
+$ java -jar PARSER ${input_file} ${output_file}
 ```
 
 ## Contributing
