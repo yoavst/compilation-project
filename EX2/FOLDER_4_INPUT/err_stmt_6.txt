@@ -1,0 +1,1 @@
+func func1(){var1 = new class1;}

@@ -1,0 +1,2 @@
+var var1 := "hello";
+var var1 := ;

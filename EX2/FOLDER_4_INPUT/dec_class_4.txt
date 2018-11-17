@@ -1,0 +1,1 @@
+class class1 {func func1(){stmt stmt1;} func func2(){stmt stmt1;}}
