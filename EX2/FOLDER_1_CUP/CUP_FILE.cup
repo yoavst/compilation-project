@@ -101,8 +101,8 @@ start with program;
 program     ::=     decList:l                                                               {: RESULT = new AST_PROGRAM(l); :}
             ;
 
-decList     ::=     decList:l dec:d 	                                                    {: RESULT = Utils.append(l, d); :}
-                    | dec:d				                                                    {: RESULT = Utils.mutableListOf(d); :}
+decList     ::=     decList:l dec:d                                                         {: RESULT = Utils.append(l, d); :}
+                    | dec:d                                                                 {: RESULT = Utils.mutableListOf(d); :}
             ;
 
 //region Decleartions
@@ -130,20 +130,20 @@ arrayDec    ::=     ARRAY ID:name EQ ID:type LBRACK RBRACK                      
 // endregion
 
 // region expressions
-exp			::=		ID:name	callVarCont:c							                        {: RESULT = AST_CALLABLE_VAR_CONT.create(name, c); :}
+exp         ::=     ID:name callVarCont:c                                                   {: RESULT = AST_CALLABLE_VAR_CONT.create(name, c); :}
                     | ID:name                                                               {: RESULT = AST_CALLABLE_VAR_CONT.create(name, null); :}
-                    | LPAREN exp:e RPAREN				                                    {: RESULT = e; :}
-                    | exp:e1 EQ exp:e2				                                        {: RESULT = new AST_EXP_BINOP(e1, e2, Op.EQ); :}
-                    | exp:e1 LT exp:e2				                                        {: RESULT = new AST_EXP_BINOP(e1, e2, Op.LT); :}
-                    | exp:e1 GT exp:e2				                                        {: RESULT = new AST_EXP_BINOP(e1, e2, Op.GT); :}
-                    | exp:e1 PLUS exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Plus); :}
-                    | exp:e1 MINUS exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Minus); :}
-                    | exp:e1 TIMES exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Times); :}
-                    | exp:e1 DIVIDE exp:e2				                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Divide); :}
-                    | MINUS INT:i								                            {: RESULT = new AST_EXP_INT(i, false); :}
-                    | INT:i								                                    {: RESULT = new AST_EXP_INT(i); :}
-                    | NIL								                                    {: RESULT = new AST_EXP_NIL(); :}
-                    | STRING:s							                                    {: RESULT = new AST_EXP_STRING(s); :}
+                    | LPAREN exp:e RPAREN                                                   {: RESULT = e; :}
+                    | exp:e1 EQ exp:e2                                                      {: RESULT = new AST_EXP_BINOP(e1, e2, Op.EQ); :}
+                    | exp:e1 LT exp:e2                                                      {: RESULT = new AST_EXP_BINOP(e1, e2, Op.LT); :}
+                    | exp:e1 GT exp:e2                                                      {: RESULT = new AST_EXP_BINOP(e1, e2, Op.GT); :}
+                    | exp:e1 PLUS exp:e2                                                    {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Plus); :}
+                    | exp:e1 MINUS exp:e2                                                   {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Minus); :}
+                    | exp:e1 TIMES exp:e2                                                   {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Times); :}
+                    | exp:e1 DIVIDE exp:e2                                                  {: RESULT = new AST_EXP_BINOP(e1, e2, Op.Divide); :}
+                    | MINUS INT:i                                                           {: RESULT = new AST_EXP_INT(i, false); :}
+                    | INT:i                                                                 {: RESULT = new AST_EXP_INT(i); :}
+                    | NIL                                                                   {: RESULT = new AST_EXP_NIL(); :}
+                    | STRING:s                                                              {: RESULT = new AST_EXP_STRING(s); :}
             ;
 
 callVarCont ::=     varCont:c                                                               {: RESULT = c; :}
@@ -158,8 +158,8 @@ varCont     ::=     LBRACK exp:e RBRACK varCont:c                               
             ;
 
 
-expList	    ::=		exp:e COMMA expList:l		                                            {: RESULT = Utils.addAsFirst(l, e); :}
-                    | exp:e				                                                    {: RESULT = Utils.mutableListOf(e); :}
+expList     ::=     exp:e COMMA expList:l                                                   {: RESULT = Utils.addAsFirst(l, e); :}
+                    | exp:e                                                                 {: RESULT = Utils.mutableListOf(e); :}
             ;
 
 newExp      ::=     NEW ID:name                                                             {: RESULT = new AST_NEW_EXP(name); :}
@@ -168,24 +168,24 @@ newExp      ::=     NEW ID:name                                                 
 // endregion
 
 // region variable
-var			::=		ID:name								                                    {: RESULT = new AST_VAR_SIMPLE(name); :}
-                    | var:v DOT ID:fieldName			                                    {: RESULT = new AST_VAR_FIELD(v,fieldName); :}
-                    | var:v LBRACK exp:e RBRACK			                                    {: RESULT = new AST_VAR_SUBSCRIPT(v,e); :}
+var         ::=     ID:name                                                                 {: RESULT = new AST_VAR_SIMPLE(name); :}
+                    | var:v DOT ID:fieldName                                                {: RESULT = new AST_VAR_FIELD(v,fieldName); :}
+                    | var:v LBRACK exp:e RBRACK                                             {: RESULT = new AST_VAR_SUBSCRIPT(v,e); :}
             ;
 // endregion
 
 // region statements
-stmtList	::=		stmtList:l stmt:s 	                                                    {: RESULT = Utils.append(l, s); :}
-                    | stmt:s				                                                {: RESULT = Utils.mutableListOf(s); :}
+stmtList    ::=     stmtList:l stmt:s                                                       {: RESULT = Utils.append(l, s); :}
+                    | stmt:s                                                                {: RESULT = Utils.mutableListOf(s); :}
             ;
 
-stmt		::=		varDec:d                                                                {: RESULT = new AST_STMT_VAR_DEC(d); :}
-                    | var:v ASSIGN exp:e SEMICOLON								            {: RESULT = new AST_STMT_ASSIGN(v,e); :}
-                    | var:v ASSIGN newExp:e SEMICOLON								        {: RESULT = new AST_STMT_ASSIGN_NEW(v,e); :}
+stmt        ::=     varDec:d                                                                {: RESULT = new AST_STMT_VAR_DEC(d); :}
+                    | var:v ASSIGN exp:e SEMICOLON                                          {: RESULT = new AST_STMT_ASSIGN(v,e); :}
+                    | var:v ASSIGN newExp:e SEMICOLON                                       {: RESULT = new AST_STMT_ASSIGN_NEW(v,e); :}
                     | RETURN SEMICOLON                                                      {: RESULT = new AST_STMT_RETURN(); :}
                     | RETURN exp:e SEMICOLON                                                {: RESULT = new AST_STMT_RETURN(e); :}
-                    | IF LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE	                {: RESULT = new AST_STMT_IF(cond,body); :}
-                    | WHILE LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE	            {: RESULT = new AST_STMT_WHILE(cond,body); :}
+                    | IF LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE                 {: RESULT = new AST_STMT_IF(cond,body); :}
+                    | WHILE LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE              {: RESULT = new AST_STMT_WHILE(cond,body); :}
                     | ID:name LPAREN RPAREN SEMICOLON                                       {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name)); :}
                     | var:v DOT ID:name LPAREN RPAREN SEMICOLON                             {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name, v)); :}
                     | var:v DOT ID:name LPAREN expList:e RPAREN SEMICOLON                   {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name, v, e)); :}
@@ -198,11 +198,11 @@ cField      ::=     varDec:d                                                    
                     | funcDec:d                                                             {: RESULT = d; :}
             ;
 
-cFieldList  ::=     cFieldList:l cField:d 	                                                {: RESULT = Utils.append(l, d); :}
-                    | cField:d				                                                {: RESULT = Utils.mutableListOf(d); :}
+cFieldList  ::=     cFieldList:l cField:d                                                   {: RESULT = Utils.append(l, d); :}
+                    | cField:d                                                              {: RESULT = Utils.mutableListOf(d); :}
             ;
 
-idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = Utils.addAsFirst(l, new AST_ID(type, name)); :}
-                    | ID:type ID:name				                                        {: RESULT = Utils.mutableListOf(new AST_ID(type, name)); :}
+idList      ::=     ID:type ID:name    COMMA idList:l                                       {: RESULT = Utils.addAsFirst(l, new AST_ID(type, name)); :}
+                    | ID:type ID:name                                                       {: RESULT = Utils.mutableListOf(new AST_ID(type, name)); :}
             ;
 // endregion
