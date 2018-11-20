@@ -1,6 +1,7 @@
 /*************/
 /* IMPORT(S) */
 /*************/
+import java.util.List;
 import java_cup.runtime.*;
 import ast.declarations.*;
 import ast.expressions.*;
@@ -9,6 +10,7 @@ import ast.statements.*;
 import ast.variables.*;
 import ast.*;
 import ast.expressions.AST_EXP_BINOP.Op;
+import utils.Utils;
 
 parser code 
 {:
@@ -53,7 +55,7 @@ non terminal AST_PROGRAM program;
 
  // dec
 non terminal AST_DEC dec;
-non terminal AST_DEC_LIST decList;
+non terminal List<AST_DEC> decList;
 
 non terminal AST_DEC_VAR varDec;
 non terminal AST_DEC_FUNC funcDec;
@@ -69,12 +71,12 @@ non terminal AST_NEW_EXP newExp;
 
 // field
 non terminal AST_DEC cField;
-non terminal AST_DEC_LIST cFieldList;
+non terminal List<AST_DEC> cFieldList;
 
 // statement
 non terminal AST_STMT stmt;
 non terminal AST_STMT_LIST stmtList;
-non terminal AST_ID_LIST idList;
+non terminal List<AST_ID> idList;
 non terminal AST_EXP_LIST expList;
 
 // variables
@@ -99,8 +101,8 @@ start with program;
 program     ::=     decList:l                                                               {: RESULT = new AST_PROGRAM(l); :}
 			;
 
-decList     ::=     dec:d decList:l		                                                    {: RESULT = new AST_DEC_LIST(d,l); :}
-					| dec:d				                                                    {: RESULT = new AST_DEC_LIST(d,null); :}
+decList     ::=     decList:l dec:d 	                                                    {: RESULT = Utils.append(l, d); :}
+					| dec:d				                                                    {: RESULT = Utils.mutableListOf(d); :}
 			;
 
 //region Decleartions
@@ -196,11 +198,11 @@ cField      ::=     varDec:d                                                    
 				    | funcDec:d                                                             {: RESULT = d; :}
 			;
 
-cFieldList  ::=     cField:d cFieldList:l	                                                {: RESULT = new AST_DEC_LIST(d,l); :}
-				    | cField:d				                                                {: RESULT = new AST_DEC_LIST(d,null); :}
+cFieldList  ::=     cFieldList:l cField:d 	                                                {: RESULT = Utils.append(l, d); :}
+				    | cField:d				                                                {: RESULT = Utils.mutableListOf(d); :}
 			;
 
-idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = new AST_ID_LIST(type, name ,l);    :}
-					| ID:type ID:name				                                        {: RESULT = new AST_ID_LIST(type, name); :}
+idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = Utils.addAsFirst(l, new AST_ID(type, name));   :}
+					| ID:type ID:name				                                        {: RESULT = Utils.mutableListOf(new AST_ID(type, name)); :}
 			;
 // endregion

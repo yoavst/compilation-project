@@ -1,13 +1,17 @@
 package ast;
 
-import ast.declarations.AST_DEC_LIST;
+import ast.declarations.AST_DEC;
+
+import java.util.List;
 
 public class AST_PROGRAM extends AST_Node {
-    public AST_DEC_LIST list;
+    public List<AST_DEC> declarations;
 
-    public AST_PROGRAM(AST_DEC_LIST list) {
-        this.list = list;
+    public AST_PROGRAM(List<AST_DEC> declarations) {
+        this.declarations = declarations;
     }
+
+
 
     @Override
     protected String name() {
@@ -17,6 +21,8 @@ public class AST_PROGRAM extends AST_Node {
     @Override
     public void printMe() {
         super.printMe();
-        printAndEdge(list);
+        for (AST_DEC declaration : declarations) {
+            printAndEdge(declaration);
+        }
     }
 }

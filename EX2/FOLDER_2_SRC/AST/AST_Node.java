@@ -5,6 +5,9 @@ import utils.Flags;
 import utils.Graphwiz;
 import utils.Printable;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 public abstract class AST_Node implements Printable {
     private static int SerialNumberSeed = 0;
 
@@ -29,11 +32,26 @@ public abstract class AST_Node implements Printable {
         return "Unknown node";
     }
 
-    protected final void printAndEdge(AST_Node to) {
+    public final void printAndEdge(AST_Node to) {
         if (to != null) {
             to.printMe();
             addEdge(this, to);
         }
+    }
+
+    protected final void addWrapperNode(final String name, Consumer<AST_Node> body) {
+        printAndEdge(new AST_Node() {
+            @Override
+            public void printMe() {
+                super.printMe();
+                body.accept(this);
+            }
+
+            @Override
+            protected String name() {
+                return name;
+            }
+        });
     }
 
     private static void addNode(AST_Node node) {
