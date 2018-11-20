@@ -147,7 +147,7 @@ exp			::=		ID:name	callVarCont:c							                        {: RESULT = AST_C
 		    ;
 
 callVarCont ::=     varCont:c                                                               {: RESULT = c; :}
-                    | LPAREN RPAREN                                                         {: RESULT = new AST_CALLABLE_VAR_CONT_FUNC(null); :}
+                    | LPAREN RPAREN                                                         {: RESULT = new AST_CALLABLE_VAR_CONT_FUNC(); :}
                     | LPAREN expList:e RPAREN                                               {: RESULT = new AST_CALLABLE_VAR_CONT_FUNC(e); :}
             ;
 
@@ -162,7 +162,7 @@ expList	    ::=		exp:e COMMA expList:l		                                        
 					| exp:e				                                                    {: RESULT = Utils.mutableListOf(e); :}
 			;
 
-newExp      ::=     NEW ID:name                                                             {: RESULT = new AST_NEW_EXP_JUSTID(name); :}
+newExp      ::=     NEW ID:name                                                             {: RESULT = new AST_NEW_EXP(name); :}
                     | NEW ID:name LBRACK exp:e RBRACK                                       {: RESULT = new AST_NEW_EXP_SUBSCRIPT(name, e); :}
             ;
 // endregion

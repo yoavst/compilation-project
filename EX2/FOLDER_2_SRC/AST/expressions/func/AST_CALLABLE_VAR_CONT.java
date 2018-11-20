@@ -7,14 +7,19 @@ import ast.variables.AST_VAR;
 import ast.variables.AST_VAR_FIELD;
 import ast.variables.AST_VAR_SIMPLE;
 import ast.variables.AST_VAR_SUBSCRIPT;
+import utils.Nullable;
 
 public abstract class AST_CALLABLE_VAR_CONT {
+    @Nullable
     public AST_CALLABLE_VAR_CONT continuation;
 
-    public AST_CALLABLE_VAR_CONT(AST_CALLABLE_VAR_CONT continuation) {
+    public AST_CALLABLE_VAR_CONT(@Nullable AST_CALLABLE_VAR_CONT continuation) {
         this.continuation = continuation;
     }
 
+    /**
+     * Convert a continuation into a normal chain of [AST_EXP].
+     */
     public static AST_EXP create(String id, AST_CALLABLE_VAR_CONT continuation) {
         AST_VAR current = new AST_VAR_SIMPLE(id);
         while (continuation != null) {

@@ -1,5 +1,7 @@
 package ast.expressions;
 
+import utils.NotNull;
+
 public class AST_EXP_INT extends AST_EXP {
     public int value;
 
@@ -15,6 +17,7 @@ public class AST_EXP_INT extends AST_EXP {
         this(value, true);
     }
 
+    @NotNull
     @Override
     protected String name() {
         return "INT(" + value + ")";
