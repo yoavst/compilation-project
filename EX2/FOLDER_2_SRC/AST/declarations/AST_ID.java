@@ -2,15 +2,14 @@ package ast.declarations;
 
 import ast.AST_Node;
 import utils.NotNull;
-import utils.Nullable;
 
-public abstract class AST_DEC extends AST_Node {
-    @Nullable
+public class AST_ID extends AST_Node {
+    @NotNull
     public String type;
     @NotNull
     public String name;
 
-    public AST_DEC(@Nullable String type, @NotNull String name) {
+    public AST_ID(@NotNull String type, @NotNull String name) {
         this.type = type;
         this.name = name;
     }
@@ -18,6 +17,6 @@ public abstract class AST_DEC extends AST_Node {
     @NotNull
     @Override
     protected String name() {
-        return "Unknown DEC";
+        return "[" + type + " " + name + "]";
     }
 }

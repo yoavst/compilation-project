@@ -1,9 +1,11 @@
 package ast;
 
 
-import utils.Flags;
-import utils.Graphwiz;
-import utils.Printable;
+import utils.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class AST_Node implements Printable {
     private static int SerialNumberSeed = 0;
@@ -25,28 +27,60 @@ public abstract class AST_Node implements Printable {
         return getClass().getSimpleName() + "[" + name() + "]";
     }
 
+    @NotNull
     protected String name() {
         return "Unknown node";
     }
 
-    protected final void printAndEdge(AST_Node to) {
+    protected final void printAndEdge(@Nullable AST_Node to) {
         if (to != null) {
             to.printMe();
             addEdge(this, to);
         }
     }
 
-    private static void addNode(AST_Node node) {
+    protected final void addNodeUnderWrapper(@NotNull String name, @Nullable AST_Node node) {
+        if (node != null)
+            addListUnderWrapper(name, Collections.singletonList(node));
+    }
+
+    protected final void addListUnderWrapper(@NotNull String name, @NotNull List<? extends AST_Node> nodes) {
+        if (!nodes.isEmpty()) {
+            addWrapperNode(this, name, wrapperNode -> {
+                for (AST_Node node : nodes) {
+                    wrapperNode.printAndEdge(node);
+                }
+            });
+        }
+    }
+
+    private static void addWrapperNode(@NotNull AST_Node node, @NotNull final String name, @NotNull Consumer<AST_Node> body) {
+        node.printAndEdge(new AST_Node() {
+            @Override
+            public void printMe() {
+                super.printMe();
+                body.accept(this);
+            }
+
+            @NotNull
+            @Override
+            protected String name() {
+                return name;
+            }
+        });
+    }
+
+    private static void addNode(@NotNull AST_Node node) {
         Graphwiz.getInstance().logNode(
                 node.serialNumber,
                 node.name());
     }
 
-    private static void addEdge(AST_Node from, AST_Node to) {
+    private static void addEdge(@NotNull AST_Node from, @NotNull AST_Node to) {
         Graphwiz.getInstance().logEdge(from.serialNumber, to.serialNumber);
     }
 
-    private static void println(String text) {
+    private static void println(@NotNull String text) {
         if (Flags.DEBUG)
             System.out.println(text);
     }

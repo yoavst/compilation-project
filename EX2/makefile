@@ -154,4 +154,4 @@ test: clear
 	./run_tests.sh --ast
 
 all_tests: clear
-	./run_tests.sh --ast
+	./run_tests.sh --ast --all

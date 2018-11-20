@@ -1,17 +1,23 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
+import utils.NotNull;
+
+import java.util.List;
 
 public class AST_STMT_WHILE extends AST_STMT {
+    @NotNull
     public AST_EXP cond;
-    public AST_STMT_LIST body;
+    @NotNull
+    public List<AST_STMT> body;
 
 
-    public AST_STMT_WHILE(AST_EXP cond, AST_STMT_LIST body) {
+    public AST_STMT_WHILE(@NotNull AST_EXP cond, @NotNull List<AST_STMT> body) {
         this.cond = cond;
         this.body = body;
     }
 
+    @NotNull
     @Override
     protected String name() {
         return "WHILE(...)";
@@ -21,7 +27,7 @@ public class AST_STMT_WHILE extends AST_STMT {
     public void printMe() {
         super.printMe();
         printAndEdge(cond);
-        printAndEdge(body);
+        addListUnderWrapper("body", body);
     }
 
 }

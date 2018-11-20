@@ -1,22 +1,29 @@
 package ast.declarations;
 
-import ast.statements.AST_STMT_LIST;
+import ast.statements.AST_STMT;
+import utils.NotNull;
+
+import java.util.Collections;
+import java.util.List;
 
 public class AST_DEC_FUNC extends AST_DEC {
-    public AST_ID_LIST vars;
-    public AST_STMT_LIST statements;
+    @NotNull
+    public List<AST_ID> parameters;
+    @NotNull
+    public List<AST_STMT> statements;
 
-    public AST_DEC_FUNC(String type, String name, AST_STMT_LIST statements, AST_ID_LIST vars) {
+    public AST_DEC_FUNC(@NotNull String type, @NotNull String name, @NotNull List<AST_STMT> statements, @NotNull List<AST_ID> parameters) {
         super(type, name);
 
-        this.vars = vars;
+        this.parameters = parameters;
         this.statements = statements;
     }
 
-    public AST_DEC_FUNC(String type, String name, AST_STMT_LIST statements) {
-        this(type, name, statements, null);
+    public AST_DEC_FUNC(@NotNull String type, @NotNull String name, @NotNull List<AST_STMT> statements) {
+        this(type, name, statements, Collections.emptyList());
     }
 
+    @NotNull
     @Override
     protected String name() {
         return "fun " + name + "(...): " + type;
@@ -25,7 +32,7 @@ public class AST_DEC_FUNC extends AST_DEC {
     @Override
     public void printMe() {
         super.printMe();
-        printAndEdge(vars);
-        printAndEdge(statements);
+        addListUnderWrapper("parameters", parameters);
+        addListUnderWrapper("body", statements);
     }
 }
