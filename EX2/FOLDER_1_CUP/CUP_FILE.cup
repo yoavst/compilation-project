@@ -75,9 +75,9 @@ non terminal List<AST_DEC> cFieldList;
 
 // statement
 non terminal AST_STMT stmt;
-non terminal AST_STMT_LIST stmtList;
+non terminal List<AST_STMT> stmtList;
 non terminal List<AST_ID> idList;
-non terminal AST_EXP_LIST expList;
+non terminal List<AST_EXP> expList;
 
 // variables
 non terminal AST_VAR var;
@@ -158,8 +158,8 @@ varCont     ::=     LBRACK exp:e RBRACK varCont:c                               
             ;
 
 
-expList	    ::=		exp:e COMMA expList:l		                                            {: RESULT = new AST_EXP_LIST(e,l); :}
-					| exp:e				                                                    {: RESULT = new AST_EXP_LIST(e,null); :}
+expList	    ::=		exp:e COMMA expList:l		                                            {: RESULT = Utils.addAsFirst(l, e); :}
+					| exp:e				                                                    {: RESULT = Utils.mutableListOf(e); :}
 			;
 
 newExp      ::=     NEW ID:name                                                             {: RESULT = new AST_NEW_EXP_JUSTID(name); :}
@@ -175,8 +175,8 @@ var			::=		ID:name								                                    {: RESULT = new AS
 // endregion
 
 // region statements
-stmtList	::=		stmt:s stmtList:l		                                                {: RESULT = new AST_STMT_LIST(s,l); :}
-					| stmt:s				                                                {: RESULT = new AST_STMT_LIST(s,null); :}
+stmtList	::=		stmtList:l stmt:s 	                                                    {: RESULT = Utils.append(l, s); :}
+					| stmt:s				                                                {: RESULT = Utils.mutableListOf(s); :}
 			;
 
 stmt		::=		varDec:d                                                                {: RESULT = new AST_STMT_VAR_DEC(d); :}
@@ -202,7 +202,7 @@ cFieldList  ::=     cFieldList:l cField:d 	                                     
 				    | cField:d				                                                {: RESULT = Utils.mutableListOf(d); :}
 			;
 
-idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = Utils.addAsFirst(l, new AST_ID(type, name));   :}
+idList		::=		ID:type ID:name	COMMA idList:l		                                    {: RESULT = Utils.addAsFirst(l, new AST_ID(type, name)); :}
 					| ID:type ID:name				                                        {: RESULT = Utils.mutableListOf(new AST_ID(type, name)); :}
 			;
 // endregion

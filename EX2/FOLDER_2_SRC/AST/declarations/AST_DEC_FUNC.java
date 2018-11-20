@@ -1,22 +1,22 @@
 package ast.declarations;
 
-import ast.statements.AST_STMT_LIST;
+import ast.statements.AST_STMT;
 
 import java.util.Collections;
 import java.util.List;
 
 public class AST_DEC_FUNC extends AST_DEC {
     public List<AST_ID> parameters;
-    public AST_STMT_LIST statements;
+    public List<AST_STMT> statements;
 
-    public AST_DEC_FUNC(String type, String name, AST_STMT_LIST statements, List<AST_ID> parameters) {
+    public AST_DEC_FUNC(String type, String name, List<AST_STMT> statements, List<AST_ID> parameters) {
         super(type, name);
 
         this.parameters = parameters;
         this.statements = statements;
     }
 
-    public AST_DEC_FUNC(String type, String name, AST_STMT_LIST statements) {
+    public AST_DEC_FUNC(String type, String name, List<AST_STMT> statements) {
         this(type, name, statements, Collections.emptyList());
     }
 
@@ -29,14 +29,7 @@ public class AST_DEC_FUNC extends AST_DEC {
     public void printMe() {
         super.printMe();
 
-        if (!parameters.isEmpty()) {
-            addWrapperNode("parameters", ast_node -> {
-                for (AST_ID var : parameters) {
-                    ast_node.printAndEdge(var);
-                }
-            });
-        }
-
-        printAndEdge(statements);
+        addListUnderWrapper("parameters", parameters);
+        addListUnderWrapper("body", statements);
     }
 }

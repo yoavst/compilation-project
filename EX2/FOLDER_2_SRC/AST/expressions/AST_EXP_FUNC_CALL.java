@@ -2,27 +2,30 @@ package ast.expressions;
 
 import ast.variables.AST_VAR;
 
+import java.util.Collections;
+import java.util.List;
+
 public class AST_EXP_FUNC_CALL extends AST_EXP {
     public AST_VAR var;
     public String id;
-    public AST_EXP_LIST expressions;
+    public List<AST_EXP> funcParameters;
 
-    public AST_EXP_FUNC_CALL(String id, AST_VAR var, AST_EXP_LIST expressions) {
+    public AST_EXP_FUNC_CALL(String id, AST_VAR var, List<AST_EXP> funcParameters) {
         this.var = var;
         this.id = id;
-        this.expressions = expressions;
+        this.funcParameters = funcParameters;
     }
 
     public AST_EXP_FUNC_CALL(String id, AST_VAR var) {
-        this(id, var, null);
+        this(id, var, Collections.emptyList());
     }
 
-    public AST_EXP_FUNC_CALL(String id, AST_EXP_LIST expressions) {
-        this(id, null, expressions);
+    public AST_EXP_FUNC_CALL(String id, List<AST_EXP> funcParameters) {
+        this(id, null, funcParameters);
     }
 
     public AST_EXP_FUNC_CALL(String id) {
-        this(id, null, null);
+        this(id, null, Collections.emptyList());
     }
 
     @Override
@@ -37,6 +40,6 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
     public void printMe() {
         super.printMe();
         printAndEdge(var);
-        printAndEdge(expressions);
+        addListUnderWrapper("parameters", funcParameters);
     }
 }

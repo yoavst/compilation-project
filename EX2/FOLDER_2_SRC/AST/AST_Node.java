@@ -5,8 +5,8 @@ import utils.Flags;
 import utils.Graphwiz;
 import utils.Printable;
 
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class AST_Node implements Printable {
     private static int SerialNumberSeed = 0;
@@ -32,15 +32,25 @@ public abstract class AST_Node implements Printable {
         return "Unknown node";
     }
 
-    public final void printAndEdge(AST_Node to) {
+    protected final void printAndEdge(AST_Node to) {
         if (to != null) {
             to.printMe();
             addEdge(this, to);
         }
     }
 
-    protected final void addWrapperNode(final String name, Consumer<AST_Node> body) {
-        printAndEdge(new AST_Node() {
+    protected final void addListUnderWrapper(String name, List<? extends AST_Node> nodes) {
+        addWrapperNode(this, name, wrapperNode -> {
+            if (!nodes.isEmpty()) {
+                for (AST_Node node : nodes) {
+                    wrapperNode.printAndEdge(node);
+                }
+            }
+        });
+    }
+
+    private static void addWrapperNode(AST_Node node, final String name, Consumer<AST_Node> body) {
+        node.printAndEdge(new AST_Node() {
             @Override
             public void printMe() {
                 super.printMe();

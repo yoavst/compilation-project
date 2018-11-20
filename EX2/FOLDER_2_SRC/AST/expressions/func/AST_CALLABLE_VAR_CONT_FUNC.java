@@ -1,12 +1,14 @@
 package ast.expressions.func;
 
-import ast.expressions.AST_EXP_LIST;
+import ast.expressions.AST_EXP;
+
+import java.util.List;
 
 public class AST_CALLABLE_VAR_CONT_FUNC extends AST_CALLABLE_VAR_CONT {
-    AST_EXP_LIST expList;
+    List<AST_EXP> expressions;
 
-    public AST_CALLABLE_VAR_CONT_FUNC(AST_EXP_LIST expList) {
+    public AST_CALLABLE_VAR_CONT_FUNC(List<AST_EXP> expressions) {
         super(null);
-        this.expList = expList;
+        this.expressions = expressions;
     }
 }

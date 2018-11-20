@@ -25,10 +25,10 @@ public abstract class AST_CALLABLE_VAR_CONT {
             } else {
                 assert continuation.continuation == null;
                 if (current instanceof AST_VAR_SIMPLE) {
-                    return new AST_EXP_FUNC_CALL(((AST_VAR_SIMPLE) current).name, ((AST_CALLABLE_VAR_CONT_FUNC) continuation).expList);
+                    return new AST_EXP_FUNC_CALL(((AST_VAR_SIMPLE) current).name, ((AST_CALLABLE_VAR_CONT_FUNC) continuation).expressions);
                 } else {
                     assert current instanceof AST_VAR_FIELD;
-                    return new AST_EXP_FUNC_CALL(((AST_VAR_FIELD) current).fieldName, ((AST_VAR_FIELD) current).var, ((AST_CALLABLE_VAR_CONT_FUNC) continuation).expList);
+                    return new AST_EXP_FUNC_CALL(((AST_VAR_FIELD) current).fieldName, ((AST_VAR_FIELD) current).var, ((AST_CALLABLE_VAR_CONT_FUNC) continuation).expressions);
                 }
             }
             continuation = continuation.continuation;
