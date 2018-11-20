@@ -3,6 +3,7 @@ package ast;
 
 import utils.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -38,14 +39,19 @@ public abstract class AST_Node implements Printable {
         }
     }
 
+    protected final void addNodeUnderWrapper(@NotNull String name, @Nullable AST_Node node) {
+        if (node != null)
+            addListUnderWrapper(name, Collections.singletonList(node));
+    }
+
     protected final void addListUnderWrapper(@NotNull String name, @NotNull List<? extends AST_Node> nodes) {
-        addWrapperNode(this, name, wrapperNode -> {
-            if (!nodes.isEmpty()) {
+        if (!nodes.isEmpty()) {
+            addWrapperNode(this, name, wrapperNode -> {
                 for (AST_Node node : nodes) {
                     wrapperNode.printAndEdge(node);
                 }
-            }
-        });
+            });
+        }
     }
 
     private static void addWrapperNode(@NotNull AST_Node node, @NotNull final String name, @NotNull Consumer<AST_Node> body) {
@@ -70,7 +76,7 @@ public abstract class AST_Node implements Printable {
                 node.name());
     }
 
-    private static void addEdge(@NotNull AST_Node from,@NotNull AST_Node to) {
+    private static void addEdge(@NotNull AST_Node from, @NotNull AST_Node to) {
         Graphwiz.getInstance().logEdge(from.serialNumber, to.serialNumber);
     }
 

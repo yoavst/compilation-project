@@ -32,7 +32,7 @@ parser code
 /* TERMINALS */
 /*************/
   /* other 1 */
- terminal SEMICOLON, COMMENT;
+ terminal SEMICOLON;
   /* keywords */
  terminal ARRAY, CLASS, EXTENDS, RETURN, WHILE, IF, NEW;
   /* separators */
@@ -186,10 +186,10 @@ stmt		::=		varDec:d                                                             
                     | RETURN exp:e SEMICOLON                                                {: RESULT = new AST_STMT_RETURN(e); :}
 					| IF LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE	                {: RESULT = new AST_STMT_IF(cond,body); :}
 					| WHILE LPAREN exp:cond RPAREN LBRACE stmtList:body RBRACE	            {: RESULT = new AST_STMT_WHILE(cond,body); :}
-                    | ID:name LPAREN RPAREN SEMICOLON                                       {: RESULT = new AST_STMT_FUNC_CALL(name); :}
-                    | var:v DOT ID:name LPAREN RPAREN SEMICOLON                             {: RESULT = new AST_STMT_FUNC_CALL(name, v); :}
-                    | var:v DOT ID:name LPAREN expList:e RPAREN SEMICOLON                   {: RESULT = new AST_STMT_FUNC_CALL(name, e, v); :}
-                    | ID:name LPAREN expList:e RPAREN SEMICOLON                             {: RESULT = new AST_STMT_FUNC_CALL(name, e); :}
+                    | ID:name LPAREN RPAREN SEMICOLON                                       {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name)); :}
+                    | var:v DOT ID:name LPAREN RPAREN SEMICOLON                             {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name, v)); :}
+                    | var:v DOT ID:name LPAREN expList:e RPAREN SEMICOLON                   {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name, v, e)); :}
+                    | ID:name LPAREN expList:e RPAREN SEMICOLON                             {: RESULT = new AST_STMT_FUNC_CALL(new AST_EXP_FUNC_CALL(name, e)); :}
 			;
 // endregion
 

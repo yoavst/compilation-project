@@ -45,7 +45,7 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
     @Override
     public void printMe() {
         super.printMe();
-        printAndEdge(var);
+        addNodeUnderWrapper("callee", var);
         addListUnderWrapper("parameters", funcParameters);
     }
 }
