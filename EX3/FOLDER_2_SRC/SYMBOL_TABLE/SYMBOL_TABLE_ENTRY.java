@@ -6,7 +6,7 @@ package SYMBOL_TABLE;
 /*******************/
 /* PROJECT IMPORTS */
 /*******************/
-import TYPES.*;
+import types.*;
 
 /**********************/
 /* SYMBOL TABLE ENTRY */
@@ -26,7 +26,7 @@ public class SYMBOL_TABLE_ENTRY
 	/******************/
 	/* TYPE value ... */
 	/******************/
-	public TYPE type;
+	public Type type;
 
 	/*********************************************/
 	/* prevtop and next symbol table entries ... */
@@ -44,7 +44,7 @@ public class SYMBOL_TABLE_ENTRY
 	/******************/
 	public SYMBOL_TABLE_ENTRY(
 		String name,
-		TYPE type,
+		Type type,
 		int index,
 		SYMBOL_TABLE_ENTRY next,
 		SYMBOL_TABLE_ENTRY prevtop,

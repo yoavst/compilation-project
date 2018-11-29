@@ -11,7 +11,10 @@ import java.io.PrintWriter;
 /*******************/
 /* PROJECT IMPORTS */
 /*******************/
-import TYPES.*;
+import types.*;
+import types.builtins.TypeString;
+import types.builtins.TypeInt;
+import types.builtins.TypeVoid;
 
 /****************/
 /* SYMBOL TABLE */
@@ -46,7 +49,7 @@ public class SYMBOL_TABLE
 	/****************************************************************************/
 	/* Enter a variable, function, class type or array type to the symbol table */
 	/****************************************************************************/
-	public void enter(String name,TYPE t)
+	public void enter(String name, Type t)
 	{
 		/*************************************************/
 		/* [1] Compute the hash value for this new entry */
@@ -83,7 +86,7 @@ public class SYMBOL_TABLE
 	/***********************************************/
 	/* Find the inner-most scope element with name */
 	/***********************************************/
-	public TYPE find(String name)
+	public Type find(String name)
 	{
 		SYMBOL_TABLE_ENTRY e;
 				
@@ -250,8 +253,8 @@ public class SYMBOL_TABLE
 			/*****************************************/
 			/* [1] Enter primitive types int, string */
 			/*****************************************/
-			instance.enter("int",   TYPE_INT.getInstance());
-			instance.enter("string",TYPE_STRING.getInstance());
+			instance.enter("int",   TypeInt.getInstance());
+			instance.enter("string", TypeString.getInstance());
 
 			/*************************************/
 			/* [2] How should we handle void ??? */
@@ -262,11 +265,11 @@ public class SYMBOL_TABLE
 			/***************************************/
 			instance.enter(
 				"PrintInt",
-				new TYPE_FUNCTION(
-					TYPE_VOID.getInstance(),
+				new TypeFunction(
+					TypeVoid.getInstance(),
 					"PrintInt",
 					new TYPE_LIST(
-						TYPE_INT.getInstance(),
+						TypeInt.getInstance(),
 						null)));
 			
 		}
