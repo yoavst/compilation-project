@@ -4,6 +4,6 @@ Class-Path: ./FOLDER_7_EXTERNAL_JARS/java-cup-11b-runtime.jar
   ./FOLDER_3_BIN/*.class
   ./FOLDER_3_BIN/AST/*.class
   ./FOLDER_3_BIN/types/*.class
-  ./FOLDER_3_BIN/SYMBOL_TABLE/*.class
+  ./FOLDER_3_BIN/symbols/*.class
 Main-Class: Main
 

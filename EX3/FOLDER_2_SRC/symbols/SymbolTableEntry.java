@@ -1,7 +1,7 @@
 /***********/
 /* PACKAGE */
 /***********/
-package SYMBOL_TABLE;
+package symbols;
 
 /*******************/
 /* PROJECT IMPORTS */
@@ -11,7 +11,7 @@ import types.*;
 /**********************/
 /* SYMBOL TABLE ENTRY */
 /**********************/
-public class SYMBOL_TABLE_ENTRY
+public class SymbolTableEntry
 {
 	/*********/
 	/* index */
@@ -31,8 +31,8 @@ public class SYMBOL_TABLE_ENTRY
 	/*********************************************/
 	/* prevtop and next symbol table entries ... */
 	/*********************************************/
-	public SYMBOL_TABLE_ENTRY prevtop;
-	public SYMBOL_TABLE_ENTRY next;
+	public SymbolTableEntry prevtop;
+	public SymbolTableEntry next;
 
 	/****************************************************/
 	/* The prevtop_index is just for debug purposes ... */
@@ -42,12 +42,12 @@ public class SYMBOL_TABLE_ENTRY
 	/******************/
 	/* CONSTRUCTOR(S) */
 	/******************/
-	public SYMBOL_TABLE_ENTRY(
+	public SymbolTableEntry(
 		String name,
 		Type type,
 		int index,
-		SYMBOL_TABLE_ENTRY next,
-		SYMBOL_TABLE_ENTRY prevtop,
+		SymbolTableEntry next,
+		SymbolTableEntry prevtop,
 		int prevtop_index)
 	{
 		this.index = index;

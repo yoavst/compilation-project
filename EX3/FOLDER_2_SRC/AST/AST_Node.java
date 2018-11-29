@@ -32,6 +32,7 @@ public abstract class AST_Node implements Printable {
         return "Unknown node";
     }
 
+    //region AST printing utils
     protected final void printAndEdge(@Nullable AST_Node to) {
         if (to != null) {
             to.printMe();
@@ -84,4 +85,5 @@ public abstract class AST_Node implements Printable {
         if (Flags.DEBUG)
             System.out.println(text);
     }
+    //endregion
 }
