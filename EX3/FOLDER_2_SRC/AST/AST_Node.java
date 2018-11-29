@@ -1,6 +1,7 @@
 package ast;
 
 
+import symbols.SymbolTable;
 import utils.*;
 
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.function.Consumer;
 
 public abstract class AST_Node implements Printable {
     private static int SerialNumberSeed = 0;
+    private int lineNumber;
 
     /**
      * The serial number is for debug purposes.
@@ -20,6 +22,19 @@ public abstract class AST_Node implements Printable {
     public void printMe() {
         println("<" + name() + ">");
         addNode(this);
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+    /**
+     * Run a semantic analysis on the node and its children.
+     *
+     * @throws SemanticException on error
+     */
+    public void semantMe(SymbolTable symbolTable) throws SemanticException {
+        // FIXME change to abstract method: it's not abstract just to make it compile
     }
 
     @Override
@@ -67,6 +82,11 @@ public abstract class AST_Node implements Printable {
             @Override
             protected String name() {
                 return name;
+            }
+
+            @Override
+            public void semantMe(SymbolTable symbolTable) {
+                // just for printing, not a real node.
             }
         });
     }

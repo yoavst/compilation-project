@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 /* SYMBOL TABLE */
 
 /****************/
-public class SymboleTable {
+public class SymbolTable {
     private int hashArraySize = 13;
 
     /**********************************************/
@@ -243,25 +243,25 @@ public class SymboleTable {
     /**************************************/
     /* USUAL SINGLETON IMPLEMENTATION ... */
     /**************************************/
-    private static SymboleTable instance = null;
+    private static SymbolTable instance = null;
 
     /*****************************/
     /* PREVENT INSTANTIATION ... */
 
     /*****************************/
-    protected SymboleTable() {
+    protected SymbolTable() {
     }
 
     /******************************/
     /* GET SINGLETON INSTANCE ... */
 
     /******************************/
-    public static SymboleTable getInstance() {
+    public static SymbolTable getInstance() {
         if (instance == null) {
             /*******************************/
             /* [0] The instance itself ... */
             /*******************************/
-            instance = new SymboleTable();
+            instance = new SymbolTable();
 
             /*****************************************/
             /* [1] Enter primitive types int, string */
