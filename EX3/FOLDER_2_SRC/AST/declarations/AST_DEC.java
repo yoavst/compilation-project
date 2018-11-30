@@ -20,4 +20,9 @@ public abstract class AST_DEC extends AST_Node {
     protected String name() {
         return "Unknown DEC";
     }
+
+    @Override
+    public boolean errorReportable() {
+        return true;
+    }
 }

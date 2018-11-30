@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 public abstract class AST_Node implements Printable {
     private static int SerialNumberSeed = 0;
-    private int lineNumber;
+    public int lineNumber;
 
     /**
      * The serial number is for debug purposes.
@@ -20,12 +20,8 @@ public abstract class AST_Node implements Printable {
 
     @Override
     public void printMe() {
-        println("<" + name() + ">");
+        println("<[" + lineNumber + "] " + name() + ">");
         addNode(this);
-    }
-
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
     }
 
     /**
@@ -35,6 +31,29 @@ public abstract class AST_Node implements Printable {
      */
     public void semantMe(SymbolTable symbolTable) throws SemanticException {
         // FIXME change to abstract method: it's not abstract just to make it compile
+    }
+
+    /**
+     * Whether or not an error can be reported directly on this node.
+     * <br><br>
+     * For example:                    <br>
+     *    1 string s = "helloworld"';  <br>
+     *    2 int x = s.                 <br>
+     *    3           test();          <br>
+     *    >> ERROR(2)                  <br>
+     *
+     * Then, {@link ast.expressions.AST_EXP} should not be error reportable, but {@link ast.statements.AST_STMT}.
+     * <br><br>
+     * <b>Note:</b> The default behavior is not to be reportable.
+     *
+     * For simplicity, here is the list of classes with error reporting:
+     * <ul>
+     *   <li>{@link ast.declarations.AST_DEC}</li>
+     *   <li>{@link ast.statements.AST_STMT}</li>
+     * </ul>
+     */
+    public boolean errorReportable() {
+        return false;
     }
 
     @Override
@@ -62,6 +81,16 @@ public abstract class AST_Node implements Printable {
 
     protected final void addListUnderWrapper(@NotNull String name, @NotNull List<? extends AST_Node> nodes) {
         if (!nodes.isEmpty()) {
+            addWrapperNode(this, name, wrapperNode -> {
+                for (AST_Node node : nodes) {
+                    wrapperNode.printAndEdge(node);
+                }
+            });
+        }
+    }
+
+    protected final void addListUnderWrapper(@NotNull String name, @NotNull AST_Node[] nodes) {
+        if (nodes.length != 0) {
             addWrapperNode(this, name, wrapperNode -> {
                 for (AST_Node node : nodes) {
                     wrapperNode.printAndEdge(node);

@@ -9,9 +9,9 @@ public class AST_STMT_IF extends AST_STMT {
     @NotNull
     public AST_EXP cond;
     @NotNull
-    public List<AST_STMT> body;
+    public AST_STMT[] body;
 
-    public AST_STMT_IF(@NotNull AST_EXP cond, @NotNull List<AST_STMT> body) {
+    public AST_STMT_IF(@NotNull AST_EXP cond, @NotNull AST_STMT[] body) {
         this.cond = cond;
         this.body = body;
     }

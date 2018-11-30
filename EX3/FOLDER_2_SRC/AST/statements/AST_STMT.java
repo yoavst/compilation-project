@@ -9,4 +9,9 @@ public abstract class AST_STMT extends AST_Node {
     protected String name() {
         return "unknown Stmt";
     }
+
+    @Override
+    public boolean errorReportable() {
+        return true;
+    }
 }

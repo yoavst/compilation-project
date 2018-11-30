@@ -9,7 +9,7 @@
 /*************/
 /* USER CODE */
 /*************/
-import java_cup.runtime.*;
+import com.github.jhoenicke.javacup.runtime.*;
 
 /******************************/
 /* DOLAR DOLAR - DON'T TOUCH! */
@@ -42,7 +42,9 @@ import java_cup.runtime.*;
 /******************************************************************/
 /* CUP compatibility mode interfaces with a CUP generated parser. */
 /******************************************************************/
-%cup
+%implements com.github.jhoenicke.javacup.runtime.Scanner
+%function next_token
+%type com.github.jhoenicke.javacup.runtime.Symbol
 
 /****************/
 /* DECLARATIONS */

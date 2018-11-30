@@ -1,6 +1,6 @@
 
 import ast.AST_PROGRAM;
-import java_cup.runtime.Symbol;
+import com.github.jhoenicke.javacup.runtime.Symbol;
 import symbols.SymbolTable;
 import utils.Graphwiz;
 

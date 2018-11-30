@@ -9,16 +9,16 @@ public class AST_DEC_CLASS extends AST_DEC {
     @Nullable
     public String parentClass;
     @NotNull
-    public List<AST_DEC> fields;
+    public AST_DEC[] fields;
 
-    public AST_DEC_CLASS(@NotNull String name, @NotNull List<AST_DEC> fields, @Nullable String parentClass) {
+    public AST_DEC_CLASS(@NotNull String name, @NotNull  AST_DEC[] fields, @Nullable String parentClass) {
         super(null, name);
 
         this.fields = fields;
         this.parentClass = parentClass;
     }
 
-    public AST_DEC_CLASS(@NotNull String name, @NotNull List<AST_DEC> fields) {
+    public AST_DEC_CLASS(@NotNull String name, @NotNull AST_DEC[] fields) {
         this(name, fields, null);
     }
 

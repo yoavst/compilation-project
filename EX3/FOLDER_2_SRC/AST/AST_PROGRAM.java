@@ -7,13 +7,11 @@ import java.util.List;
 
 public class AST_PROGRAM extends AST_Node {
     @NotNull
-    public List<AST_DEC> declarations;
+    public AST_DEC[] declarations;
 
-    public AST_PROGRAM(@NotNull List<AST_DEC> declarations) {
+    public AST_PROGRAM(@NotNull AST_DEC[] declarations) {
         this.declarations = declarations;
     }
-
-
 
     @NotNull
     @Override
