@@ -2,7 +2,9 @@ package ast.statements;
 
 import ast.variables.AST_VAR;
 import ast.expressions.AST_NEW_EXP;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_STMT_ASSIGN_NEW extends AST_STMT {
     @NotNull
@@ -26,6 +28,16 @@ public class AST_STMT_ASSIGN_NEW extends AST_STMT {
         super.printMe();
         printAndEdge(var);
         printAndEdge(exp);
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        var.semant(symbolTable);
+        exp.semant(symbolTable);
+
+        if (var.getType() != exp.getType()) {
+            throwSemantic("Trying to assign exp of type " + exp.getType() + " to a variable of type " + var.getType());
+        }
     }
 
 

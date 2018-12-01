@@ -1,7 +1,9 @@
 package ast.statements;
 
 import ast.declarations.AST_DEC_VAR;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_STMT_VAR_DEC extends AST_STMT {
     @NotNull
@@ -23,5 +25,8 @@ public class AST_STMT_VAR_DEC extends AST_STMT {
         printAndEdge(var);
     }
 
-
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        var.semant(symbolTable);
+    }
 }

@@ -1,7 +1,9 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP_FUNC_CALL;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_STMT_FUNC_CALL extends AST_STMT {
     @NotNull
@@ -22,6 +24,11 @@ public class AST_STMT_FUNC_CALL extends AST_STMT {
     public void printMe() {
         super.printMe();
         printAndEdge(funcCall);
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        funcCall.semant(symbolTable);
     }
 }
 

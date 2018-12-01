@@ -1,7 +1,10 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
+import symbols.SymbolTable;
+import types.builtins.TypeInt;
 import utils.NotNull;
+import utils.SemanticException;
 
 import java.util.List;
 
@@ -30,4 +33,17 @@ public class AST_STMT_WHILE extends AST_STMT {
         addListUnderWrapper("body", body);
     }
 
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        cond.semant(symbolTable);
+        if (cond.getType() != TypeInt.instance) {
+            throwSemantic("while condition can only be int, received: " + cond.getType());
+        }
+
+        symbolTable.beginScope();
+        for (AST_STMT statement : body) {
+            statement.semant(symbolTable);
+        }
+        symbolTable.endScope();
+    }
 }

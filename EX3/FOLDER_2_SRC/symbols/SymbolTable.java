@@ -173,6 +173,15 @@ public class SymbolTable {
         throw new IllegalStateException("Not implemented yet");
     }
 
+    /**
+     * Return the enclosing function for the current state of the symbol table, returning null if no such function.
+     */
+    @Nullable
+    public TypeFunction getEnclosingFunction() {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
+    }
+
     /***************************************************************************/
     /* begine scope = Enter the <SCOPE-BOUNDARY> element to the data structure */
 
