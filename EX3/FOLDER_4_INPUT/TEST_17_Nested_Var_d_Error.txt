@@ -19,7 +19,7 @@ string bestFriend := "Jesse";
 class Student extends Person
 {
 	string d := "someString";
-	
+
 	int getAverage()
 	{
 		Student d := nil;
@@ -30,7 +30,7 @@ class Student extends Person
 			d := 5<6;
 			d := 5<6;
 			d := 5<6;
-			d := ("JessePinkman" = (bestFriend + "Pinkman"));
+			d := bestFriend.birthday();
 			d := 5<6;
 			d := 5<6;
 			d := 5<6;
@@ -43,3 +43,4 @@ void main()
 {
 	bestFriend := "AlonzoMorales";
 }
+

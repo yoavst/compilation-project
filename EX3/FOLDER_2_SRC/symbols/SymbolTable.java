@@ -152,6 +152,12 @@ public class SymbolTable {
      */
     @Nullable
     public Type findField(@NotNull String name, boolean startSearchingOutsideClass) {
+        if (enclosingFunction != null) {
+            Type type = findInCurrentEnclosingScope(name);
+            if (type != null)
+                return type;
+        }
+
         if (!startSearchingOutsideClass && enclosingClass != null) {
             Type type = enclosingClass.queryFieldRecursively(name);
             if (type != null)
@@ -267,6 +273,7 @@ public class SymbolTable {
             enclosingFunction = null;
         } else if (scope == Scope.Class || scope == Scope.ClassScan) {
             enclosingClass = null;
+            isClassScanning = false;
         }
 
         table[top.index] = top.next;

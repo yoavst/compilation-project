@@ -45,7 +45,7 @@ public class TypeFunction extends Type {
      * Check if the two functions has the same signature
      */
     public boolean sameSignature(TypeFunction func) {
-        if (func.params.size() != params.size())
+        if (func.params.size() != params.size() || !func.returnType.equals(returnType))
             return false;
 
         for (int i = 0; i < func.params.size(); i++) {
