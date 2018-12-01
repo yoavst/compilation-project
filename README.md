@@ -15,11 +15,18 @@ $ make test
 $ java -jar PARSER ${input_file} ${output_file}
 ```
 
-## TODO
-- [ ] Check for declarations if they were already declared and abort if indeed.
-- [ ] Implement var declaration check for whether or not they are needed to be constant
-- [ ] Implemented all helper methods on semantic table
-- [ ] Run all tests
+## TODO - EX3
+- [ ] **3.1.1 Classes** - Need to implement method overloading and multiple declarations detection.
+- [x] **3.1.2 Arrays** 
+- [x] **3.2 Assignments**
+- [x] **3.3 If and While**
+- [x] **3.4 Return statement**
+- [x] **3.5 Equality testing**
+- [x] **3.6 Binary operations**
+- [ ] **3.7 Scope rules** - Need to implement all the helper methods in `SymbolTable`. 
+- [x] **3.8 Standard library**
+- [ ] **Input and output** - Should rewrite main file to match the assignment
+- [ ] **Tests**
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
