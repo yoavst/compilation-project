@@ -15,6 +15,12 @@ $ make test
 $ java -jar PARSER ${input_file} ${output_file}
 ```
 
+## TODO
+- [ ] Check for declarations if they were already declared and abort if indeed.
+- [ ] Implement var declaration check for whether or not they are needed to be constant
+- [ ] Implemented all helper methods on semantic table
+- [ ] Run all tests
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
