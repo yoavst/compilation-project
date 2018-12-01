@@ -1,6 +1,7 @@
 package ast.declarations;
 
 import ast.expressions.AST_EXP;
+import ast.expressions.AST_EXP_CONSTANT;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeVoid;
@@ -51,9 +52,15 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
 
         if (exp != null) {
             exp.semant(symbolTable);
-            //TODO check if allowed to declare a variable with this exp (i.e class fields need to have constant initializer)
             if (!representingType.isAssignableFrom(exp.getType())) {
                 throwSemantic("Trying to declare a variable of type " + type + " but received " + exp.getType());
+            } else if (symbolTable.getEnclosingFunction() == null && symbolTable.getEnclosingClass() != null) {
+                /* Section 3.2 in manual
+                 * class member can only be initialized by a simple constant expression: int | nil | string
+                 */
+                if (!(exp instanceof AST_EXP_CONSTANT)) {
+                    throwSemantic("Trying to declare a class member \"" + name + "\" but using non-constant initializer");
+                }
             }
         }
 

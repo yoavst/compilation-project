@@ -183,10 +183,10 @@ public class SymbolTable {
 
     /**
      * Find the inner-most scope element with name that is a field
-     * @param searchOutsideClass Whether or not to skip a method that is defined inside class scope
+     * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
      */
     @Nullable
-    public TypeArray findField(@NotNull String name, boolean searchOutsideClass) {
+    public TypeArray findField(@NotNull String name, boolean startSearchingOutsideClass) {
         //FIXME
         throw new IllegalStateException("Not implemented yet");
     }

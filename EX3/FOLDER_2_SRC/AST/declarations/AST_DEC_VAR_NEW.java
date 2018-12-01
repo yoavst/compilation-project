@@ -3,10 +3,8 @@ package ast.declarations;
 import ast.expressions.AST_NEW_EXP;
 import symbols.SymbolTable;
 import types.Type;
-import types.TypeClass;
 import types.builtins.TypeVoid;
 import utils.NotNull;
-import utils.Nullable;
 import utils.SemanticException;
 
 public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
@@ -47,9 +45,14 @@ public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
         }
 
         newExp.semant(symbolTable);
-        //TODO check if allowed to declare a variable with this exp (i.e class fields need to have constant initializer)
         if (!representingType.isAssignableFrom(newExp.getType())) {
             throwSemantic("Trying to declare a variable of type " + type + " but received new " + newExp.getType());
+        } else if (symbolTable.getEnclosingFunction() == null && symbolTable.getEnclosingClass() != null) {
+            /* Section 3.2 in manual
+             * class member can only be initialized by a simple constant expression: int | nil | string
+             * Specifically, new initializer is not a constant.
+             */
+            throwSemantic("Trying to declare a class member \"" + name + "\" but using non-constant new initializer");
         }
 
         // TODO check if not in scope yet

@@ -42,7 +42,7 @@ public class AST_STMT_RETURN extends AST_STMT {
             throwSemantic("Trying to return not from function context");
         } else if (function.returnType == TypeVoid.instance) {
             if (exp != null) {
-                throwSemantic("Trying to return " + exp.getType() + "from void function");
+                throwSemantic("Trying to return " + exp.getType() + " from void function");
             }
         } else if (exp == null) {
             throwSemantic("Trying to return void from non-void function. Expected: " + function.returnType);
