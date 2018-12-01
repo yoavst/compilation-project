@@ -48,7 +48,7 @@ public class AST_DEC_FUNC extends AST_DEC {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        symbolTable.beginScope(Function);
+        symbolTable.beginScope(Function, representingType);
         for (AST_STMT statement : statements) {
             statement.semant(symbolTable);
         }

@@ -1,11 +1,4 @@
-/***********/
-/* PACKAGE */
-/***********/
 package symbols;
-
-/*******************/
-/* GENERAL IMPORTS */
-/*******************/
 
 import types.TYPE_FOR_SCOPE_BOUNDARIES;
 import types.TYPE_FOR_SCOPE_BOUNDARIES.Scope;
@@ -21,29 +14,17 @@ import utils.Nullable;
 import utils.Utils;
 
 import java.io.PrintWriter;
+import java.util.function.Predicate;
 
-/*******************/
-/* PROJECT IMPORTS */
-/*******************/
-
-/****************/
-/* SYMBOL TABLE */
-
-/****************/
 public class SymbolTable {
     private int hashArraySize = 13;
-
-    /**********************************************/
-    /* The actual symbol table data structure ... */
-    /**********************************************/
     private SymbolTableEntry[] table = new SymbolTableEntry[hashArraySize];
     private SymbolTableEntry top;
-    private int top_index = 0;
+    private int topIndex = 0;
+    private TypeClass enclosingClass;
+    private TypeFunction enclosingFunction;
+    private boolean isClassScanning = false;
 
-    /**************************************************************/
-    /* A very primitive hash function for exposition purposes ... */
-
-    /**************************************************************/
     private int hash(String s) {
         if (s.charAt(0) == 'l') {
             return 1;
@@ -76,53 +57,35 @@ public class SymbolTable {
         enter(name, t, false);
     }
 
-    /****************************************************************************/
-    /* Enter a variable, function, class type or array type to the symbol table */
-
-    /****************************************************************************/
     public void enter(String name, Type t, boolean isVariableDeclaration) {
-        /*************************************************/
-        /* [1] Compute the hash value for this new entry */
-        /*************************************************/
         int hashValue = hash(name);
-
-        /******************************************************************************/
-        /* [2] Extract what will eventually be the next entry in the hashed position  */
-        /*     NOTE: this entry can very well be null, but the behaviour is identical */
-        /******************************************************************************/
         SymbolTableEntry next = table[hashValue];
-
-        /**************************************************************************/
-        /* [3] Prepare a new symbol table entry with name, type, next and prevtop */
-        /**************************************************************************/
-        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, top_index++, isVariableDeclaration);
-
-        /**********************************************/
-        /* [4] Update the top of the symbol table ... */
-        /**********************************************/
+        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, isVariableDeclaration);
         top = e;
-
-        /****************************************/
-        /* [5] Enter the new entry to the table */
-        /****************************************/
         table[hashValue] = e;
 
-        /**************************/
-        /* [6] Print Symbol Table */
-        /**************************/
         PrintMe();
     }
 
-    /***********************************************/
-    /* Find the inner-most scope element with name */
-
-    /***********************************************/
+    /**
+     * Find the inner-most scope element with given name, returning null if not found
+     */
     @Nullable
     public Type find(@NotNull String name) {
+        return find(name, null);
+    }
+
+    /**
+     * Find the inner-most scope element with given name, returning null if not found
+     *
+     * @param filter Applying filter on results, returns element only if accepted by the filter.
+     */
+    @Nullable
+    public Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter) {
         SymbolTableEntry e;
 
         for (e = table[hash(name)]; e != null; e = e.next) {
-            if (name.equals(e.name)) {
+            if (name.equals(e.name) && (filter == null || filter.test(e))) {
                 return e.type;
             }
         }
@@ -131,31 +94,51 @@ public class SymbolTable {
     }
 
     /**
-     * Find the inner-most scope element with name that is a function
-     * @param searchOutsideClass Whether or not to skip a method that is defined inside class scope
+     * Find the inner-most scope element with name that is a function, returning null if not found.
+     *
+     * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
      */
     @Nullable
-    public TypeFunction findMethod(@NotNull String name, boolean searchOutsideClass) {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
+    public TypeFunction findMethod(@NotNull String name, boolean startSearchingOutsideClass) {
+        if (!startSearchingOutsideClass && enclosingClass != null) {
+            TypeFunction type = enclosingClass.queryMethodRecursively(name);
+            if (type != null)
+                return type;
+        }
+
+        return (TypeFunction) find(name, entry -> !entry.isVariableDeclaration && entry.type.isFunction());
     }
 
     /**
-     * Find a class with the given name
+     * Find the inner-most scope element with name that is a field, returning null if not found.
+     *
+     * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
+     */
+    @Nullable
+    public Type findField(@NotNull String name, boolean startSearchingOutsideClass) {
+        if (!startSearchingOutsideClass && enclosingClass != null) {
+            Type type = enclosingClass.queryFieldRecursively(name);
+            if (type != null)
+                return type;
+        }
+
+        return find(name, entry -> entry.isVariableDeclaration);
+    }
+
+    /**
+     * Find a class with the given name, returning null if not found.
      */
     @Nullable
     public TypeClass findClassType(@NotNull String name) {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
+        return (TypeClass) find(name, entry -> !entry.isVariableDeclaration && entry.type.isClass());
     }
 
     /**
-     * Find an array with the given name
+     * Find an array with the given name, returning null if not found.
      */
     @Nullable
     public TypeArray findArrayType(@NotNull String name) {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
+        return (TypeArray) find(name, entry -> !entry.isVariableDeclaration && entry.type.isArray());
     }
 
 
@@ -182,23 +165,11 @@ public class SymbolTable {
     }
 
     /**
-     * Find the inner-most scope element with name that is a field
-     * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
-     */
-    @Nullable
-    public TypeArray findField(@NotNull String name, boolean startSearchingOutsideClass) {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
-    }
-
-
-    /**
      * Return the enclosing class for the current state of the symbol table, returning null if no such class.
      */
     @Nullable
     public TypeClass getEnclosingClass() {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
+        return enclosingClass;
     }
 
     /**
@@ -206,56 +177,62 @@ public class SymbolTable {
      */
     @Nullable
     public TypeFunction getEnclosingFunction() {
-        //FIXME
-        throw new IllegalStateException("Not implemented yet");
+        return enclosingFunction;
     }
 
-    /***************************************************************************/
-    /* begine scope = Enter the <SCOPE-BOUNDARY> element to the data structure */
+    /**
+     * Begins a new scope by adding <SCOPE-BOUNDARY> to the Hashmap.
+     * In addition, if it is a class or function scope, update the enclosing field.
+     */
+    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType) {
+        enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("NONE", scope));
 
-    /***************************************************************************/
-    public void beginScope(Scope scope) {
-        /************************************************************************/
-        /* Though <SCOPE-BOUNDARY> entries are present inside the symbol table, */
-        /* they are not really types. In order to be able to debug print them,  */
-        /* a special TYPE_FOR_SCOPE_BOUNDARIES was developed for them. This     */
-        /* class only contain their type name which is the bottom sign: _|_     */
-        /************************************************************************/
-        enter(
-                "SCOPE-BOUNDARY",
-                new TYPE_FOR_SCOPE_BOUNDARIES("NONE", scope));
+        if (scope == Scope.Function) {
+            enclosingFunction = (TypeFunction) enclosingType;
+        } else if (scope == Scope.Class) {
+            enclosingClass = (TypeClass) enclosingType;
+        } else if (scope == Scope.ClassScan) {
+            isClassScanning = true;
+            enclosingClass = (TypeClass) enclosingType;
 
-        /*********************************************/
-        /* Print the symbol table after every change */
-        /*********************************************/
+        }
+
         PrintMe();
     }
 
-    /********************************************************************************/
-    /* end scope = Keep popping elements out of the data structure,                 */
-    /* from most recent element entered, until a <NEW-SCOPE> element is encountered */
-
-    /********************************************************************************/
+    /**
+     * Ending the current scope by popping all the symbols in the current scope.
+     * If the current scope with {@link Scope#ClassScan} it will also register all the fields and method to the class.
+     */
     public void endScope() {
-        // FIXME handle scope type `ClassScan` and insert all methods and fields into class
-        /**************************************************************************/
-        /* Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit */
-        /**************************************************************************/
-        while (top.name != "SCOPE-BOUNDARY") {
+        // Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit */
+        while (!top.name.equals("SCOPE-BOUNDARY")) {
+            if (isClassScanning) {
+                // register the method/field into the class type.
+                Type declaration = top.type;
+                if (declaration.isFunction()) {
+                    enclosingClass.registerMethod(top.name, (TypeFunction) declaration);
+                } else {
+                    enclosingClass.registerField(top.name, declaration);
+                }
+            }
+
             table[top.index] = top.next;
-            top_index = top_index - 1;
+            topIndex = topIndex - 1;
             top = top.prevtop;
         }
-        /**************************************/
-        /* Pop the SCOPE-BOUNDARY sign itself */
-        /**************************************/
+
+        Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) top.type).scope;
+        if (scope == Scope.Function) {
+            enclosingFunction = null;
+        } else if (scope == Scope.Class || scope == Scope.ClassScan) {
+            enclosingClass = null;
+        }
+
         table[top.index] = top.next;
-        top_index = top_index - 1;
+        topIndex = topIndex - 1;
         top = top.prevtop;
 
-        /*********************************************/
-        /* Print the symbol table after every change */
-        /*********************************************/
         PrintMe();
     }
 
@@ -331,42 +308,18 @@ public class SymbolTable {
         }
     }
 
-    /**************************************/
-    /* USUAL SINGLETON IMPLEMENTATION ... */
-    /**************************************/
     private static SymbolTable instance = null;
 
-    /*****************************/
-    /* PREVENT INSTANTIATION ... */
-
-    /*****************************/
     protected SymbolTable() {
     }
 
-    /******************************/
-    /* GET SINGLETON INSTANCE ... */
 
-    /******************************/
     public static SymbolTable getInstance() {
         if (instance == null) {
-            /*******************************/
-            /* [0] The instance itself ... */
-            /*******************************/
             instance = new SymbolTable();
 
-            /*****************************************/
-            /* [1] Enter primitive types int, string */
-            /*****************************************/
             instance.enter("int", TypeInt.instance);
             instance.enter("string", TypeString.instance);
-
-            /*************************************/
-            /* [2] How should we handle void ??? */
-            /*************************************/
-
-            /***************************************/
-            /* [3] Enter library function PrintInt */
-            /***************************************/
             instance.enter(
                     "PrintInt",
                     new TypeFunction(

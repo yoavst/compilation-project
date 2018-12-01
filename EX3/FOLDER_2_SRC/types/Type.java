@@ -17,6 +17,8 @@ public abstract class Type {
         return false;
     }
 
+    public boolean isFunction() { return false; }
+
     public Type(@NotNull String name) {
         this.name = name;
     }

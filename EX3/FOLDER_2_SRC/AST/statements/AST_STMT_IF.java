@@ -42,7 +42,7 @@ public class AST_STMT_IF extends AST_STMT {
             throwSemantic("if condition can only be int, received: " + cond.getType());
         }
 
-        symbolTable.beginScope(Block);
+        symbolTable.beginScope(Block, null);
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }

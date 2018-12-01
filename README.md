@@ -23,7 +23,7 @@ $ java -jar PARSER ${input_file} ${output_file}
 - [x] **3.4 Return statement**
 - [x] **3.5 Equality testing**
 - [x] **3.6 Binary operations**
-- [ ] **3.7 Scope rules** - Need to implement all the helper methods in `SymbolTable`. 
+- [X] **3.7 Scope rules** 
 - [x] **3.8 Standard library**
 - [ ] **Input and output** - Should rewrite main file to match the assignment
 - [ ] **Tests**

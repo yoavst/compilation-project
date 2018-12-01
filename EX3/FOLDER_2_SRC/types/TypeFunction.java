@@ -27,4 +27,12 @@ public class TypeFunction extends Type {
     public TypeFunction(@NotNull String name) {
         this(name, TypeVoid.instance);
     }
+
+    @Override
+    public boolean isFunction() { return true; }
+
+    @Override
+    public boolean isAssignableFrom(Type t) {
+       throw new RuntimeException(new IllegalAccessException("Should not be called"));
+    }
 }
