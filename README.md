@@ -16,7 +16,7 @@ $ java -jar PARSER ${input_file} ${output_file}
 ```
 
 ## TODO - EX3
-- [ ] **3.1.1 Classes** - Need to implement method overloading and multiple declarations detection.
+- [x] **3.1.1 Classes**
 - [x] **3.1.2 Arrays** 
 - [x] **3.2 Assignments**
 - [x] **3.3 If and While**
@@ -25,7 +25,7 @@ $ java -jar PARSER ${input_file} ${output_file}
 - [x] **3.6 Binary operations**
 - [X] **3.7 Scope rules** 
 - [x] **3.8 Standard library**
-- [ ] **Input and output** - Should rewrite main file to match the assignment
+- [x] **Input and output**
 - [ ] **Tests**
 
 ## Contributing
