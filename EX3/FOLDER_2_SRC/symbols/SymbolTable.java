@@ -72,11 +72,15 @@ public class SymbolTable {
         return 12;
     }
 
+    public void enter(String name, Type t) {
+        enter(name, t, false);
+    }
+
     /****************************************************************************/
     /* Enter a variable, function, class type or array type to the symbol table */
 
     /****************************************************************************/
-    public void enter(String name, Type t) {
+    public void enter(String name, Type t, boolean isVariableDeclaration) {
         /*************************************************/
         /* [1] Compute the hash value for this new entry */
         /*************************************************/
@@ -91,7 +95,7 @@ public class SymbolTable {
         /**************************************************************************/
         /* [3] Prepare a new symbol table entry with name, type, next and prevtop */
         /**************************************************************************/
-        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, top_index++);
+        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, top_index++, isVariableDeclaration);
 
         /**********************************************/
         /* [4] Update the top of the symbol table ... */

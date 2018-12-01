@@ -4,6 +4,7 @@ import ast.expressions.AST_NEW_EXP;
 import symbols.SymbolTable;
 import types.Type;
 import types.TypeClass;
+import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.Nullable;
 import utils.SemanticException;
@@ -39,6 +40,19 @@ public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
 
     @Override
     public void semantHeader(SymbolTable symbolTable) throws SemanticException {
-        //FIXME need to semant newExp, check if it is allowed by the rules, and set `representingType`
+        //noinspection ConstantConditions
+        representingType = symbolTable.findGeneralizedType(type);
+        if (representingType == null || representingType == TypeVoid.instance) {
+            throwSemantic("Trying to declare a variable of unknown type: " + type);
+        }
+
+        newExp.semant(symbolTable);
+        //TODO check if allowed to declare a variable with this exp (i.e class fields need to have constant initializer)
+        if (!representingType.equals(newExp.getType())) {
+            throwSemantic("Trying to declare a variable of type " + type + " but received new " + newExp.getType());
+        }
+
+        // TODO check if not in scope yet
+        symbolTable.enter(name, representingType, true);
     }
 }
