@@ -140,4 +140,9 @@ public class TypeClass extends Type {
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof TypeClass && ((TypeClass) obj).name.equals(name);
+    }
 }

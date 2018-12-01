@@ -1,6 +1,10 @@
 package ast.expressions;
 
+import symbols.SymbolTable;
+import types.builtins.TypeInt;
+import types.builtins.TypeString;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_EXP_BINOP extends AST_EXP {
     @NotNull
@@ -37,6 +41,31 @@ public class AST_EXP_BINOP extends AST_EXP {
 
         Op(@NotNull String text) {
             this.text = text;
+        }
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        left.semant(symbolTable);
+        right.semant(symbolTable);
+
+        if (op != Op.Plus) {
+            // only ints supported
+            if (left.type != TypeInt.instance) {
+                throwSemantic("Trying to apply binary operation " + op.text + " but left expression is not int: " + left);
+            } else if (right.type != TypeInt.instance) {
+                throwSemantic("Trying to apply binary operation " + op.text + " but right expression is not int: " + right);
+            } else {
+                type = TypeInt.instance;
+            }
+        } else {
+            if (left.type == TypeInt.instance && right.type == TypeInt.instance) {
+                type = TypeInt.instance;
+            } else if (left.type == TypeString.instance && right.type == TypeString.instance) {
+                type = TypeString.instance;
+            } else {
+                throwSemantic("Trying to apply binary operation + but typing is incorrect: left is " + left.type + " and right is " + right.type);
+            }
         }
     }
 }

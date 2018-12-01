@@ -9,10 +9,14 @@ package symbols;
 
 import types.TYPE_FOR_SCOPE_BOUNDARIES;
 import types.Type;
+import types.TypeClass;
 import types.TypeFunction;
+import types.builtins.TypeArray;
 import types.builtins.TypeInt;
 import types.builtins.TypeString;
 import types.builtins.TypeVoid;
+import utils.NotNull;
+import utils.Nullable;
 import utils.Utils;
 
 import java.io.PrintWriter;
@@ -108,7 +112,8 @@ public class SymbolTable {
     /* Find the inner-most scope element with name */
 
     /***********************************************/
-    public Type find(String name) {
+    @Nullable
+    public Type find(@NotNull String name) {
         SymbolTableEntry e;
 
         for (e = table[hash(name)]; e != null; e = e.next) {
@@ -118,6 +123,54 @@ public class SymbolTable {
         }
 
         return null;
+    }
+
+    /**
+     * Find the inner-most scope element with name that is a function
+     * @param searchOutsideClass Whether or not to skip a method that is defined inside class scope
+     */
+    @Nullable
+    public TypeFunction findMethod(@NotNull String name, boolean searchOutsideClass) {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    /**
+     * Find a class with the given name
+     */
+    @Nullable
+    public TypeClass findClass(@NotNull String name) {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    /**
+     * Find an array with the given name
+     */
+    @Nullable
+    public TypeArray findArrayType(@NotNull String name) {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+    /**
+     * Find the inner-most scope element with name that is a field
+     * @param searchOutsideClass Whether or not to skip a method that is defined inside class scope
+     */
+    @Nullable
+    public TypeArray findField(@NotNull String name, boolean searchOutsideClass) {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
+    }
+
+
+    /**
+     * Return the enclosing class for the current state of the symbol table, returning null if no such class.
+     */
+    @Nullable
+    public TypeClass getEnclosingClass() {
+        //FIXME
+        throw new IllegalStateException("Not implemented yet");
     }
 
     /***************************************************************************/

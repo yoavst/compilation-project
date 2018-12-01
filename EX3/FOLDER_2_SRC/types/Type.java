@@ -20,4 +20,9 @@ public abstract class Type {
     public Type(@NotNull String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "<" + name + ">";
+    }
 }

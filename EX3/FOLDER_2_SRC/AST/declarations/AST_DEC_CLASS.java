@@ -1,7 +1,9 @@
 package ast.declarations;
 
+import symbols.SymbolTable;
 import utils.NotNull;
 import utils.Nullable;
+import utils.SemanticException;
 
 import java.util.List;
 
@@ -33,5 +35,11 @@ public class AST_DEC_CLASS extends AST_DEC {
     public void printMe() {
         super.printMe();
         addListUnderWrapper("body", fields);
+    }
+
+    @Override
+    public void semantMe(SymbolTable symbolTable) throws SemanticException {
+        super.semantMe(symbolTable);
+
     }
 }

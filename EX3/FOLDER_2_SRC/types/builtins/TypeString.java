@@ -11,6 +11,6 @@ public final class TypeString extends Type {
 
     @Override
     public boolean isClass() {
-        return true;
+        return false;
     }
 }

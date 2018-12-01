@@ -1,7 +1,9 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_EXP_VAR extends AST_EXP {
     @NotNull
@@ -22,5 +24,11 @@ public class AST_EXP_VAR extends AST_EXP {
     public void printMe() {
         super.printMe();
         printAndEdge(var);
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        var.semant(symbolTable);
+        type = var.getType();
     }
 }

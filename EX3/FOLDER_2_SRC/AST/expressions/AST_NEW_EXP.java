@@ -1,6 +1,7 @@
 package ast.expressions;
 
 import symbols.SymbolTable;
+import types.Type;
 import utils.NotNull;
 import utils.SemanticException;
 
@@ -20,6 +21,11 @@ public class AST_NEW_EXP extends AST_EXP {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-
+        Type classType = symbolTable.findClass(className);
+        if (classType == null) {
+            throwSemantic("Trying to create a new expression of non class type: \"" + className + "\".");
+        } else {
+            type = classType;
+        }
     }
 }

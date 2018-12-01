@@ -158,4 +158,8 @@ public abstract class AST_Node implements Printable {
             System.out.println(text);
     }
     //endregion
+
+    protected void throwSemantic(String reason) throws SemanticException {
+        throw new SemanticException(this, reason);
+    }
 }

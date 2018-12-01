@@ -1,6 +1,10 @@
 package ast.variables;
 
+import symbols.SymbolTable;
+import types.Type;
+import types.TypeClass;
 import utils.NotNull;
+import utils.SemanticException;
 
 public class AST_VAR_FIELD extends AST_VAR {
     @NotNull
@@ -23,5 +27,20 @@ public class AST_VAR_FIELD extends AST_VAR {
     public void printMe() {
         super.printMe();
         printAndEdge(var);
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        var.semant(symbolTable);
+        if (!var.getType().isClass()) {
+            throwSemantic("Trying to access the field \"" + fieldName + "\" on non-class type: " + var.getType());
+        }
+
+        Type fieldType = ((TypeClass) var.getType()).queryFieldRecursively(fieldName);
+        if (fieldType == null) {
+            throwSemantic("Trying to access the non-existent field \"" + fieldName + "\" on type: " + var.getType());
+        }
+
+        type = fieldType;
     }
 }

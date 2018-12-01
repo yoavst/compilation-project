@@ -19,6 +19,11 @@ public final class TypeArray extends Type {
 
     @Override
     public boolean isClass() {
-        return true;
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof TypeArray && ((TypeArray) obj).name.equals(name) && ((TypeArray) obj).arrayType.equals(arrayType);
     }
 }

@@ -11,6 +11,6 @@ public final class TypeInt extends Type {
 
     @Override
     public boolean isClass() {
-        return true;
+        return false;
     }
 }
