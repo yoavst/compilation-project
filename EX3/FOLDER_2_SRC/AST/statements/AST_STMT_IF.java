@@ -2,11 +2,14 @@ package ast.statements;
 
 import ast.expressions.AST_EXP;
 import symbols.SymbolTable;
+import types.TYPE_FOR_SCOPE_BOUNDARIES;
 import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.SemanticException;
 
 import java.util.List;
+
+import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Block;
 
 public class AST_STMT_IF extends AST_STMT {
     @NotNull
@@ -39,7 +42,7 @@ public class AST_STMT_IF extends AST_STMT {
             throwSemantic("if condition can only be int, received: " + cond.getType());
         }
 
-        symbolTable.beginScope();
+        symbolTable.beginScope(Block);
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }

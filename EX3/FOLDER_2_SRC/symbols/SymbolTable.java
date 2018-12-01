@@ -8,6 +8,7 @@ package symbols;
 /*******************/
 
 import types.TYPE_FOR_SCOPE_BOUNDARIES;
+import types.TYPE_FOR_SCOPE_BOUNDARIES.Scope;
 import types.Type;
 import types.TypeClass;
 import types.TypeFunction;
@@ -139,7 +140,7 @@ public class SymbolTable {
      * Find a class with the given name
      */
     @Nullable
-    public TypeClass findClass(@NotNull String name) {
+    public TypeClass findClassType(@NotNull String name) {
         //FIXME
         throw new IllegalStateException("Not implemented yet");
     }
@@ -151,6 +152,29 @@ public class SymbolTable {
     public TypeArray findArrayType(@NotNull String name) {
         //FIXME
         throw new IllegalStateException("Not implemented yet");
+    }
+
+
+    /**
+     * Find generalized type with the given name:
+     * - string, int, void
+     * - array type
+     * - class type
+     */
+    @Nullable
+    public Type findGeneralizedType(@NotNull String name) {
+        if (name.equals(TypeInt.instance.name))
+            return TypeInt.instance;
+        else if (name.equals(TypeString.instance.name))
+            return TypeString.instance;
+        if (name.equals(TypeVoid.instance.name))
+            return TypeVoid.instance;
+
+        Type arrayType = findArrayType(name);
+        if (arrayType != null)
+            return arrayType;
+
+        return findClassType(name);
     }
 
     /**
@@ -186,16 +210,16 @@ public class SymbolTable {
     /* begine scope = Enter the <SCOPE-BOUNDARY> element to the data structure */
 
     /***************************************************************************/
-    public void beginScope() {
+    public void beginScope(Scope scope) {
         /************************************************************************/
         /* Though <SCOPE-BOUNDARY> entries are present inside the symbol table, */
-        /* they are not really types. In order to be ablt to debug print them,  */
+        /* they are not really types. In order to be able to debug print them,  */
         /* a special TYPE_FOR_SCOPE_BOUNDARIES was developed for them. This     */
         /* class only contain their type name which is the bottom sign: _|_     */
         /************************************************************************/
         enter(
                 "SCOPE-BOUNDARY",
-                new TYPE_FOR_SCOPE_BOUNDARIES("NONE"));
+                new TYPE_FOR_SCOPE_BOUNDARIES("NONE", scope));
 
         /*********************************************/
         /* Print the symbol table after every change */
@@ -209,6 +233,7 @@ public class SymbolTable {
 
     /********************************************************************************/
     public void endScope() {
+        // FIXME handle scope type `ClassScan` and insert all methods and fields into class
         /**************************************************************************/
         /* Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit */
         /**************************************************************************/

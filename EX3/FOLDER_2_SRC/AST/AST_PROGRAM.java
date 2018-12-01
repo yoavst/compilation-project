@@ -31,10 +31,9 @@ public class AST_PROGRAM extends AST_Node {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        symbolTable.beginScope();
         for (AST_DEC declaration : declarations) {
+            declaration.semantHeader(symbolTable);
             declaration.semant(symbolTable);
         }
-        symbolTable.endScope();
     }
 }

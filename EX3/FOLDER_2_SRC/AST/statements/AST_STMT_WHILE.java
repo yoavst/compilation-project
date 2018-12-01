@@ -8,6 +8,8 @@ import utils.SemanticException;
 
 import java.util.List;
 
+import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Block;
+
 public class AST_STMT_WHILE extends AST_STMT {
     @NotNull
     public AST_EXP cond;
@@ -40,7 +42,7 @@ public class AST_STMT_WHILE extends AST_STMT {
             throwSemantic("while condition can only be int, received: " + cond.getType());
         }
 
-        symbolTable.beginScope();
+        symbolTable.beginScope(Block);
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }

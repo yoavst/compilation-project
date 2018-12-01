@@ -1,8 +1,10 @@
 package ast.declarations;
 
 import ast.AST_Node;
+import symbols.SymbolTable;
 import utils.NotNull;
 import utils.Nullable;
+import utils.SemanticException;
 
 public abstract class AST_DEC extends AST_Node {
     @Nullable
@@ -25,4 +27,9 @@ public abstract class AST_DEC extends AST_Node {
     public boolean errorReportable() {
         return true;
     }
+
+    /**
+     * Semant only the header, allowing the enclosing scope to know about its children out of order
+     */
+    public abstract void semantHeader(SymbolTable symbolTable) throws SemanticException;
 }

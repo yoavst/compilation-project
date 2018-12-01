@@ -21,7 +21,7 @@ public class AST_NEW_EXP extends AST_EXP {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        Type classType = symbolTable.findClass(className);
+        Type classType = symbolTable.findClassType(className);
         if (classType == null) {
             throwSemantic("Trying to create a new expression of non class type: \"" + className + "\".");
         } else {
