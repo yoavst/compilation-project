@@ -52,9 +52,7 @@ public abstract class AST_Node implements Printable {
      * <b>Note</b>:</b> Ignores {@link #errorReportable()}. Therefore, should call {@link #semant(SymbolTable)} on children.
      * @throws SemanticException on error
      */
-    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        // FIXME change to abstract method: it's not abstract just to make it compile
-    }
+    protected abstract void semantMe(SymbolTable symbolTable) throws SemanticException;
 
     /**
      * Whether or not an error can be reported directly on this node.
