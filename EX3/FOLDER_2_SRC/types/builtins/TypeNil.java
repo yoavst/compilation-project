@@ -8,4 +8,10 @@ public class TypeNil extends Type {
     private TypeNil() {
         super("nil");
     }
+
+    @Override
+    public boolean isAssignableFrom(Type t) {
+        // nil can only be replaced with nil.
+        return t == instance;
+    }
 }

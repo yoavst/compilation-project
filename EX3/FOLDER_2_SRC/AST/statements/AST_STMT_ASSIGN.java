@@ -1,8 +1,12 @@
 package ast.statements;
 
-import ast.variables.AST_VAR;
 import ast.expressions.AST_EXP;
+import ast.variables.AST_VAR;
 import symbols.SymbolTable;
+import types.TypeClass;
+import types.builtins.TypeInt;
+import types.builtins.TypeNil;
+import types.builtins.TypeString;
 import utils.NotNull;
 import utils.SemanticException;
 
@@ -38,7 +42,13 @@ public class AST_STMT_ASSIGN extends AST_STMT {
         var.semant(symbolTable);
         exp.semant(symbolTable);
 
-        if (var.getType() != exp.getType()) {
+        /* Section 3.2 in manual
+         * arrayType := same arrayType | nil
+         * classType := assignable classType | nil
+         * int       := int
+         * string    := string
+         */
+        if (!var.getType().isAssignableFrom(exp.getType())) {
             throwSemantic("Trying to assign exp of type " + exp.getType() + " to a variable of type " + var.getType());
         }
     }

@@ -1,7 +1,9 @@
 package ast.expressions;
 
 import symbols.SymbolTable;
+import types.TypeClass;
 import types.builtins.TypeInt;
+import types.builtins.TypeNil;
 import types.builtins.TypeString;
 import utils.NotNull;
 import utils.SemanticException;
@@ -49,8 +51,24 @@ public class AST_EXP_BINOP extends AST_EXP {
         left.semant(symbolTable);
         right.semant(symbolTable);
 
-        if (op != Op.Plus) {
-            // only ints supported
+        if (op == Op.EQ) {
+            /* Section 3.5 in manual
+             * NIL <=> array, class
+             * array <=> same type of array
+             * class <=> assignable class
+             * int <=> int
+             * str <=> str
+             *
+             * returns int
+             */
+            if (!left.getType().isAssignableFrom(right.getType()) && !right.getType().isAssignableFrom(left.getType())) {
+                throwSemantic("Trying to compare an object of type " + left.getType() + " to object of type: " + right.getType());
+            }
+            type = TypeInt.instance;
+        } else if (op != Op.Plus) {
+            /* Section 3.6 in manual
+             * int OP int => int
+             */
             if (left.type != TypeInt.instance) {
                 throwSemantic("Trying to apply binary operation " + op.text + " but left expression is not int: " + left);
             } else if (right.type != TypeInt.instance) {
@@ -59,6 +77,10 @@ public class AST_EXP_BINOP extends AST_EXP {
                 type = TypeInt.instance;
             }
         } else {
+            /* Section 3.6 in manual
+             * int + int => int
+             * str + str => str
+             */
             if (left.type == TypeInt.instance && right.type == TypeInt.instance) {
                 type = TypeInt.instance;
             } else if (left.type == TypeString.instance && right.type == TypeString.instance) {

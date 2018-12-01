@@ -13,4 +13,9 @@ public final class TypeString extends Type {
     public boolean isClass() {
         return false;
     }
+
+    @Override
+    public boolean isAssignableFrom(Type t) {
+        return t == instance;
+    }
 }

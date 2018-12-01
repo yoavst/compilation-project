@@ -21,6 +21,11 @@ public abstract class Type {
         this.name = name;
     }
 
+    /**
+     * Return whether in every place a `this` type is expected, one can put an instance of `t` instead.
+     */
+    public abstract boolean isAssignableFrom(Type t);
+
     @Override
     public String toString() {
         return "<" + name + ">";

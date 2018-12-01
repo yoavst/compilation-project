@@ -113,7 +113,7 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
                     }
 
                     throwSemantic(initialErrorText + ". Expected parameter " + i + " to be " + expected + " received NIL instead.");
-                } else if (!expected.equals(given.type)) {
+                } else if (!expected.isAssignableFrom(given.type)) {
                     throwSemantic(initialErrorText + ". Expected parameter " + i + " to be " + expected + " received " + given.type + " instead.");
                 }
             }

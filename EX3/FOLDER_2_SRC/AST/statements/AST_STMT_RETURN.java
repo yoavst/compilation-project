@@ -46,7 +46,7 @@ public class AST_STMT_RETURN extends AST_STMT {
             }
         } else if (exp == null) {
             throwSemantic("Trying to return void from non-void function. Expected: " + function.returnType);
-        } else if (!function.returnType.equals(exp.getType())) {
+        } else if (!function.returnType.isAssignableFrom(exp.getType())) {
             throwSemantic("Trying to return invalid type from function. Expected: " + function.returnType + ". Received: " + exp.getType() + ".");
         }
     }

@@ -1,5 +1,6 @@
 package types;
 
+import types.builtins.TypeNil;
 import utils.NotNull;
 import utils.Nullable;
 
@@ -139,6 +140,22 @@ public class TypeClass extends Type {
             currentType = currentType.parent;
         }
         return null;
+    }
+
+    /**
+     * Check if t extends this class
+     */
+    @Override
+    public boolean isAssignableFrom(Type t) {
+        if (t == TypeNil.instance) return true;
+        else if (!t.isClass()) return false;
+        TypeClass checkedClass = (TypeClass) t;
+        while (checkedClass != null) {
+            if (checkedClass.equals(this))
+                return true;
+            checkedClass = checkedClass.parent;
+        }
+        return false;
     }
 
     @Override

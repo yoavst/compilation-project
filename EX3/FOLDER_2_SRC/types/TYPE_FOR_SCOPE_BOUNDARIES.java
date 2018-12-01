@@ -10,6 +10,11 @@ public class TYPE_FOR_SCOPE_BOUNDARIES extends Type {
         this.scope = scope;
     }
 
+    @Override
+    public boolean isAssignableFrom(Type t) {
+        throw new RuntimeException(new IllegalAccessException("Should not be called"));
+    }
+
     public enum Scope {
         ClassScan, Class, Function, Block
     }

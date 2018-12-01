@@ -48,7 +48,7 @@ public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
 
         newExp.semant(symbolTable);
         //TODO check if allowed to declare a variable with this exp (i.e class fields need to have constant initializer)
-        if (!representingType.equals(newExp.getType())) {
+        if (!representingType.isAssignableFrom(newExp.getType())) {
             throwSemantic("Trying to declare a variable of type " + type + " but received new " + newExp.getType());
         }
 

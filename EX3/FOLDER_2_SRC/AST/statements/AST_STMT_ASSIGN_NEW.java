@@ -35,7 +35,11 @@ public class AST_STMT_ASSIGN_NEW extends AST_STMT {
         var.semant(symbolTable);
         exp.semant(symbolTable);
 
-        if (var.getType() != exp.getType()) {
+        /* Section 3.2 in manual
+         * arrayType := new same arrayType[]
+         * classType := new assignable classType
+         */
+        if (!var.getType().isAssignableFrom(exp.getType())) {
             throwSemantic("Trying to assign exp of type " + exp.getType() + " to a variable of type " + var.getType());
         }
     }

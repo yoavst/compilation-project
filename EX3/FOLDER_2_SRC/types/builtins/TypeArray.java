@@ -26,4 +26,9 @@ public final class TypeArray extends Type {
     public boolean equals(Object obj) {
         return obj instanceof TypeArray && ((TypeArray) obj).name.equals(name) && ((TypeArray) obj).arrayType.equals(arrayType);
     }
+
+    @Override
+    public boolean isAssignableFrom(Type t) {
+        return equals(t) || t == TypeNil.instance;
+    }
 }
