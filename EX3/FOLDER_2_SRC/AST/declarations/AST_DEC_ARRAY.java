@@ -29,7 +29,10 @@ public class AST_DEC_ARRAY extends AST_DEC {
             throwSemantic("Trying to declare an array type of an unknown type: \"" + type + "\"");
         }
 
-        // TODO check if not in scope yet
+        // check scoping rules
+        if (symbolTable.find(name) != null) {
+            throwSemantic("Trying to declare an array typedef but the name \"" + name + "\" is already in use");
+        }
         symbolTable.enter(name, new TypeArray(name, arrayType));
     }
 }

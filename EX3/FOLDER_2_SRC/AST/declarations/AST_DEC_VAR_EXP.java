@@ -64,7 +64,11 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
             }
         }
 
-        // TODO check if not in scope yet
+        // check scoping rules
+        if (!canBeDefined(symbolTable)) {
+            throwSemantic("Trying to define the variable \"" + name +"\", but it violates the scoping rules");
+        }
+
         symbolTable.enter(name, representingType, true);
     }
 }

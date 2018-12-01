@@ -94,6 +94,25 @@ public class SymbolTable {
     }
 
     /**
+     * Find the inner-most scope element with given name, returning null if not found or if went outside an enclosing scope.
+     */
+    public Type findInCurrentEnclosingScope(@NotNull String name) {
+        SymbolTableEntry e;
+
+        for (e = table[hash(name)]; e != null; e = e.next) {
+            if (name.equals(e.name)) {
+                return e.type;
+            } else if (e.type instanceof TYPE_FOR_SCOPE_BOUNDARIES) {
+                Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) e.type).scope;
+                if (scope != Scope.Block)
+                    return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Find the inner-most scope element with name that is a function, returning null if not found.
      *
      * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope

@@ -32,7 +32,26 @@ public class TypeFunction extends Type {
     public boolean isFunction() { return true; }
 
     @Override
+    public boolean equals(Object obj) {
+        return obj instanceof TypeFunction && ((TypeFunction) obj).name.equals(name) && sameSignature((TypeFunction) obj);
+    }
+
+    @Override
     public boolean isAssignableFrom(Type t) {
        throw new RuntimeException(new IllegalAccessException("Should not be called"));
+    }
+
+    /**
+     * Check if the two functions has the same signature
+     */
+    public boolean sameSignature(TypeFunction func) {
+        if (func.params.size() != params.size())
+            return false;
+
+        for (int i = 0; i < func.params.size(); i++) {
+            if (!params.get(i).equals(func.params.get(i)))
+                return false;
+        }
+        return true;
     }
 }

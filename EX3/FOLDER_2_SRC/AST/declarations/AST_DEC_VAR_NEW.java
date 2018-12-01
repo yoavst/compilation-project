@@ -55,7 +55,11 @@ public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
             throwSemantic("Trying to declare a class member \"" + name + "\" but using non-constant new initializer");
         }
 
-        // TODO check if not in scope yet
+        // check scoping rules
+        if (!canBeDefined(symbolTable)) {
+            throwSemantic("Trying to define the variable \"" + name +"\", but it violates the scoping rules");
+        }
+
         symbolTable.enter(name, representingType, true);
     }
 }

@@ -81,7 +81,11 @@ public class AST_DEC_CLASS extends AST_DEC {
         }
         representingType = new TypeClass(name, parent);
 
-        // TODO check if not in scope yet
+        // check scoping rules
+        if (symbolTable.find(name) != null) {
+            throwSemantic("Trying to declare a class but the name \"" + name + "\" is already in use");
+        }
+
         symbolTable.enter(name, representingType);
     }
 }
