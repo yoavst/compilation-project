@@ -1,7 +1,9 @@
 package ast;
 
 import ast.declarations.AST_DEC;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
 import java.util.List;
 
@@ -25,5 +27,14 @@ public class AST_PROGRAM extends AST_Node {
         for (AST_DEC declaration : declarations) {
             printAndEdge(declaration);
         }
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        symbolTable.beginScope();
+        for (AST_DEC declaration : declarations) {
+            declaration.semant(symbolTable);
+        }
+        symbolTable.endScope();
     }
 }

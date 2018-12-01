@@ -26,10 +26,33 @@ public abstract class AST_Node implements Printable {
 
     /**
      * Run a semantic analysis on the node and its children.
+     * Wrap the inner {@link #semantMe(SymbolTable)} call and check for {@link #errorReportable()}.
      *
      * @throws SemanticException on error
      */
-    public void semantMe(SymbolTable symbolTable) throws SemanticException {
+    public final void semant(SymbolTable symbolTable) throws SemanticException {
+        try {
+            semantMe(symbolTable);
+        } catch (SemanticException exception) {
+            if (exception.getNode().errorReportable() || !errorReportable()) {
+                // the exception was thrown by a node with permission to throw.
+                // or, this node is not allowed to throw exceptions.
+                throw exception;
+            } else {
+                SemanticException wrappedException = new SemanticException(this, "Wrapping error: " + exception.getReason());
+                wrappedException.addSuppressed(exception);
+                throw wrappedException;
+            }
+        }
+    }
+
+    /**
+     * Run a semantic analysis on the node and its children.
+     * <br>
+     * <b>Note</b>:</b> Ignores {@link #errorReportable()}. Therefore, should call {@link #semant(SymbolTable)} on children.
+     * @throws SemanticException on error
+     */
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         // FIXME change to abstract method: it's not abstract just to make it compile
     }
 
@@ -37,19 +60,19 @@ public abstract class AST_Node implements Printable {
      * Whether or not an error can be reported directly on this node.
      * <br><br>
      * For example:                    <br>
-     *    1 string s = "helloworld"';  <br>
-     *    2 int x = s.                 <br>
-     *    3           test();          <br>
-     *    >> ERROR(2)                  <br>
-     *
+     * 1 string s = "helloworld"';  <br>
+     * 2 int x = s.                 <br>
+     * 3           test();          <br>
+     * >> ERROR(2)                  <br>
+     * <p>
      * Then, {@link ast.expressions.AST_EXP} should not be error reportable, but {@link ast.statements.AST_STMT}.
      * <br><br>
      * <b>Note:</b> The default behavior is not to be reportable.
-     *
+     * <p>
      * For simplicity, here is the list of classes with error reporting:
      * <ul>
-     *   <li>{@link ast.declarations.AST_DEC}</li>
-     *   <li>{@link ast.statements.AST_STMT}</li>
+     * <li>{@link ast.declarations.AST_DEC}</li>
+     * <li>{@link ast.statements.AST_STMT}</li>
      * </ul>
      */
     public boolean errorReportable() {

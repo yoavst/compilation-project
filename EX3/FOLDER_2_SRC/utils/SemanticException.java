@@ -14,4 +14,13 @@ public class SemanticException extends Exception {
         this.reason = reason;
     }
 
+    @NotNull
+    public AST_Node getNode() {
+        return node;
+    }
+
+    @NotNull
+    public String getReason() {
+        return reason;
+    }
 }

@@ -52,7 +52,7 @@ public class Main {
             /**************************/
             /* [7] Semant the AST ... */
             /**************************/
-            AST.semantMe(SymbolTable.getInstance());
+            AST.semant(SymbolTable.getInstance());
 
             /*************************/
             /* [8] Close output file */

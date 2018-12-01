@@ -1,9 +1,10 @@
 package ast.expressions;
 
-import ast.statements.AST_STMT;
+import symbols.SymbolTable;
 import utils.NotNull;
+import utils.SemanticException;
 
-public class AST_NEW_EXP extends AST_STMT {
+public class AST_NEW_EXP extends AST_EXP {
     @NotNull
     public String className;
 
@@ -15,5 +16,10 @@ public class AST_NEW_EXP extends AST_STMT {
     @Override
     protected String name() {
         return "new " + className;
+    }
+
+    @Override
+    protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+
     }
 }
