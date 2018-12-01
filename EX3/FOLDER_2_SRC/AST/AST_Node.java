@@ -2,6 +2,7 @@ package ast;
 
 
 import symbols.SymbolTable;
+import types.Type;
 import utils.*;
 
 import java.util.Collections;
@@ -31,6 +32,7 @@ public abstract class AST_Node implements Printable {
      * @throws SemanticException on error
      */
     public final void semant(SymbolTable symbolTable) throws SemanticException {
+        println("Semanting " + this);
         try {
             semantMe(symbolTable);
         } catch (SemanticException exception) {
@@ -50,6 +52,7 @@ public abstract class AST_Node implements Printable {
      * Run a semantic analysis on the node and its children.
      * <br>
      * <b>Note</b>:</b> Ignores {@link #errorReportable()}. Therefore, should call {@link #semant(SymbolTable)} on children.
+     *
      * @throws SemanticException on error
      */
     protected abstract void semantMe(SymbolTable symbolTable) throws SemanticException;
@@ -85,6 +88,10 @@ public abstract class AST_Node implements Printable {
     @NotNull
     protected String name() {
         return "Unknown node";
+    }
+
+    public Type getType() {
+        return null;
     }
 
     //region AST printing utils
@@ -144,7 +151,7 @@ public abstract class AST_Node implements Printable {
     private static void addNode(@NotNull AST_Node node) {
         Graphwiz.getInstance().logNode(
                 node.serialNumber,
-                node.name());
+                node.name() + (node.getType() != null ? "\n" + node.getType() : ""));
     }
 
     private static void addEdge(@NotNull AST_Node from, @NotNull AST_Node to) {

@@ -2,6 +2,8 @@ package ast.expressions;
 
 import symbols.SymbolTable;
 import types.Type;
+import types.builtins.TypeArrayUnspecified;
+import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.SemanticException;
 
@@ -30,8 +32,10 @@ public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         subscript.semant(symbolTable);
 
-        Type classType = symbolTable.findArrayType(className);
-        if (classType != null) {
+        Type classType = symbolTable.findGeneralizedType(className);
+        if (classType == TypeVoid.instance) {
+            throwSemantic("Trying to create an array of void");
+        } else if (classType != null) {
             // valid expression: new TypeArray[const_int]
             if (subscript instanceof AST_EXP_INT) {
                 type = classType;
@@ -42,5 +46,6 @@ public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
             // Since poseidon classes do not have a constructor, it's an error.
             throwSemantic("Trying to create a new[] expression of invalid type: \"" + className + "\".");
         }
+        type = new TypeArrayUnspecified(classType);
     }
 }

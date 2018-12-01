@@ -33,6 +33,7 @@ public class AST_ID extends AST_Node {
      * @throws IllegalStateException if {@link #semantMe(SymbolTable)} has yet to be run.
      */
     @NotNull
+    @Override
     public Type getType() {
         if (typing == null) {
             throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
@@ -42,11 +43,11 @@ public class AST_ID extends AST_Node {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        Type type = symbolTable.findGeneralizedType(name);
-        if (type == TypeVoid.instance) {
+        typing = symbolTable.findGeneralizedType(type);
+        if (typing == TypeVoid.instance) {
             throwSemantic("Trying to declare a function with a void parameter");
+        } else if (typing == null) {
+            throwSemantic("Trying to declare a function with a parameter of unknown type");
         }
-
-        this.typing = type;
     }
 }

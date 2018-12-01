@@ -42,7 +42,7 @@ public class AST_STMT_WHILE extends AST_STMT {
             throwSemantic("while condition can only be int, received: " + cond.getType());
         }
 
-        symbolTable.beginScope(Block, null);
+        symbolTable.beginScope(Block, null, "while(...)");
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }

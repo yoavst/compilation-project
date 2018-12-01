@@ -32,7 +32,7 @@ public abstract class AST_DEC_VAR extends AST_DEC {
          *   shadowing a variable from outside a function is valid.
          */
         if (symbolTable.getEnclosingFunction() != null) {
-            return symbolTable.findInCurrentEnclosingScope(name) == null;
+            return symbolTable.findInCurrentScope(name) == null;
         } else if (symbolTable.getEnclosingClass() != null) {
             return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null;
         } else {

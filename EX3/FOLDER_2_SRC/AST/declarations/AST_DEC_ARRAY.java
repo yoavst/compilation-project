@@ -24,7 +24,7 @@ public class AST_DEC_ARRAY extends AST_DEC {
 
     @Override
     public void semantHeader(SymbolTable symbolTable) throws SemanticException {
-        Type arrayType = symbolTable.findGeneralizedType(name);
+        Type arrayType = symbolTable.findGeneralizedType(type);
         if (arrayType == null) {
             throwSemantic("Trying to declare an array type of an unknown type: \"" + type + "\"");
         }

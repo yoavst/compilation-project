@@ -17,8 +17,10 @@ public class Main {
             try {
                 AST_PROGRAM AST = (AST_PROGRAM) parser.parse().value;
                 AST.semant(SymbolTable.getInstance());
+                AST.printMe();
                 fileWriter.write("OK\n");
                 Graphwiz.getInstance().finalizeFile();
+                System.out.println("Success");
             } catch (IllegalStateException e) {
                 // Invalid syntax
                 fileWriter.write("ERROR(" + parser.line + ")\n");
@@ -31,6 +33,7 @@ public class Main {
             } catch (SemanticException e) {
                 // semantic analysis throws error
                 fileWriter.write("ERROR(" + e.getNode().lineNumber + ")\n");
+                e.printStackTrace(); // FIXME
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -113,6 +113,23 @@ public class SymbolTable {
     }
 
     /**
+     * Find the inner-most scope element with given name, returning null if not found or if went outside of the current scope.
+     */
+    public Type findInCurrentScope(@NotNull String name) {
+        SymbolTableEntry e;
+
+        for (e = table[hash(name)]; e != null; e = e.next) {
+            if (name.equals(e.name)) {
+                return e.type;
+            } else if (e.type instanceof TYPE_FOR_SCOPE_BOUNDARIES) {
+                    return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Find the inner-most scope element with name that is a function, returning null if not found.
      *
      * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
@@ -199,12 +216,16 @@ public class SymbolTable {
         return enclosingFunction;
     }
 
+
+    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType) {
+        beginScope(scope, enclosingType, "NONE");
+    }
     /**
      * Begins a new scope by adding <SCOPE-BOUNDARY> to the Hashmap.
      * In addition, if it is a class or function scope, update the enclosing field.
      */
-    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType) {
-        enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("NONE", scope));
+    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType, String debugInfo) {
+        enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES(debugInfo, scope));
 
         if (scope == Scope.Function) {
             enclosingFunction = (TypeFunction) enclosingType;

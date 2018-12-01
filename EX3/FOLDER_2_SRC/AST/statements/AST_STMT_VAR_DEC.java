@@ -27,6 +27,7 @@ public class AST_STMT_VAR_DEC extends AST_STMT {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
+        var.semantHeader(symbolTable);
         var.semant(symbolTable);
     }
 }

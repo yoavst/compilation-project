@@ -13,7 +13,7 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
     @Nullable
     public AST_EXP exp;
 
-    public Type representingType;
+    private Type representingType;
 
     public AST_DEC_VAR_EXP(@NotNull String type,@NotNull String name) {
         super(type, name);
@@ -70,5 +70,10 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
         }
 
         symbolTable.enter(name, representingType, true);
+    }
+
+    @Override
+    public Type getType() {
+        return representingType;
     }
 }

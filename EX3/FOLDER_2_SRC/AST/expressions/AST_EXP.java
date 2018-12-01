@@ -23,6 +23,7 @@ public abstract class AST_EXP extends AST_Node {
      * @throws IllegalStateException if {@link #semantMe(SymbolTable)} has yet to be run.
      */
     @NotNull
+    @Override
     public Type getType() {
         if (type == null) {
             throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");

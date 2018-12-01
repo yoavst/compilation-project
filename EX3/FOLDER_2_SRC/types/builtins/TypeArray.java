@@ -3,7 +3,7 @@ package types.builtins;
 import types.Type;
 import utils.NotNull;
 
-public final class TypeArray extends Type {
+public class TypeArray extends Type {
     @NotNull
     public final Type arrayType;
 
@@ -29,6 +29,6 @@ public final class TypeArray extends Type {
 
     @Override
     public boolean isAssignableFrom(Type t) {
-        return equals(t) || t == TypeNil.instance;
+        return equals(t) || t == TypeNil.instance || (t instanceof TypeArrayUnspecified && ((TypeArrayUnspecified) t).arrayType == arrayType);
     }
 }

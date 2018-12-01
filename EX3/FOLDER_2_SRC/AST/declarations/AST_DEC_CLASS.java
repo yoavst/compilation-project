@@ -42,7 +42,7 @@ public class AST_DEC_CLASS extends AST_DEC {
 
     @Override
     public void semantMe(SymbolTable symbolTable) throws SemanticException {
-        symbolTable.beginScope(ClassScan, representingType);
+        symbolTable.beginScope(ClassScan, representingType, "classScan " + name);
         SemanticException headerException = null;
         AST_DEC exceptionField = null;
         for (AST_DEC field : fields) {
@@ -60,7 +60,7 @@ public class AST_DEC_CLASS extends AST_DEC {
 
         // now, we need to semant every function. However, if we add an exception earlier,
         // we'll have to report it on the right time, because we need to report the first error.
-        symbolTable.beginScope(Class, representingType);
+        symbolTable.beginScope(Class, representingType, "class " + name);
         for (AST_DEC field : fields) {
             if (headerException != null && exceptionField == field) {
                 throw headerException;
