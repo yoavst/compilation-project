@@ -30,7 +30,7 @@ class Student extends Person
 			d := 5<6;
 			d := 5<6;
 			d := 5<6;
-			d := bestFriend.birthday();
+			d := ("JessePinkman" = (bestFriend + "Pinkman"));
 			d := 5<6;
 			d := 5<6;
 			d := 5<6;
@@ -43,4 +43,3 @@ void main()
 {
 	bestFriend := "AlonzoMorales";
 }
-

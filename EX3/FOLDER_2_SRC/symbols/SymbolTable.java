@@ -24,6 +24,7 @@ public class SymbolTable {
     private TypeClass enclosingClass;
     private TypeFunction enclosingFunction;
     private boolean isClassScanning = false;
+    private int currentScopeMajor = 0;
 
     private int hash(String s) {
         if (s.charAt(0) == 'l') {
@@ -60,7 +61,7 @@ public class SymbolTable {
     public void enter(String name, Type t, boolean isVariableDeclaration) {
         int hashValue = hash(name);
         SymbolTableEntry next = table[hashValue];
-        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, isVariableDeclaration);
+        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, isVariableDeclaration, currentScopeMajor);
         top = e;
         table[hashValue] = e;
 
@@ -81,10 +82,19 @@ public class SymbolTable {
      * @param filter Applying filter on results, returns element only if accepted by the filter.
      */
     @Nullable
-    public Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter) {
-        SymbolTableEntry e;
+    private Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter) {
+        return find(name, filter, null);
+    }
 
-        for (e = table[hash(name)]; e != null; e = e.next) {
+    /**
+     * Find the inner-most scope element with given name, returning null if not found
+     *
+     * @param filter             Applying filter on results, returns element only if accepted by the filter.
+     * @param shouldContinueLoop Continuing the loop until this return false or reached null.
+     */
+    @Nullable
+    private Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter, Predicate<SymbolTableEntry> shouldContinueLoop) {
+        for (SymbolTableEntry e = table[hash(name)]; e != null && (shouldContinueLoop == null || shouldContinueLoop.test(e)); e = e.next) {
             if (name.equals(e.name) && (filter == null || filter.test(e))) {
                 return e.type;
             }
@@ -97,36 +107,15 @@ public class SymbolTable {
      * Find the inner-most scope element with given name, returning null if not found or if went outside an enclosing scope.
      */
     public Type findInCurrentEnclosingScope(@NotNull String name) {
-        SymbolTableEntry e;
-
-        for (e = table[hash(name)]; e != null; e = e.next) {
-            if (name.equals(e.name)) {
-                return e.type;
-            } else if (e.type instanceof TYPE_FOR_SCOPE_BOUNDARIES) {
-                Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) e.type).scope;
-                if (scope != Scope.Block)
-                    return null;
-            }
-        }
-
-        return null;
+        int currentEnclosingScope = getEnclosingScopeMajor(currentScopeMajor);
+        return find(name, null, e -> e.scopeMajor >= currentEnclosingScope);
     }
 
     /**
      * Find the inner-most scope element with given name, returning null if not found or if went outside of the current scope.
      */
     public Type findInCurrentScope(@NotNull String name) {
-        SymbolTableEntry e;
-
-        for (e = table[hash(name)]; e != null; e = e.next) {
-            if (name.equals(e.name)) {
-                return e.type;
-            } else if (e.type instanceof TYPE_FOR_SCOPE_BOUNDARIES) {
-                    return null;
-            }
-        }
-
-        return null;
+        return find(name, null, e -> e.scopeMajor == currentScopeMajor);
     }
 
     /**
@@ -222,16 +211,18 @@ public class SymbolTable {
         return enclosingFunction;
     }
 
-
-    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType) {
-        beginScope(scope, enclosingType, "NONE");
-    }
     /**
      * Begins a new scope by adding <SCOPE-BOUNDARY> to the Hashmap.
      * In addition, if it is a class or function scope, update the enclosing field.
      */
     public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType, String debugInfo) {
-        enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES(debugInfo, scope));
+        if (scope == Scope.Block) {
+            currentScopeMajor += 1;
+        } else {
+            currentScopeMajor = 1000 + getEnclosingScopeMajor(currentScopeMajor);
+        }
+
+        enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("[" + currentScopeMajor + "] " + debugInfo, scope));
 
         if (scope == Scope.Function) {
             enclosingFunction = (TypeFunction) enclosingType;
@@ -240,7 +231,6 @@ public class SymbolTable {
         } else if (scope == Scope.ClassScan) {
             isClassScanning = true;
             enclosingClass = (TypeClass) enclosingType;
-
         }
 
         PrintMe();
@@ -265,7 +255,7 @@ public class SymbolTable {
 
             table[top.index] = top.next;
             topIndex = topIndex - 1;
-            top = top.prevtop;
+            top = top.prev;
         }
 
         Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) top.type).scope;
@@ -276,9 +266,13 @@ public class SymbolTable {
             isClassScanning = false;
         }
 
+        // remove the boundary
         table[top.index] = top.next;
         topIndex = topIndex - 1;
-        top = top.prevtop;
+        top = top.prev;
+
+        // update current scope
+        currentScopeMajor = top == null ? 0 : top.scopeMajor;
 
         PrintMe();
     }
@@ -376,5 +370,9 @@ public class SymbolTable {
 
         }
         return instance;
+    }
+
+    private static int getEnclosingScopeMajor(int scope) {
+        return scope / 1000 * 1000;
     }
 }
