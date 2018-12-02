@@ -9,10 +9,10 @@ This is the source of our compilation project. WORK IN PROGRESS!
 ## Running
 
 ```
-$ cd EX2
+$ cd EX3
 $ make
 $ make test
-$ java -jar PARSER ${input_file} ${output_file}
+$ java -jar COMPILER ${input_file} ${output_file}
 ```
 
 ## TODO - EX3
@@ -26,7 +26,7 @@ $ java -jar PARSER ${input_file} ${output_file}
 - [X] **3.7 Scope rules** 
 - [x] **3.8 Standard library**
 - [x] **Input and output**
-- [ ] **Tests**
+- [ ] **Tests** - pass all available tests, should wait for the test suite.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
