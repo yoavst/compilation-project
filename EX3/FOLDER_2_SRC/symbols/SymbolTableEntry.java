@@ -33,8 +33,8 @@ class SymbolTableEntry {
      * <br /><br />
      * The rules for this field are the following:
      * <ul>
-     *     <li>For every block scope, increase value by 1.</li>
-     *     <li>For every enclosing scope, increase value by 1000</li>
+     *     <li>For every block scope, increase value by 10.</li>
+     *     <li>For every enclosing scope, increase value by 1.</li>
      * </ul>
      * @see types.TYPE_FOR_SCOPE_BOUNDARIES.Scope
      */

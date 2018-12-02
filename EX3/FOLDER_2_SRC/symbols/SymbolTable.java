@@ -107,8 +107,8 @@ public class SymbolTable {
      * Find the inner-most scope element with given name, returning null if not found or if went outside an enclosing scope.
      */
     public Type findInCurrentEnclosingScope(@NotNull String name) {
-        int currentEnclosingScope = getEnclosingScopeMajor(currentScopeMajor);
-        return find(name, null, e -> e.scopeMajor >= currentEnclosingScope);
+        int currentEnclosingScope = currentScopeMajor % 10;
+        return find(name, null, e -> e.scopeMajor % 10 >= currentEnclosingScope);
     }
 
     /**
@@ -217,9 +217,9 @@ public class SymbolTable {
      */
     public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType, String debugInfo) {
         if (scope == Scope.Block) {
-            currentScopeMajor += 1;
+            currentScopeMajor += 10;
         } else {
-            currentScopeMajor = 1000 + getEnclosingScopeMajor(currentScopeMajor);
+            currentScopeMajor += 1;
         }
 
         enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("[" + currentScopeMajor + "] " + debugInfo, scope));
@@ -370,9 +370,5 @@ public class SymbolTable {
 
         }
         return instance;
-    }
-
-    private static int getEnclosingScopeMajor(int scope) {
-        return scope / 1000 * 1000;
     }
 }
