@@ -80,6 +80,7 @@ public class AST_DEC_FUNC extends AST_DEC {
          *   member function/variables:
          *     if parent had function/variable with same name - invalid.
          *     unless it is a function override
+         *   cannpt have the same name as class
          * table 10:
          *   shadowing a parent class member is invalid.
          *   shadowing a function parameter is invalid.
@@ -98,6 +99,10 @@ public class AST_DEC_FUNC extends AST_DEC {
 
             if (symbolTable.getEnclosingClass().queryFieldRecursively(name) != null) {
                 throwSemantic("Trying to declare the function \"" + name +"\", but a field with this name is already declared");
+            }
+
+            if (symbolTable.getEnclosingClass().name.equals(name)) {
+                throwSemantic("Trying to declare the function \"" + name +"\", but this is the name of the class");
             }
 
         } else if (symbolTable.find(name) != null) {
