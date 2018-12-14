@@ -24,7 +24,7 @@ public class Main {
             } catch (IllegalStateException e) {
                 // Invalid syntax
                 fileWriter.write("ERROR(" + parser.line + ")\n");
-                System.out.println("Syntax error");
+                System.out.println("Syntax error ERROR(" + parser.line + ")");
             } catch (ClassCastException e) {
                 // Valid syntax but program doesn't start as AST_PROGRAM
                 fileWriter.write("ERROR(1)\n");

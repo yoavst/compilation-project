@@ -1,6 +1,7 @@
 package types.builtins;
 
 import types.Type;
+import types.TypeError;
 
 public final class TypeInt extends Type {
     public static final TypeInt instance = new TypeInt();
@@ -16,6 +17,6 @@ public final class TypeInt extends Type {
 
     @Override
     public boolean isAssignableFrom(Type t) {
-        return t == instance;
+        return t == instance || t == TypeError.instance;
     }
 }
