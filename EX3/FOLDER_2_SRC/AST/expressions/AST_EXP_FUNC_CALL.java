@@ -5,6 +5,7 @@ import symbols.SymbolTable;
 import types.Type;
 import types.TypeClass;
 import types.TypeFunction;
+import types.TypeFunctionUnspecified;
 import types.builtins.TypeNil;
 import utils.NotNull;
 import utils.Nullable;
@@ -98,6 +99,11 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
      * @param initialErrorText A prefix that will be added to the error text
      */
     private void checkFunctionCall(@NotNull TypeFunction function, String initialErrorText) throws SemanticException {
+        if (function instanceof TypeFunctionUnspecified) {
+            type = function.returnType;
+            return;
+        }
+
         if (function.params.size() != funcParameters.size()) {
             throwSemantic(initialErrorText + " with invalid size of parameters. Expected: " + function.params.size() + ". Received: " + funcParameters.size() + ".");
         } else {

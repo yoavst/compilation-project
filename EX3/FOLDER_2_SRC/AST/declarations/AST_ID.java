@@ -48,6 +48,10 @@ public class AST_ID extends AST_Node {
             throwSemantic("Trying to declare a function with a void parameter");
         } else if (typing == null) {
             throwSemantic("Trying to declare a function with a parameter of unknown type");
+        }  if (!AST_DEC_VAR.canBeDefined(symbolTable, name)) {
+            throwSemantic("Trying to declare a function with invalid parameter name: type or duplicated.");
         }
+
+        symbolTable.enter(name, typing, true);
     }
 }

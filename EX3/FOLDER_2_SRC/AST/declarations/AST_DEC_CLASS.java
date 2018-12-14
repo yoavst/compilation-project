@@ -71,7 +71,7 @@ public class AST_DEC_CLASS extends AST_DEC {
     }
 
     @Override
-    public void semantHeader(SymbolTable symbolTable) throws SemanticException {
+    public void semantMeHeader(SymbolTable symbolTable) throws SemanticException {
         TypeClass parent = null;
         if (parentClass != null) {
             parent = symbolTable.findClassType(parentClass);

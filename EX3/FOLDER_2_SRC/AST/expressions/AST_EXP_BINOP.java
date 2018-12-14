@@ -2,6 +2,7 @@ package ast.expressions;
 
 import symbols.SymbolTable;
 import types.TypeClass;
+import types.TypeError;
 import types.builtins.TypeInt;
 import types.builtins.TypeNil;
 import types.builtins.TypeString;
@@ -50,6 +51,10 @@ public class AST_EXP_BINOP extends AST_EXP {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         left.semant(symbolTable);
         right.semant(symbolTable);
+
+        if (left.type == TypeError.instance || right.type == TypeError.instance) {
+            type = TypeError.instance;
+        }
 
         if (op == Op.EQ) {
             /* Section 3.5 in manual

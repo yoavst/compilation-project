@@ -241,9 +241,11 @@ public class SymbolTable {
      * If the current scope with {@link Scope#ClassScan} it will also register all the fields and method to the class.
      */
     public void endScope() {
-        // Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit */
+        // we create a scope to semant the function parameters in the header
+        boolean shouldSaveToClass = isClassScanning && getEnclosingFunction() == null;
+        // Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit
         while (!top.name.equals("SCOPE-BOUNDARY")) {
-            if (isClassScanning) {
+            if (shouldSaveToClass) {
                 // register the method/field into the class type.
                 Type declaration = top.type;
                 if (declaration.isFunction()) {

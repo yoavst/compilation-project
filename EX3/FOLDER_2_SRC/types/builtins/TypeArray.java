@@ -1,6 +1,7 @@
 package types.builtins;
 
 import types.Type;
+import types.TypeError;
 import utils.NotNull;
 
 public class TypeArray extends Type {
@@ -29,6 +30,6 @@ public class TypeArray extends Type {
 
     @Override
     public boolean isAssignableFrom(Type t) {
-        return equals(t) || t == TypeNil.instance || (t instanceof TypeArrayUnspecified && ((TypeArrayUnspecified) t).arrayType == arrayType);
+        return equals(t) || t == TypeNil.instance || (t instanceof TypeArrayUnspecified && ((TypeArrayUnspecified) t).arrayType == arrayType) || t == TypeError.instance;
     }
 }

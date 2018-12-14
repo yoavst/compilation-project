@@ -1,6 +1,7 @@
 package ast.declarations;
 
 import symbols.SymbolTable;
+import types.TypeError;
 import utils.NotNull;
 
 public abstract class AST_DEC_VAR extends AST_DEC {
@@ -17,7 +18,7 @@ public abstract class AST_DEC_VAR extends AST_DEC {
     /**
      * Returns true if the variable is allowed to be defined with the given name in the current scope.
      */
-    boolean canBeDefined(SymbolTable symbolTable) {
+    public static boolean canBeDefined(SymbolTable symbolTable, String name) {
         /*
          * section 3.7:
          *   global function/variable:
@@ -31,12 +32,18 @@ public abstract class AST_DEC_VAR extends AST_DEC {
          *   shadowing a global variable with a class member is valid
          *   shadowing a variable from outside a function is valid.
          */
-        if (symbolTable.getEnclosingFunction() != null) {
+        if (symbolTable.findGeneralizedType(name) != null) {
+            return false;
+        } else if (symbolTable.getEnclosingFunction() != null) {
             return symbolTable.findInCurrentScope(name) == null;
         } else if (symbolTable.getEnclosingClass() != null) {
-            return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null;
+            return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null && symbolTable.findInCurrentScope(name) == null;
         } else {
             return symbolTable.find(name) == null;
         }
+    }
+
+    protected void putUnspecified(SymbolTable symbolTable) {
+        symbolTable.enter(name, TypeError.instance, true);
     }
 }

@@ -12,7 +12,7 @@ import java.util.Map;
  * Each class has a unique name and may have a parent class it extends.
  * Every class has its fields & methods in addition to the methods it derives from its parent.
  */
-public class TypeClass extends Type {
+public final class TypeClass extends Type {
     /**
      * Parent class for the type or null.
      * <br><br>
@@ -148,6 +148,7 @@ public class TypeClass extends Type {
     @Override
     public boolean isAssignableFrom(Type t) {
         if (t == TypeNil.instance) return true;
+        else if (t == TypeError.instance) return true;
         else if (!t.isClass()) return false;
         TypeClass checkedClass = (TypeClass) t;
         while (checkedClass != null) {

@@ -3,6 +3,7 @@ package ast.expressions;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArrayUnspecified;
+import types.builtins.TypeInt;
 import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.SemanticException;
@@ -36,11 +37,11 @@ public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
         if (classType == TypeVoid.instance) {
             throwSemantic("Trying to create an array of void");
         } else if (classType != null) {
-            // valid expression: new TypeArray[const_int]
-            if (subscript instanceof AST_EXP_INT) {
+            // valid expression: new TypeArray[int expression]
+            if (subscript.getType() == TypeInt.instance) {
                 type = classType;
             } else {
-                throwSemantic("Trying to create an array of \"" + className + "\" not of fixed int size: " + subscript);
+                throwSemantic("Trying to create an array of \"" + className + "\" not of integral size: " + subscript);
             }
         } else {
             // Since poseidon classes do not have a constructor, it's an error.

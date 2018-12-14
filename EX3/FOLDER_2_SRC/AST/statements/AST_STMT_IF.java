@@ -3,6 +3,7 @@ package ast.statements;
 import ast.expressions.AST_EXP;
 import symbols.SymbolTable;
 import types.TYPE_FOR_SCOPE_BOUNDARIES;
+import types.TypeError;
 import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.SemanticException;
@@ -38,7 +39,7 @@ public class AST_STMT_IF extends AST_STMT {
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         cond.semant(symbolTable);
-        if (cond.getType() != TypeInt.instance) {
+        if (cond.getType() != TypeInt.instance && cond.getType() != TypeError.instance) {
             throwSemantic("if condition can only be int, received: " + cond.getType());
         }
 
