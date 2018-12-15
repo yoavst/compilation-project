@@ -24,4 +24,9 @@ public final class TypeError extends Type {
     public boolean isAssignableFrom(Type t) {
         return true;
     }
+
+    @Override
+    public boolean canBeCastedToBoolean() {
+        return true;
+    }
 }

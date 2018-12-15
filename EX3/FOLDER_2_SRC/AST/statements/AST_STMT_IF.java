@@ -36,7 +36,7 @@ public class AST_STMT_IF extends AST_STMT {
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         cond.semant(symbolTable);
-        if (cond.getType() != TypeInt.instance && cond.getType() != TypeError.instance) {
+        if (!cond.getType().canBeCastedToBoolean()) {
             throwSemantic("if condition can only be int, received: " + cond.getType());
         }
 

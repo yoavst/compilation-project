@@ -16,6 +16,11 @@ public final class TypeInt extends Type {
     }
 
     @Override
+    public boolean canBeCastedToBoolean() {
+        return true;
+    }
+
+    @Override
     public boolean isAssignableFrom(Type t) {
         return t == instance || t == TypeError.instance;
     }
