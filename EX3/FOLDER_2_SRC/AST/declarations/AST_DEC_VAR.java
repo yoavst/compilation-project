@@ -37,7 +37,9 @@ public abstract class AST_DEC_VAR extends AST_DEC {
         } else if (symbolTable.getEnclosingFunction() != null) {
             return symbolTable.findInCurrentScope(name) == null;
         } else if (symbolTable.getEnclosingClass() != null) {
-            return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null && symbolTable.findInCurrentScope(name) == null;
+            return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null
+                    && symbolTable.getEnclosingClass().queryMethodRecursively(name) == null
+                    && symbolTable.findInCurrentScope(name) == null;
         } else {
             return symbolTable.find(name) == null;
         }

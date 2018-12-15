@@ -1,11 +1,15 @@
 class Class {
    void A() {
        B();
-       ILLEGALTYPE x = 3;
+       x := 3;
        return;
    }
 
    ILLEGALTYPE B() {
        return;
+
   }
+
+ ILLEGALTYPE x;
 }
+

@@ -31,7 +31,7 @@ public class AST_DEC_CLASS extends AST_DEC {
     @NotNull
     @Override
     protected String name() {
-        return "Class " + name + (parentClass == null ? "" : ("extends " + parentClass));
+        return "Class " + name + (parentClass == null ? "" : (" extends " + parentClass));
     }
 
     @Override
