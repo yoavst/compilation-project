@@ -1,0 +1,31 @@
+array IntArray = int[]
+
+class Class {
+    int A() {
+        B(7);
+        if (x) {
+            while(x) {
+                return x;
+                x := new Class;
+                IntArray y := new int[10];
+                x := 3;
+                x := "hi";
+                if (x = 3) {
+                    if (x = "hi") {
+                        if (x > y) {
+                            x := x + 5;
+                            x := x + "hi";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    int B(int a) {
+       return 3;
+     }
+
+     int x := 3;
+     string x := "hi";
+}
