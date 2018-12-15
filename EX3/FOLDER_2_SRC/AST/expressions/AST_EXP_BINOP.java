@@ -1,13 +1,11 @@
 package ast.expressions;
 
 import symbols.SymbolTable;
-import types.TypeClass;
 import types.TypeError;
 import types.builtins.TypeInt;
-import types.builtins.TypeNil;
 import types.builtins.TypeString;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_EXP_BINOP extends AST_EXP {
     @NotNull
@@ -52,10 +50,6 @@ public class AST_EXP_BINOP extends AST_EXP {
         left.semant(symbolTable);
         right.semant(symbolTable);
 
-        if (left.type == TypeError.instance || right.type == TypeError.instance) {
-            type = TypeError.instance;
-        }
-
         if (op == Op.EQ) {
             /* Section 3.5 in manual
              * NIL <=> array, class
@@ -74,9 +68,9 @@ public class AST_EXP_BINOP extends AST_EXP {
             /* Section 3.6 in manual
              * int OP int => int
              */
-            if (left.type != TypeInt.instance) {
+            if (left.type != TypeInt.instance && left.type != TypeError.instance) {
                 throwSemantic("Trying to apply binary operation " + op.text + " but left expression is not int: " + left);
-            } else if (right.type != TypeInt.instance) {
+            } else if (right.type != TypeInt.instance && right.type != TypeError.instance) {
                 throwSemantic("Trying to apply binary operation " + op.text + " but right expression is not int: " + right);
             } else {
                 type = TypeInt.instance;
@@ -86,9 +80,11 @@ public class AST_EXP_BINOP extends AST_EXP {
              * int + int => int
              * str + str => str
              */
-            if (left.type == TypeInt.instance && right.type == TypeInt.instance) {
+            if (left.type == TypeError.instance && right.type == TypeError.instance) {
+                type = TypeError.instance;
+            } else if ((left.type == TypeInt.instance || left.type == TypeError.instance) && (right.type == TypeInt.instance || right.type == TypeError.instance)) {
                 type = TypeInt.instance;
-            } else if (left.type == TypeString.instance && right.type == TypeString.instance) {
+            } else if ((left.type == TypeString.instance || left.type == TypeError.instance) && (right.type == TypeString.instance || right.type == TypeError.instance)) {
                 type = TypeString.instance;
             } else {
                 throwSemantic("Trying to apply binary operation + but typing is incorrect: left is " + left.type + " and right is " + right.type);

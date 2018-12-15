@@ -5,7 +5,7 @@ import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeVoid;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_ID extends AST_Node {
     @NotNull

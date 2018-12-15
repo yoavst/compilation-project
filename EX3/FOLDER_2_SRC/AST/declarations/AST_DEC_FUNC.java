@@ -4,9 +4,8 @@ import ast.statements.AST_STMT;
 import symbols.SymbolTable;
 import types.Type;
 import types.TypeFunction;
-import types.TypeFunctionUnspecified;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +62,6 @@ public class AST_DEC_FUNC extends AST_DEC {
         @SuppressWarnings("ConstantConditions")
         Type returnType = symbolTable.findGeneralizedType(type);
         if (returnType == null) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare a function with unknown return type: " + type);
         }
 
@@ -99,42 +97,29 @@ public class AST_DEC_FUNC extends AST_DEC {
         if (symbolTable.getEnclosingClass() != null) {
             TypeFunction declaredFunc = symbolTable.getEnclosingClass().queryMethod(name);
             if (declaredFunc != null || symbolTable.findInCurrentScope(name) != null) {
-                putUnspecified(symbolTable);
                 throwSemantic("Trying to declare the function \"" + name + "\", but the function is already declared (or field)");
             }
             declaredFunc = symbolTable.getEnclosingClass().queryMethodRecursively(name);
             if (declaredFunc != null && !declaredFunc.sameSignature(representingType)) {
-                putUnspecified(symbolTable);
                 throwSemantic("Trying to declare the function \"" + name + "\", but the function is already declared on parent class and it is not an override.");
             }
 
             if (symbolTable.getEnclosingClass().queryFieldRecursively(name) != null) {
-                putUnspecified(symbolTable);
                 throwSemantic("Trying to declare the function \"" + name + "\", but a field with this name is already declared");
             }
 
             if (symbolTable.getEnclosingClass().name.equals(name)) {
-                putUnspecified(symbolTable);
                 throwSemantic("Trying to declare the function \"" + name + "\", but this is the name of the class");
             }
 
         } else if (symbolTable.find(name) != null) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare the global function \"" + name + "\", but the name is already declared");
         }
 
         if (deferredException != null) {
-            putUnspecified(symbolTable);
             throw deferredException;
         }
 
         symbolTable.enter(name, representingType);
-    }
-
-    /**
-     * Put erroneous function in symbol table.
-     */
-    private void putUnspecified(SymbolTable symbolTable) {
-        symbolTable.enter(name, new TypeFunctionUnspecified(name));
     }
 }

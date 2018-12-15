@@ -1,7 +1,7 @@
 import ast.AST_PROGRAM;
 import symbols.SymbolTable;
 import utils.Graphwiz;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 import java.io.FileReader;
 import java.io.PrintWriter;

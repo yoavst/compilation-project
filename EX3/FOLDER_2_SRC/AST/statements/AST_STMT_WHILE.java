@@ -5,9 +5,7 @@ import symbols.SymbolTable;
 import types.TypeError;
 import types.builtins.TypeInt;
 import utils.NotNull;
-import utils.SemanticException;
-
-import java.util.List;
+import utils.errors.SemanticException;
 
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Block;
 

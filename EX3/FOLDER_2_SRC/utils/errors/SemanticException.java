@@ -1,6 +1,7 @@
-package utils;
+package utils.errors;
 
 import ast.AST_Node;
+import utils.NotNull;
 
 public class SemanticException extends Exception {
     @NotNull

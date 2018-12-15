@@ -42,8 +42,4 @@ public abstract class AST_DEC_VAR extends AST_DEC {
             return symbolTable.find(name) == null;
         }
     }
-
-    protected void putUnspecified(SymbolTable symbolTable) {
-        symbolTable.enter(name, TypeError.instance, true);
-    }
 }

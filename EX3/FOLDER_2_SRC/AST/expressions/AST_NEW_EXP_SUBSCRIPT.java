@@ -6,7 +6,7 @@ import types.builtins.TypeArrayUnspecified;
 import types.builtins.TypeInt;
 import types.builtins.TypeVoid;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
     @NotNull

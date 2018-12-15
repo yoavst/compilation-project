@@ -3,7 +3,7 @@ package ast.expressions;
 import symbols.SymbolTable;
 import types.Type;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_NEW_EXP extends AST_EXP {
     @NotNull

@@ -4,7 +4,7 @@ import ast.variables.AST_VAR;
 import ast.expressions.AST_NEW_EXP;
 import symbols.SymbolTable;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_STMT_ASSIGN_NEW extends AST_STMT {
     @NotNull

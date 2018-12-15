@@ -45,9 +45,6 @@ public class TypeFunction extends Type {
      * Check if the two functions has the same signature
      */
     public boolean sameSignature(TypeFunction func) {
-        if (func instanceof TypeFunctionUnspecified || this instanceof TypeFunctionUnspecified)
-            return true;
-
         if (func.params.size() != params.size() || !func.returnType.equals(returnType))
             return false;
 

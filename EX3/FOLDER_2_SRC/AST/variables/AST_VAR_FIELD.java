@@ -4,7 +4,7 @@ import symbols.SymbolTable;
 import types.Type;
 import types.TypeClass;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_VAR_FIELD extends AST_VAR {
     @NotNull

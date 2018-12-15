@@ -369,7 +369,12 @@ public class SymbolTable {
                             "PrintInt",
                             TypeVoid.instance,
                             Utils.mutableListOf(TypeInt.instance)));
-
+            instance.enter(
+                    "PrintTrace",
+                    new TypeFunction(
+                            "PrintTrace",
+                            TypeVoid.instance
+                    ));
         }
         return instance;
     }

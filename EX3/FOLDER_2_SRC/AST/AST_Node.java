@@ -4,6 +4,7 @@ package ast;
 import symbols.SymbolTable;
 import types.Type;
 import utils.*;
+import utils.errors.SemanticException;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,7 @@ public abstract class AST_Node implements Printable {
                 // or, this node is not allowed to throw exceptions.
                 throw exception;
             } else {
-                SemanticException wrappedException = new SemanticException(this, "Wrapping error: " + exception.getReason());
+                SemanticException wrappedException = new SemanticException(this, "Wrapping error by "+ getClass().getSimpleName() +"[" + name() + "]");
                 wrappedException.addSuppressed(exception);
                 throw wrappedException;
             }

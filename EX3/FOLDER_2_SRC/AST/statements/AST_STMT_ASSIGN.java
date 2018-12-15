@@ -3,12 +3,8 @@ package ast.statements;
 import ast.expressions.AST_EXP;
 import ast.variables.AST_VAR;
 import symbols.SymbolTable;
-import types.TypeClass;
-import types.builtins.TypeInt;
-import types.builtins.TypeNil;
-import types.builtins.TypeString;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 /**
  * var := exp

@@ -6,7 +6,7 @@ import types.TypeFunction;
 import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.Nullable;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_STMT_RETURN extends AST_STMT {
     @Nullable

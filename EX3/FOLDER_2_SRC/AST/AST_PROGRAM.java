@@ -3,9 +3,7 @@ package ast;
 import ast.declarations.AST_DEC;
 import symbols.SymbolTable;
 import utils.NotNull;
-import utils.SemanticException;
-
-import java.util.List;
+import utils.errors.SemanticException;
 
 public class AST_PROGRAM extends AST_Node {
     @NotNull

@@ -5,11 +5,12 @@ import symbols.SymbolTable;
 import types.Type;
 import types.TypeClass;
 import types.TypeFunction;
-import types.TypeFunctionUnspecified;
 import types.builtins.TypeNil;
 import utils.NotNull;
 import utils.Nullable;
-import utils.SemanticException;
+import utils.errors.ParameterMismatchFunctionCallException;
+import utils.errors.SemanticException;
+import utils.errors.UndefinedFunctionCallException;
 
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +88,7 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
             }
 
             if (function == null) {
-                throwSemantic("Trying to call non-existent function: " + id + "(...)");
+                throw new UndefinedFunctionCallException(this, id);
             } else checkFunctionCall(function, "Trying to call function " + id + "(...)");
         }
     }
@@ -99,13 +100,9 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
      * @param initialErrorText A prefix that will be added to the error text
      */
     private void checkFunctionCall(@NotNull TypeFunction function, String initialErrorText) throws SemanticException {
-        if (function instanceof TypeFunctionUnspecified) {
-            type = function.returnType;
-            return;
-        }
-
         if (function.params.size() != funcParameters.size()) {
-            throwSemantic(initialErrorText + " with invalid size of parameters. Expected: " + function.params.size() + ". Received: " + funcParameters.size() + ".");
+            throw new ParameterMismatchFunctionCallException(this,
+                    initialErrorText + " with invalid size of parameters. Expected: " + function.params.size() + ". Received: " + funcParameters.size() + ".");
         } else {
             // check signature is the same
             for (int i = 0; i < funcParameters.size(); i++) {
@@ -118,9 +115,11 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
                         continue;
                     }
 
-                    throwSemantic(initialErrorText + ". Expected parameter " + i + " to be " + expected + " received NIL instead.");
+                    throw new ParameterMismatchFunctionCallException(this,
+                            initialErrorText + ". Expected parameter " + i + " to be " + expected + " received NIL instead.");
                 } else if (!expected.isAssignableFrom(given.type)) {
-                    throwSemantic(initialErrorText + ". Expected parameter " + i + " to be " + expected + " received " + given.type + " instead.");
+                    throw new ParameterMismatchFunctionCallException(this,
+                            initialErrorText + ". Expected parameter " + i + " to be " + expected + " received " + given.type + " instead.");
                 }
             }
 

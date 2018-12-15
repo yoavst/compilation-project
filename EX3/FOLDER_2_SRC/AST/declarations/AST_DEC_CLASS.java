@@ -6,7 +6,7 @@ import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Class;
 import types.TypeClass;
 import utils.NotNull;
 import utils.Nullable;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_DEC_CLASS extends AST_DEC {
     @Nullable

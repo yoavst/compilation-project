@@ -4,7 +4,7 @@ import ast.AST_Node;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.Nullable;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public abstract class AST_DEC extends AST_Node {
     @Nullable

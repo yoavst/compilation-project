@@ -4,11 +4,10 @@ import ast.expressions.AST_EXP;
 import ast.expressions.AST_EXP_CONSTANT;
 import symbols.SymbolTable;
 import types.Type;
-import types.TypeError;
 import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.Nullable;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
     @Nullable
@@ -48,21 +47,18 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
         //noinspection ConstantConditions
         representingType = symbolTable.findGeneralizedType(type);
         if (representingType == null || representingType == TypeVoid.instance) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare a variable of unknown type: " + type);
         }
 
         if (exp != null) {
             exp.semant(symbolTable);
             if (!representingType.isAssignableFrom(exp.getType())) {
-                putUnspecified(symbolTable);
                 throwSemantic("Trying to declare a variable of type " + type + " but received " + exp.getType());
             } else if (symbolTable.getEnclosingFunction() == null && symbolTable.getEnclosingClass() != null) {
                 /* Section 3.2 in manual
                  * class member can only be initialized by a simple constant expression: int | nil | string
                  */
                 if (!(exp instanceof AST_EXP_CONSTANT)) {
-                    putUnspecified(symbolTable);
                     throwSemantic("Trying to declare a class member \"" + name + "\" but using non-constant initializer");
                 }
             }
@@ -70,7 +66,6 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
 
         // check scoping rules
         if (!canBeDefined(symbolTable, name)) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to define the variable \"" + name +"\", but it violates the scoping rules");
         }
 

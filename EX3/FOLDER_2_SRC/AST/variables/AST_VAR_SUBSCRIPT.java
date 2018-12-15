@@ -5,7 +5,7 @@ import symbols.SymbolTable;
 import types.builtins.TypeArray;
 import types.builtins.TypeInt;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_VAR_SUBSCRIPT extends AST_VAR {
     @NotNull

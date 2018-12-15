@@ -3,7 +3,7 @@ package ast.expressions;
 import ast.variables.AST_VAR;
 import symbols.SymbolTable;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_EXP_VAR extends AST_EXP {
     @NotNull

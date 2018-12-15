@@ -3,7 +3,7 @@ package ast.statements;
 import ast.expressions.AST_EXP_FUNC_CALL;
 import symbols.SymbolTable;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_STMT_FUNC_CALL extends AST_STMT {
     @NotNull

@@ -5,7 +5,7 @@ import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeVoid;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
     @NotNull
@@ -41,26 +41,22 @@ public class AST_DEC_VAR_NEW extends AST_DEC_VAR {
         //noinspection ConstantConditions
         representingType = symbolTable.findGeneralizedType(type);
         if (representingType == null || representingType == TypeVoid.instance) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare a variable of unknown type: " + type);
         }
 
         newExp.semant(symbolTable);
         if (!representingType.isAssignableFrom(newExp.getType())) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare a variable of type " + type + " but received new " + newExp.getType());
         } else if (symbolTable.getEnclosingFunction() == null && symbolTable.getEnclosingClass() != null) {
             /* Section 3.2 in manual
              * class member can only be initialized by a simple constant expression: int | nil | string
              * Specifically, new initializer is not a constant.
              */
-            putUnspecified(symbolTable);
             throwSemantic("Trying to declare a class member \"" + name + "\" but using non-constant new initializer");
         }
 
         // check scoping rules
         if (!canBeDefined(symbolTable, name)) {
-            putUnspecified(symbolTable);
             throwSemantic("Trying to define the variable \"" + name +"\", but it violates the scoping rules");
         }
 

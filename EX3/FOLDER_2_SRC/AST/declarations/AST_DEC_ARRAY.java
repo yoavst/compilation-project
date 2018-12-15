@@ -4,7 +4,7 @@ import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArray;
 import utils.NotNull;
-import utils.SemanticException;
+import utils.errors.SemanticException;
 
 public class AST_DEC_ARRAY extends AST_DEC {
     public AST_DEC_ARRAY(String type, String name) {
