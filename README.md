@@ -26,6 +26,7 @@ $ java -jar COMPILER ${input_file} ${output_file}
 - [X] **3.7 Scope rules** 
 - [x] **3.8 Standard library**
 - [x] **Input and output**
+- [ ] **Error reporting** - report errors on end of class in case of missing functions/fields.
 - [ ] **Tests** - pass all available tests, should wait for the test suite.
 
 ## Contributing

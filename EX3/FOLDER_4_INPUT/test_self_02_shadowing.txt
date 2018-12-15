@@ -1,0 +1,9 @@
+void func() {
+    int x := 3;
+}
+
+class A {
+    int func() {
+        int x := 3;
+    }
+}

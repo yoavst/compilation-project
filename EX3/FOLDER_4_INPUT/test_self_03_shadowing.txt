@@ -1,0 +1,5 @@
+int myvar;
+class Father {int myvar;}
+
+void A(){ int a := 3;}
+class Father2 {int A;}

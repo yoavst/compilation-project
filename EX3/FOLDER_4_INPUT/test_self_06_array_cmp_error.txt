@@ -1,0 +1,9 @@
+array intArray1 = int[]
+
+array intArray2 = int[]
+
+void func(intArray1 a, intArray2 b){
+      if(a=b){
+          return;
+      }
+}
