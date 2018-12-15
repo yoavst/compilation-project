@@ -1,0 +1,9 @@
+class Class {
+    int A() {
+        B(7,8);
+    }
+
+    int B(int a) {
+       return 3;
+     }
+}

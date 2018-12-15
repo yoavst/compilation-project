@@ -1,33 +1,7 @@
-string left := "LEFT";
-string right := "RIGHT";
+class A {
+ int x;
+ int foo(int x) {
+     return 3;
+ }
 
-class Person
-{
-    int left;
-    int right;
 }
-
-int foo(int d, int k)
-{
-    int left := 50;
-    int right := 40;
-	
-    if (d+k = 17)
-    {
-        Person left;
-        Person right;
-		
-        return left.left;
-    }
-	
-    return left;
-}
-
-void main()
-{
-    if (foo(2,4))
-    {
-        PrintInt(800);
-    }
-}
-
