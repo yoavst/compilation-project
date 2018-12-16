@@ -4,6 +4,9 @@ import ast.statements.AST_STMT;
 import symbols.SymbolTable;
 import types.Type;
 import types.TypeFunction;
+import types.builtins.TypeInt;
+import types.builtins.TypeString;
+import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.errors.SemanticException;
 
@@ -114,6 +117,11 @@ public class AST_DEC_FUNC extends AST_DEC {
 
         } else if (symbolTable.find(name) != null) {
             throwSemantic("Trying to declare the global function \"" + name + "\", but the name is already declared");
+        }
+
+        Type nameType = symbolTable.findGeneralizedType(name);
+        if (nameType == TypeString.instance || nameType == TypeInt.instance || nameType == TypeVoid.instance) {
+            throwSemantic("Trying to declare the function \"" + name + "\", but the name is of builtin type");
         }
 
         if (deferredException != null) {
