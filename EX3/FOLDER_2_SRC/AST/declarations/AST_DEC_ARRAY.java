@@ -3,11 +3,12 @@ package ast.declarations;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArray;
+import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.errors.SemanticException;
 
 public class AST_DEC_ARRAY extends AST_DEC {
-    public AST_DEC_ARRAY(String type, String name) {
+    public AST_DEC_ARRAY(@NotNull String type, @NotNull String name) {
         super(type, name);
     }
 
@@ -24,9 +25,12 @@ public class AST_DEC_ARRAY extends AST_DEC {
 
     @Override
     public void semantMeHeader(SymbolTable symbolTable) throws SemanticException {
+        @SuppressWarnings("ConstantConditions")
         Type arrayType = symbolTable.findGeneralizedType(type);
         if (arrayType == null) {
             throwSemantic("Trying to declare an array type of an unknown type: \"" + type + "\"");
+        } else if (arrayType == TypeVoid.instance) {
+            throwSemantic("Trying to declare an array type of type void.");
         }
 
         // check scoping rules
