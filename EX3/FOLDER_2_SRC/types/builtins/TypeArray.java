@@ -32,7 +32,7 @@ public class TypeArray extends Type {
     public boolean isAssignableFrom(Type t) {
         return equals(t) ||
                 t == TypeNil.instance ||
-                (t instanceof TypeArrayUnspecified && arrayType.isAssignableFrom(((TypeArrayUnspecified) t).arrayType)) ||
+                ((TypeArrayUnspecified) t).arrayType == arrayType) ||
                 t == TypeError.instance;
     }
 }
