@@ -1,0 +1,1 @@
+int arr(){return 5;} array arr = int[]

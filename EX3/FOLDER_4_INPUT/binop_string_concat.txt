@@ -1,0 +1,1 @@
+class Father{string s1; string s2;} void foo(Father f){f.s1:=f.s1+f.s2;}

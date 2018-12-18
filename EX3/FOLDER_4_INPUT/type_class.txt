@@ -1,0 +1,1 @@
+class Classy {int mint;} Classy classy;

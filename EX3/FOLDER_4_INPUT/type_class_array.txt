@@ -1,0 +1,1 @@
+class Classy {int mint;} array ClassyArray = Classy[]

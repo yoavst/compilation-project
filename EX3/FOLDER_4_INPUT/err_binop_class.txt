@@ -1,0 +1,1 @@
+class Classy {string s;} Classy classy; int mint := classy + "potato";

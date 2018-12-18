@@ -1,0 +1,1 @@
+int mint(){return 5;} class mint{int print;}

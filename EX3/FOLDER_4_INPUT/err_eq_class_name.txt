@@ -1,0 +1,1 @@
+class A{int mint;} class B{int mint;} void main(){if(A=B){PrintInt(5);}}

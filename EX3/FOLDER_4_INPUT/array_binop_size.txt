@@ -1,0 +1,1 @@
+array Arr = int[] void funky(int mint){Arr arr := new int[mint<7];} void main(){int mint; funky(mint);}

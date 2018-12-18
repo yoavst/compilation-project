@@ -1,0 +1,1 @@
+array func = int[] void func(){int mint;}

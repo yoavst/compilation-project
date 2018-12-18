@@ -1,0 +1,1 @@
+void func(){if(nil){PrintInt(5);}}

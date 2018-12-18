@@ -1,0 +1,1 @@
+array Arr = int[] void funky(){Arr arr := new int["potato"]; int mint = arr[5];}

@@ -1,0 +1,1 @@
+array Arr = int[] int funky(){Arr arr := new int[funky()]; int mint := arr[funky()]; return 777;}

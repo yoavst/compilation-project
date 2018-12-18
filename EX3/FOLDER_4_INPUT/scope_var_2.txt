@@ -1,0 +1,1 @@
+string myvar := "asdf";class Father{Father myvar:=nil;void foo(){int myvar:=100;PrintInt(myvar);}}

@@ -1,0 +1,1 @@
+int func; class classy{void func(){return;}}

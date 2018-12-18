@@ -1,0 +1,1 @@
+string func(){return 5;}

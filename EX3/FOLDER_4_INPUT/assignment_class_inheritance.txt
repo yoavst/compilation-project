@@ -1,0 +1,1 @@
+class Father {int i;} class Son extends Father {int j;} Father f := new Son;

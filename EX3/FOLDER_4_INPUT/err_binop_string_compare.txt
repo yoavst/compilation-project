@@ -1,0 +1,1 @@
+class Father{string s1; string s2;} void foo(Father f){int i := f.s1 < f.s2;}

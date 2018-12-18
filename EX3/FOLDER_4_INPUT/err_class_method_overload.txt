@@ -1,0 +1,1 @@
+class Father {int foo(){return 9;}} class Son extends Father{void foo(){PrintInt(8);}}

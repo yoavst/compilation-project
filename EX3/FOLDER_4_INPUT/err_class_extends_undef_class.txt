@@ -1,0 +1,1 @@
+class Classy extends NotClassy{int mint;}

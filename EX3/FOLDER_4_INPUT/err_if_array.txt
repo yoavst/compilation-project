@@ -1,0 +1,1 @@
+array Arr = int[] Arr a := new int[76]; void func(){if(a){PrintInt(5);}}

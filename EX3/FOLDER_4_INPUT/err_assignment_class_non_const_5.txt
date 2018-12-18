@@ -1,0 +1,1 @@
+class IntList {int head := -1; IntList tail := new IntList;}

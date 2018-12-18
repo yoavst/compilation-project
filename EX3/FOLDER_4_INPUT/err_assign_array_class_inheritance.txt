@@ -1,0 +1,1 @@
+class Classy {int mint := 5;} class VeryClassy extends Classy {int sprint := 6;} array ClassyArr = Classy[] ClassyArr arr := new VeryClassy[7];

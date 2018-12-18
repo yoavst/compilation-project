@@ -1,0 +1,1 @@
+class Classy {int i := 9; int j := i;}

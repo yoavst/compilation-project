@@ -1,0 +1,1 @@
+void func(){return;} class classy{void func(){return;}}

@@ -1,0 +1,1 @@
+void func(){if(55){PrintInt(5);}}

@@ -1,0 +1,1 @@
+class Class{int func(){return 5;}} Class classy; void func(){while(classy.func()){PrintInt(5);}}

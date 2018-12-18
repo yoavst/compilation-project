@@ -1,0 +1,1 @@
+class Father {int i;} class Son extends Father {int j;} void foo(Father f) {PrintInt(f.i);} void main(){Son s; foo(s);}

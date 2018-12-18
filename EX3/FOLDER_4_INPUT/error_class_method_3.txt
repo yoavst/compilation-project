@@ -1,0 +1,11 @@
+class Class {
+    void A() {
+        noSuchFunctionDeclared();
+        int x := 3;
+        return;
+    }
+
+    void B() {
+        return;
+    }
+}

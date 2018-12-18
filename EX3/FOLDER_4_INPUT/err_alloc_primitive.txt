@@ -1,0 +1,1 @@
+int mint := new int;
