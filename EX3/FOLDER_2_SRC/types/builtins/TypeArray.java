@@ -30,9 +30,6 @@ public class TypeArray extends Type {
 
     @Override
     public boolean isAssignableFrom(Type t) {
-        return equals(t) ||
-                t == TypeNil.instance ||
-                ((TypeArrayUnspecified) t).arrayType == arrayType) ||
-                t == TypeError.instance;
+        return equals(t) || t == TypeNil.instance || (t instanceof TypeArrayUnspecified && ((TypeArrayUnspecified) t).arrayType.equals(arrayType)) || t == TypeError.instance;
     }
 }
