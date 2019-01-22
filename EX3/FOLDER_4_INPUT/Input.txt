@@ -1,7 +1,2 @@
-class A {
- int x;
- int foo(int x) {
-     return 3;
- }
-
-}
+int a;
+Person a() { return; }

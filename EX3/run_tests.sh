@@ -35,7 +35,7 @@ for file in $(ls "$INPUT_FOLDER/"); do
                 fi
             fi
             echo ""
-            exit
+            #exit
         fi
     fi
 done
