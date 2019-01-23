@@ -1,10 +1,13 @@
 package ast.expressions;
 
+import ir.IRContext;
+import ir.Register;
+import ir.arithmetic.IRConstCommand;
 import types.builtins.TypeInt;
 import utils.NotNull;
 
 public class AST_EXP_INT extends AST_EXP_CONSTANT {
-    public int value;
+    public final int value;
 
     public AST_EXP_INT(int value, boolean sign) {
         super(TypeInt.instance);
@@ -23,5 +26,13 @@ public class AST_EXP_INT extends AST_EXP_CONSTANT {
     @Override
     protected String name() {
         return "INT(" + value + ")";
+    }
+
+    @NotNull
+    @Override
+    public Register irMe(IRContext context) {
+        Register temp = context.getNewRegister();
+        context.addCommand(new IRConstCommand(temp, value));
+        return temp;
     }
 }

@@ -1,5 +1,8 @@
 package ast.variables;
 
+import ir.IRContext;
+import ir.Register;
+import ir.memory.IRLoadVariableCommand;
 import symbols.SymbolTable;
 import types.Type;
 import utils.NotNull;
@@ -27,5 +30,13 @@ public class AST_VAR_SIMPLE extends AST_VAR {
         }
 
         type = fieldType;
+    }
+
+    @NotNull
+    @Override
+    public Register irMe(IRContext context) {
+        Register temp = context.getNewRegister();
+        context.addCommand(new IRLoadVariableCommand(temp, name));
+        return temp;
     }
 }

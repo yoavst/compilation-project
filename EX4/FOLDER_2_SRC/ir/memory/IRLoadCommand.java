@@ -1,12 +1,13 @@
 package ir.memory;
 
 import ir.IRAssignmentCommand;
+import ir.Register;
 import utils.NotNull;
 
 public class IRLoadCommand extends IRAssignmentCommand {
     @NotNull
-    private final String source;
-    public IRLoadCommand(@NotNull String dest, @NotNull String source) {
+    private final Register source;
+    public IRLoadCommand(@NotNull Register dest, @NotNull Register source) {
         super("var1 := *var2", dest);
         this.source = source;
     }

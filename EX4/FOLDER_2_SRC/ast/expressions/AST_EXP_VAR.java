@@ -1,6 +1,8 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
+import ir.IRContext;
+import ir.Register;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -30,5 +32,11 @@ public class AST_EXP_VAR extends AST_EXP {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         var.semant(symbolTable);
         type = var.getType();
+    }
+
+    @NotNull
+    @Override
+    public Register irMe(IRContext context) {
+        return var.irMe(context);
     }
 }

@@ -1,14 +1,15 @@
 package ir.flow;
 
 import ir.IRCommand;
+import ir.Register;
 import utils.NotNull;
 
 public class IRIfZeroCommand extends IRCommand {
     @NotNull
-    private final String condition;
+    private final Register condition;
     @NotNull
-    private final String label;
-    public IRIfZeroCommand(@NotNull String condition, @NotNull String label) {
+    private final IRLabel label;
+    public IRIfZeroCommand(@NotNull Register condition, @NotNull IRLabel label) {
         super("ifz var1 goto label");
         this.condition = condition;
         this.label = label;

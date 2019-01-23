@@ -5,8 +5,8 @@ import utils.NotNull;
 
 public class IRGotoCommand extends IRCommand {
     @NotNull
-    private final String label;
-    public IRGotoCommand(@NotNull String label) {
+    private final IRLabel label;
+    public IRGotoCommand(@NotNull IRLabel label) {
         super("goto label");
         this.label = label;
     }

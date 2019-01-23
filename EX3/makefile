@@ -18,9 +18,9 @@ JFlex_GENERATED_FILE      = ${SRC_DIR}/Lexer.java
 CUP_GENERATED_FILES       = ${SRC_DIR}/Parser.java ${SRC_DIR}/TokenNames.java
 JFlex_CUP_GENERATED_FILES = ${JFlex_GENERATED_FILE} ${CUP_GENERATED_FILES}
 SRC_FILES                 = ${SRC_DIR}/*.java              \
-                            ${SRC_DIR}/ast/*.java          \
-							${SRC_DIR}/ast/*/*.java        \
-							${SRC_DIR}/ast/*/*/*.java      \
+                            ${SRC_DIR}/AST/*.java          \
+							${SRC_DIR}/AST/*/*.java        \
+							${SRC_DIR}/AST/*/*/*.java      \
                             ${SRC_DIR}/types/*.java        \
 							${SRC_DIR}/types/*/*.java      \
 							${SRC_DIR}/utils/*.java        \

@@ -1,10 +1,11 @@
 package ir.functions;
 
 import ir.IRAssignmentCommand;
+import ir.Register;
 import utils.NotNull;
 
 public class IRPopCommand extends IRAssignmentCommand {
-    public IRPopCommand(@NotNull String dest) {
+    public IRPopCommand(@NotNull Register dest) {
         super("pop var", dest);
     }
 

@@ -1,12 +1,13 @@
 package ir.functions;
 
 import ir.IRCommand;
+import ir.flow.IRLabel;
 import utils.NotNull;
 
 public class IRCallCommand extends IRCommand {
     @NotNull
-    private final String label;
-    public IRCallCommand(@NotNull String label) {
+    private final IRLabel label;
+    public IRCallCommand(@NotNull IRLabel label) {
         super("call label");
         this.label = label;
     }

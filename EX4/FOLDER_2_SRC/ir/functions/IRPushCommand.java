@@ -1,12 +1,13 @@
 package ir.functions;
 
 import ir.IRCommand;
+import ir.Register;
 import utils.NotNull;
 
 public class IRPushCommand extends IRCommand {
     @NotNull
-    private final String source;
-    public IRPushCommand(@NotNull String source) {
+    private final Register source;
+    public IRPushCommand(@NotNull Register source) {
         super("push var");
         this.source = source;
     }

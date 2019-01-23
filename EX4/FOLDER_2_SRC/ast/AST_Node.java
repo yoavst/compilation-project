@@ -1,7 +1,8 @@
 package ast;
 
 
-import ir.IRCommand;
+import ir.IRContext;
+import ir.Register;
 import symbols.SymbolTable;
 import types.Type;
 import utils.*;
@@ -85,9 +86,10 @@ public abstract class AST_Node implements Printable {
     /**
      * Convert this node and its children to IR form.
      */
-    public List<IRCommand> irMe() {
+    @NotNull
+    public Register irMe(IRContext context) {
         /* FIXME make this abstract */
-        return Collections.emptyList();
+        return null;
     }
 
     @Override

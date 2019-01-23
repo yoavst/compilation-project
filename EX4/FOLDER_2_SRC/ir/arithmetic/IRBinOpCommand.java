@@ -1,16 +1,17 @@
 package ir.arithmetic;
 
 import ir.IRAssignmentCommand;
+import ir.Register;
 import utils.NotNull;
 
 public class IRBinOpCommand extends IRAssignmentCommand {
     @NotNull
-    private final String first;
+    private final Register first;
     private final Operation op;
     @NotNull
-    private final String second;
+    private final Register second;
 
-    public IRBinOpCommand(@NotNull String dest, @NotNull String first, Operation op, @NotNull String second) {
+    public IRBinOpCommand(@NotNull Register dest, @NotNull Register first, Operation op, @NotNull Register second) {
         super("var1 := var2 op var3", dest);
         this.first = first;
         this.op = op;

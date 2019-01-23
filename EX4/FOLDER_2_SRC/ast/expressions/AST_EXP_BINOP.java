@@ -1,5 +1,9 @@
 package ast.expressions;
 
+import ir.IRContext;
+import ir.Register;
+import ir.arithmetic.IRBinOpCommand;
+import ir.arithmetic.Operation;
 import symbols.SymbolTable;
 import types.TypeError;
 import types.builtins.TypeInt;
@@ -90,5 +94,17 @@ public class AST_EXP_BINOP extends AST_EXP {
                 throwSemantic("Trying to apply binary operation + but typing is incorrect: left is " + left.type + " and right is " + right.type);
             }
         }
+    }
+
+    @NotNull
+    @Override
+    public Register irMe(IRContext context) {
+        Register leftRegister = left.irMe(context);
+        Register rightRegister = right.irMe(context);
+        Register temp = context.getNewRegister();
+        context.addCommand(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
+        context.freeRegister(leftRegister);
+        context.freeRegister(rightRegister);
+        return temp;
     }
 }
