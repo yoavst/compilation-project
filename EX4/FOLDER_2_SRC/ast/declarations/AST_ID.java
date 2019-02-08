@@ -52,6 +52,6 @@ public class AST_ID extends AST_Node {
             throwSemantic("Trying to declare a function with invalid parameter name: type or duplicated.");
         }
 
-        symbolTable.enter(name, typing, true);
+        symbolTable.enter(name, typing, true, true);
     }
 }

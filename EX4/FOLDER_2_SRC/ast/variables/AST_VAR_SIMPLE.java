@@ -24,19 +24,9 @@ public class AST_VAR_SIMPLE extends AST_VAR {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        Type fieldType = symbolTable.findField(name, false);
-        if (fieldType == null) {
+        symbol = symbolTable.findField(name, false);
+        if (symbol == null) {
             throwSemantic("Trying to access non-existent field: \"" + name + "\"");
         }
-
-        type = fieldType;
-    }
-
-    @NotNull
-    @Override
-    public Register irMe(IRContext context) {
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRLoadVariableCommand(temp, name));
-        return temp;
     }
 }

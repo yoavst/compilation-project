@@ -2,6 +2,7 @@ package ast.variables;
 
 import ast.expressions.AST_EXP;
 import symbols.SymbolTable;
+import types.Type;
 import types.builtins.TypeArray;
 import types.builtins.TypeInt;
 import utils.NotNull;
@@ -11,7 +12,7 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
     @NotNull
     public AST_VAR var;
     @NotNull
-    public AST_EXP subscript;
+    private AST_EXP subscript;
 
     public AST_VAR_SUBSCRIPT(@NotNull AST_VAR var, @NotNull AST_EXP subscript) {
         this.var = var;
@@ -36,13 +37,21 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
         var.semant(symbolTable);
         subscript.semant(symbolTable);
 
-        assert var.type != null;
-        if (!var.type.isArray()) {
-            throwSemantic("Trying to do var[...] on non-array type: " + var.type);
+        if (!var.getType().isArray()) {
+            throwSemantic("Trying to do var[...] on non-array type: " + var.getType());
         } else if (subscript.getType() != TypeInt.instance) {
             throwSemantic("Trying to do var[...] with non-integral index: " + subscript.getType());
         }
 
-        type = ((TypeArray) var.type).arrayType;
+        symbol = var.symbol;
+    }
+
+    @NotNull
+    @Override
+    public Type getType() {
+        if (symbol == null) {
+            throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
+        }
+        return ((TypeArray) symbol.type).arrayType;
     }
 }

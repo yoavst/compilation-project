@@ -1,6 +1,7 @@
 package ast.declarations;
 
 import ast.statements.AST_STMT;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import types.TypeFunction;
@@ -18,11 +19,13 @@ import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Function;
 
 public class AST_DEC_FUNC extends AST_DEC {
     @NotNull
-    public List<AST_ID> parameters;
+    private final List<AST_ID> parameters;
     @NotNull
-    public AST_STMT[] statements;
+    private final AST_STMT[] statements;
 
-    public TypeFunction representingType;
+    private TypeFunction representingType;
+    private Symbol symbol;
+    private List<Symbol> locals;
 
     public AST_DEC_FUNC(@NotNull String type, @NotNull String name, @NotNull AST_STMT[] statements, @NotNull List<AST_ID> parameters) {
         super(type, name);
@@ -52,12 +55,12 @@ public class AST_DEC_FUNC extends AST_DEC {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         symbolTable.beginScope(Function, representingType, "func " + name);
         for (AST_ID parameter : parameters) {
-            symbolTable.enter(parameter.name, parameter.getType(), true);
+            symbolTable.enter(parameter.name, parameter.getType(), true,true);
         }
         for (AST_STMT statement : statements) {
             statement.semant(symbolTable);
         }
-        symbolTable.endScope();
+        locals = symbolTable.endScope();
     }
 
     @Override
@@ -68,7 +71,7 @@ public class AST_DEC_FUNC extends AST_DEC {
             throwSemantic("Trying to declare a function with unknown return type: " + type);
         }
 
-        representingType = new TypeFunction(name, returnType, new ArrayList<>());
+        representingType = new TypeFunction(name, returnType, new ArrayList<>(), symbolTable.getEnclosingClass());
 
         SemanticException deferredException = null;
         symbolTable.beginScope(Function, representingType, "funcParams " + name);
@@ -98,12 +101,12 @@ public class AST_DEC_FUNC extends AST_DEC {
          *   shadowing a variable from outside a function is valid.
          */
         if (symbolTable.getEnclosingClass() != null) {
-            TypeFunction declaredFunc = symbolTable.getEnclosingClass().queryMethod(name);
+            Symbol declaredFunc = symbolTable.getEnclosingClass().queryMethod(name);
             if (declaredFunc != null || symbolTable.findInCurrentScope(name) != null) {
                 throwSemantic("Trying to declare the function \"" + name + "\", but the function is already declared (or field)");
             }
             declaredFunc = symbolTable.getEnclosingClass().queryMethodRecursively(name);
-            if (declaredFunc != null && !declaredFunc.sameSignature(representingType)) {
+            if (declaredFunc != null && !declaredFunc.getFunction().sameSignature(representingType)) {
                 throwSemantic("Trying to declare the function \"" + name + "\", but the function is already declared on parent class and it is not an override.");
             }
 
@@ -129,5 +132,6 @@ public class AST_DEC_FUNC extends AST_DEC {
         }
 
         symbolTable.enter(name, representingType);
+        symbol = symbolTable.findMethod(name, true);
     }
 }

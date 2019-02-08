@@ -1,6 +1,7 @@
 package ast.variables;
 
 import ast.AST_Node;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import utils.NotNull;
@@ -8,7 +9,7 @@ import utils.Nullable;
 
 public abstract class AST_VAR extends AST_Node {
     @Nullable
-    protected Type type;
+    protected Symbol symbol;
 
     @NotNull
     @Override
@@ -25,9 +26,9 @@ public abstract class AST_VAR extends AST_Node {
     @NotNull
     @Override
     public Type getType() {
-        if (type == null) {
+        if (symbol == null) {
             throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
         }
-        return type;
+        return symbol.type;
     }
 }

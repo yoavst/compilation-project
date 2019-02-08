@@ -10,11 +10,11 @@ import utils.errors.SemanticException;
 
 public class AST_DEC_CLASS extends AST_DEC {
     @Nullable
-    public String parentClass;
+    private String parentClass;
     @NotNull
-    public AST_DEC[] fields;
+    private AST_DEC[] fields;
 
-    public TypeClass representingType;
+    private TypeClass representingType;
 
     public AST_DEC_CLASS(@NotNull String name, @NotNull AST_DEC[] fields, @Nullable String parentClass) {
         super(null, name);
@@ -86,6 +86,6 @@ public class AST_DEC_CLASS extends AST_DEC {
             throwSemantic("Trying to declare a class but the name \"" + name + "\" is already in use");
         }
 
-        symbolTable.enter(name, representingType);
+        symbolTable.enter(name, representingType, false,true);
     }
 }

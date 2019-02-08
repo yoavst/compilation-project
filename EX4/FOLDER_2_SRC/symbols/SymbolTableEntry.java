@@ -1,14 +1,16 @@
 package symbols;
 
-import types.Type;
+import utils.NotNull;
 
 class SymbolTableEntry {
     /**
      * Index in the symbol table, the hash result on the name.
      */
     final int index;
-    final String name;
-    final Type type;
+    @NotNull
+    public final String name;
+    @NotNull
+    public final Symbol symbol;
 
     /**
      * The symbol table also remembers the order of insertions. This field points to the last inserted value.
@@ -19,13 +21,15 @@ class SymbolTableEntry {
      */
     SymbolTableEntry next;
 
-    /** The prevtop_index is just for debug purposes ... */
+    /**
+     * The prevtop_index is just for debug purposes ...
+     */
     final int prevtop_index;
 
     /**
      * Whether this is a variable declaration or a type/function declaration.
      */
-    final boolean isVariableDeclaration;
+    public final boolean isVariableDeclaration;
 
     /**
      * There are three types of scope: Class/ClassScan, Function, Block
@@ -33,29 +37,30 @@ class SymbolTableEntry {
      * <br /><br />
      * The rules for this field are the following:
      * <ul>
-     *     <li>For every block scope, increase value by 10.</li>
-     *     <li>For every enclosing scope, increase value by 1.</li>
+     * <li>For every block scope, increase value by 10.</li>
+     * <li>For every enclosing scope, increase value by 1.</li>
      * </ul>
+     *
      * @see types.TYPE_FOR_SCOPE_BOUNDARIES.Scope
      */
     final int scopeMajor;
 
     SymbolTableEntry(
-            String name,
-            Type type,
+            @NotNull Symbol symbol,
+            boolean isVariableDeclaration,
             int index,
             SymbolTableEntry next,
             SymbolTableEntry prev,
             int prevtop_index,
-            boolean isVariableDeclaration,
             int scopeMajor) {
         this.index = index;
-        this.name = name;
-        this.type = type;
+        this.symbol = symbol;
         this.next = next;
         this.prev = prev;
         this.prevtop_index = prevtop_index;
-        this.isVariableDeclaration = isVariableDeclaration;
         this.scopeMajor = scopeMajor;
+
+        this.name = symbol.name;
+        this.isVariableDeclaration = isVariableDeclaration;
     }
 }

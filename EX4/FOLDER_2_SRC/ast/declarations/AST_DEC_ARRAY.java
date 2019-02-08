@@ -37,6 +37,6 @@ public class AST_DEC_ARRAY extends AST_DEC {
         if (symbolTable.find(name) != null) {
             throwSemantic("Trying to declare an array typedef but the name \"" + name + "\" is already in use");
         }
-        symbolTable.enter(name, new TypeArray(name, arrayType));
+        symbolTable.enter(name, new TypeArray(name, arrayType), false, true);
     }
 }

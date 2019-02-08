@@ -1,7 +1,7 @@
 package ast.variables;
 
+import symbols.Symbol;
 import symbols.SymbolTable;
-import types.Type;
 import types.TypeClass;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -36,11 +36,9 @@ public class AST_VAR_FIELD extends AST_VAR {
             throwSemantic("Trying to access the field \"" + fieldName + "\" on non-class type: " + var.getType());
         }
 
-        Type fieldType = ((TypeClass) var.getType()).queryFieldRecursively(fieldName);
-        if (fieldType == null) {
+        symbol = ((TypeClass) var.getType()).queryFieldRecursively(fieldName);
+        if (symbol == null) {
             throwSemantic("Trying to access the non-existent field \"" + fieldName + "\" on type: " + var.getType());
         }
-
-        type = fieldType;
     }
 }

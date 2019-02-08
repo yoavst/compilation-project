@@ -1,5 +1,6 @@
 package types;
 
+import symbols.Symbol;
 import types.builtins.TypeNil;
 import utils.NotNull;
 import utils.Nullable;
@@ -29,7 +30,7 @@ public final class TypeClass extends Type {
      * This mapping contains only the current class' fields.
      */
     @NotNull
-    private final Map<String, Type> fields;
+    private final Map<String, Symbol> fields;
 
     /**
      * The methods that were declared on this class.
@@ -38,10 +39,10 @@ public final class TypeClass extends Type {
      * This mapping contains only the current class' methods.
      */
     @NotNull
-    private final Map<String, TypeFunction> methods;
+    private final Map<String, Symbol> methods;
 
 
-    public TypeClass(String name, @Nullable TypeClass parent, @NotNull Map<String, Type> fields, @NotNull Map<String, TypeFunction> methods) {
+    public TypeClass(String name, @Nullable TypeClass parent, @NotNull Map<String, Symbol> fields, @NotNull Map<String, Symbol> methods) {
         super(name);
 
         this.parent = parent;
@@ -74,7 +75,7 @@ public final class TypeClass extends Type {
             return false;
         }
 
-        methods.put(name, function);
+        methods.put(name, new Symbol(name, function, this));
         return true;
     }
 
@@ -90,7 +91,7 @@ public final class TypeClass extends Type {
             return false;
         }
 
-        fields.put(name, type);
+        fields.put(name, new Symbol(name, type, this));
         return true;
     }
 
@@ -98,7 +99,7 @@ public final class TypeClass extends Type {
      * Tries to query a field by its name, returning null if not exist.
      */
     @Nullable
-    public Type queryField(@NotNull String name) {
+    public Symbol queryField(@NotNull String name) {
         return fields.get(name);
     }
 
@@ -106,10 +107,10 @@ public final class TypeClass extends Type {
      * Tries to query field recursively by its name, return null if not exist on this class and its parents.
      */
     @Nullable
-    public Type queryFieldRecursively(@NotNull String name) {
+    public Symbol queryFieldRecursively(@NotNull String name) {
         TypeClass currentType = this;
         while (currentType != null) {
-            Type field = currentType.queryField(name);
+            Symbol field = currentType.queryField(name);
             if (field != null) {
                 return field;
             }
@@ -122,7 +123,7 @@ public final class TypeClass extends Type {
      * Tries to query a method by its name, returning null if not exist.
      */
     @Nullable
-    public TypeFunction queryMethod(@NotNull String name) {
+    public Symbol queryMethod(@NotNull String name) {
         return methods.get(name);
     }
 
@@ -130,10 +131,10 @@ public final class TypeClass extends Type {
      * Tries to query method recursively by its name, return null if not exist on this class and its parents.
      */
     @Nullable
-    public TypeFunction queryMethodRecursively(@NotNull String name) {
+    public Symbol queryMethodRecursively(@NotNull String name) {
         TypeClass currentType = this;
         while (currentType != null) {
-            TypeFunction method = currentType.queryMethod(name);
+            Symbol method = currentType.queryMethod(name);
             if (method != null) {
                 return method;
             }

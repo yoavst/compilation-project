@@ -1,6 +1,7 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import types.TypeClass;
@@ -21,7 +22,8 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
     @NotNull
     public String id;
     @NotNull
-    public List<AST_EXP> funcParameters;
+    private List<AST_EXP> funcParameters;
+    private Symbol calledFunction;
 
     public AST_EXP_FUNC_CALL(@NotNull String id, @Nullable AST_VAR var, @NotNull List<AST_EXP> funcParameters) {
         this.var = var;
@@ -70,26 +72,26 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
             if (!callingType.isClass()) {
                 throwSemantic("Trying to make a function call on non class type: " + callingType);
             } else {
-                TypeFunction function = ((TypeClass) callingType).queryMethodRecursively(id);
-                if (function == null) {
+                calledFunction = ((TypeClass) callingType).queryMethodRecursively(id);
+                if (calledFunction == null) {
                     throwSemantic("Trying to call a non-existent member function: " + callingType + "." + id + "(...)");
-                } else checkFunctionCall(function, "Trying to call member function " + callingType + "." + id);
+                } else
+                    checkFunctionCall(calledFunction.getFunction(), "Trying to call member function " + callingType + "." + id);
             }
         } else {
-            TypeFunction function = null;
             // first, check in the class scope
             final TypeClass innerClass = symbolTable.getEnclosingClass();
             if (innerClass != null) {
-                function = innerClass.queryMethodRecursively(id);
+                calledFunction = innerClass.queryMethodRecursively(id);
             }
             // then, check if it in the global scope, skipping class scope
-            if (function == null) {
-                function = symbolTable.findMethod(id, true);
+            if (calledFunction == null) {
+                calledFunction = symbolTable.findMethod(id, true);
             }
 
-            if (function == null) {
+            if (calledFunction == null) {
                 throw new UndefinedFunctionCallException(this, id);
-            } else checkFunctionCall(function, "Trying to call function " + id + "(...)");
+            } else checkFunctionCall(calledFunction.getFunction(), "Trying to call function " + id + "(...)");
         }
     }
 

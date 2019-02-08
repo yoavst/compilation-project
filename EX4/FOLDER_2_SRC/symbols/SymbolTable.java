@@ -14,6 +14,8 @@ import utils.Nullable;
 import utils.Utils;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class SymbolTable {
@@ -25,6 +27,9 @@ public class SymbolTable {
     private TypeFunction enclosingFunction;
     private boolean isClassScanning = false;
     private int currentScopeMajor = 0;
+    private List<TypeClass> registeredClasses = new ArrayList<>();
+    private List<TypeArray> registeredArrays = new ArrayList<>();
+    private List<Symbol> globalSymbols = new ArrayList<>();
 
     private int hash(String s) {
         if (s.charAt(0) == 'l') {
@@ -55,15 +60,27 @@ public class SymbolTable {
     }
 
     public void enter(String name, Type t) {
-        enter(name, t, false);
+        enter(name, t, false, false);
     }
 
     public void enter(String name, Type t, boolean isVariableDeclaration) {
+        enter(name, t, isVariableDeclaration, false);
+    }
+
+    public void enter(String name, Type t, boolean isVariableDeclaration, boolean isAddingForNamespace) {
+        Symbol s = new Symbol(name, t, enclosingClass);
         int hashValue = hash(name);
         SymbolTableEntry next = table[hashValue];
-        SymbolTableEntry e = new SymbolTableEntry(name, t, hashValue, next, top, topIndex++, isVariableDeclaration, currentScopeMajor);
+        SymbolTableEntry e = new SymbolTableEntry(s, isVariableDeclaration, hashValue, next, top, topIndex++, currentScopeMajor);
         top = e;
         table[hashValue] = e;
+
+        if (currentScopeMajor == 0 && !isAddingForNamespace) {
+            globalSymbols.add(s);
+        }
+
+        if (t.isArray() && !isVariableDeclaration && isAddingForNamespace)
+            registeredArrays.add((TypeArray) t);
 
         PrintMe();
     }
@@ -72,7 +89,7 @@ public class SymbolTable {
      * Find the inner-most scope element with given name, returning null if not found
      */
     @Nullable
-    public Type find(@NotNull String name) {
+    public Symbol find(@NotNull String name) {
         return find(name, null);
     }
 
@@ -82,7 +99,7 @@ public class SymbolTable {
      * @param filter Applying filter on results, returns element only if accepted by the filter.
      */
     @Nullable
-    private Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter) {
+    private Symbol find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter) {
         return find(name, filter, null);
     }
 
@@ -93,10 +110,10 @@ public class SymbolTable {
      * @param shouldContinueLoop Continuing the loop until this return false or reached null.
      */
     @Nullable
-    private Type find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter, Predicate<SymbolTableEntry> shouldContinueLoop) {
+    private Symbol find(@NotNull String name, @Nullable Predicate<SymbolTableEntry> filter, Predicate<SymbolTableEntry> shouldContinueLoop) {
         for (SymbolTableEntry e = table[hash(name)]; e != null && (shouldContinueLoop == null || shouldContinueLoop.test(e)); e = e.next) {
             if (name.equals(e.name) && (filter == null || filter.test(e))) {
-                return e.type;
+                return e.symbol;
             }
         }
 
@@ -106,7 +123,7 @@ public class SymbolTable {
     /**
      * Find the inner-most scope element with given name, returning null if not found or if went outside an enclosing scope.
      */
-    public Type findInCurrentEnclosingScope(@NotNull String name) {
+    public Symbol findInCurrentEnclosingScope(@NotNull String name) {
         int currentEnclosingScope = currentScopeMajor % 10;
         return find(name, null, e -> e.scopeMajor % 10 >= currentEnclosingScope);
     }
@@ -114,7 +131,7 @@ public class SymbolTable {
     /**
      * Find the inner-most scope element with given name, returning null if not found or if went outside of the current scope.
      */
-    public Type findInCurrentScope(@NotNull String name) {
+    public Symbol findInCurrentScope(@NotNull String name) {
         return find(name, null, e -> e.scopeMajor == currentScopeMajor);
     }
 
@@ -124,14 +141,14 @@ public class SymbolTable {
      * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
      */
     @Nullable
-    public TypeFunction findMethod(@NotNull String name, boolean startSearchingOutsideClass) {
+    public Symbol findMethod(@NotNull String name, boolean startSearchingOutsideClass) {
         if (!startSearchingOutsideClass && enclosingClass != null) {
-            TypeFunction type = enclosingClass.queryMethodRecursively(name);
-            if (type != null)
-                return type;
+            Symbol symbol = enclosingClass.queryMethodRecursively(name);
+            if (symbol != null)
+                return symbol;
         }
 
-        return (TypeFunction) find(name, entry -> !entry.isVariableDeclaration && entry.type.isFunction());
+        return find(name, entry -> !entry.isVariableDeclaration && entry.symbol.type.isFunction());
     }
 
     /**
@@ -140,17 +157,17 @@ public class SymbolTable {
      * @param startSearchingOutsideClass Whether or not to skip a method that is defined inside class scope
      */
     @Nullable
-    public Type findField(@NotNull String name, boolean startSearchingOutsideClass) {
+    public Symbol findField(@NotNull String name, boolean startSearchingOutsideClass) {
         if (enclosingFunction != null) {
-            Type type = findInCurrentEnclosingScope(name);
-            if (type != null)
-                return type;
+            Symbol symbol = findInCurrentEnclosingScope(name);
+            if (symbol != null)
+                return symbol;
         }
 
         if (!startSearchingOutsideClass && enclosingClass != null) {
-            Type type = enclosingClass.queryFieldRecursively(name);
-            if (type != null)
-                return type;
+            Symbol symbol = enclosingClass.queryFieldRecursively(name);
+            if (symbol != null)
+                return symbol;
         }
 
         return find(name, entry -> entry.isVariableDeclaration);
@@ -161,7 +178,8 @@ public class SymbolTable {
      */
     @Nullable
     public TypeClass findClassType(@NotNull String name) {
-        return (TypeClass) find(name, entry -> !entry.isVariableDeclaration && entry.type.isClass());
+        Symbol s = find(name, entry -> !entry.isVariableDeclaration && entry.symbol.type.isClass());
+        return s != null ? (TypeClass) s.type : null;
     }
 
     /**
@@ -169,7 +187,8 @@ public class SymbolTable {
      */
     @Nullable
     public TypeArray findArrayType(@NotNull String name) {
-        return (TypeArray) find(name, entry -> !entry.isVariableDeclaration && entry.type.isArray());
+        Symbol s = find(name, entry -> !entry.isVariableDeclaration && entry.symbol.type.isArray());
+        return s != null ? (TypeArray) s.type : null;
     }
 
 
@@ -212,6 +231,30 @@ public class SymbolTable {
     }
 
     /**
+     * Return all the classes that were ever loaded to the symbol table
+     */
+    @NotNull
+    public List<TypeClass> getClasses() {
+        return registeredClasses;
+    }
+
+    /**
+     * Return all the array types that were ever loaded to the symbol table
+     */
+    @NotNull
+    public List<TypeArray> getArrays() {
+        return registeredArrays;
+    }
+
+    /**
+     * Return all the global symbols
+     */
+    @NotNull
+    public List<Symbol> getGlobalSymbols() {
+        return globalSymbols;
+    }
+
+    /**
      * Begins a new scope by adding <SCOPE-BOUNDARY> to the Hashmap.
      * In addition, if it is a class or function scope, update the enclosing field.
      */
@@ -228,6 +271,7 @@ public class SymbolTable {
             enclosingFunction = (TypeFunction) enclosingType;
         } else if (scope == Scope.Class) {
             enclosingClass = (TypeClass) enclosingType;
+            registeredClasses.add(enclosingClass);
         } else if (scope == Scope.ClassScan) {
             isClassScanning = true;
             enclosingClass = (TypeClass) enclosingType;
@@ -240,14 +284,15 @@ public class SymbolTable {
      * Ending the current scope by popping all the symbols in the current scope.
      * If the current scope with {@link Scope#ClassScan} it will also register all the fields and method to the class.
      */
-    public void endScope() {
+    public List<Symbol> endScope() {
+        List<Symbol> symbols = new ArrayList<>();
         // we create a scope to semant the function parameters in the header
         boolean shouldSaveToClass = isClassScanning && getEnclosingFunction() == null;
         // Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit
         while (!top.name.equals("SCOPE-BOUNDARY")) {
             if (shouldSaveToClass) {
                 // register the method/field into the class type.
-                Type declaration = top.type;
+                Type declaration = top.symbol.type;
                 if (declaration.isFunction()) {
                     enclosingClass.registerMethod(top.name, (TypeFunction) declaration);
                 } else {
@@ -255,12 +300,13 @@ public class SymbolTable {
                 }
             }
 
+            symbols.add(top.symbol);
             table[top.index] = top.next;
             topIndex = topIndex - 1;
             top = top.prev;
         }
 
-        Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) top.type).scope;
+        Scope scope = ((TYPE_FOR_SCOPE_BOUNDARIES) top.symbol.type).scope;
         if (scope == Scope.Function) {
             enclosingFunction = null;
         } else if (scope == Scope.Class || scope == Scope.ClassScan) {
@@ -277,6 +323,7 @@ public class SymbolTable {
         currentScopeMajor = top == null ? 0 : top.scopeMajor;
 
         PrintMe();
+        return symbols;
     }
 
     public static int n = 0;
@@ -288,7 +335,7 @@ public class SymbolTable {
         String filename = String.format("SYMBOL_TABLE_%d_IN_GRAPHVIZ_DOT_FORMAT.txt", n++);
 
         try {
-            /*******************************************/
+            /*
             /* [1] Open Graphviz text file for writing */
             /*******************************************/
             PrintWriter fileWriter = new PrintWriter(dirname + filename);
@@ -327,7 +374,7 @@ public class SymbolTable {
                     fileWriter.format("node_%d_%d ", i, j);
                     fileWriter.format("[label=\"<f0>%s|<f1>%s|<f2>prevtop=%d|<f3>next\"];\n",
                             it.name,
-                            it.type.name,
+                            it.symbol.type.name,
                             it.prevtop_index);
 
                     if (it.next != null) {
