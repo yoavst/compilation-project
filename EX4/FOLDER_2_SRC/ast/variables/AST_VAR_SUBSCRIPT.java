@@ -1,6 +1,12 @@
 package ast.variables;
 
 import ast.expressions.AST_EXP;
+import ir.IRContext;
+import ir.arithmetic.IRBinOpCommand;
+import ir.arithmetic.IRBinOpRightConstCommand;
+import ir.arithmetic.Operation;
+import ir.memory.IRLoadCommand;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArray;
@@ -53,5 +59,20 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
             throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
         }
         return ((TypeArray) symbol.type).arrayType;
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        assert symbol != null && symbol.instance != null;
+
+        Register instance = var.irMe(context);
+        Register index = subscript.irMe(context);
+        Register temp = context.getNewRegister();
+        context.addCommand(new IRBinOpRightConstCommand(index, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size()));
+        context.addCommand(new IRBinOpCommand(index, instance, Operation.Plus, index));
+        context.addCommand(new IRLoadCommand(temp, index)); // instance hold variable
+        context.freeRegister(instance);
+        context.freeRegister(index);
+        return temp;
     }
 }

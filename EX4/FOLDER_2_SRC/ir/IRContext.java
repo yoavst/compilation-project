@@ -99,5 +99,11 @@ public final class IRContext {
         throw new IllegalStateException();
     }
 
+    @NotNull
+    public STable getFieldsTable(@NotNull TypeClass typeClass) {
+        // FIXME implement it
+        throw new IllegalStateException();
+    }
+
     //endregion
 }
