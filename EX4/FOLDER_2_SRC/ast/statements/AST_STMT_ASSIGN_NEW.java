@@ -2,6 +2,9 @@ package ast.statements;
 
 import ast.variables.AST_VAR;
 import ast.expressions.AST_NEW_EXP;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -44,5 +47,9 @@ public class AST_STMT_ASSIGN_NEW extends AST_STMT {
         }
     }
 
-
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        var.irAssignTo(context, () -> exp.irMe(context));
+        return NonExistsRegister.instance;
+    }
 }

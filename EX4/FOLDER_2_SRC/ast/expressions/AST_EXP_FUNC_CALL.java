@@ -1,7 +1,7 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.arithmetic.IRBinOpRightConstCommand;
 import ir.arithmetic.Operation;
 import ir.flow.IRLabel;
@@ -141,37 +141,38 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
+        // [this] is the first parameter for instance function
         Register instance = var != null ? var.irMe(context) : null;
         if (instance != null) {
-            context.addCommand(new IRPushCommand(instance));
+            context.checkNotNull(instance);
+            context.command(new IRPushCommand(instance));
         }
 
         // push parameters
         for (AST_EXP funcParameter : funcParameters) {
             Register param = funcParameter.irMe(context);
-            context.addCommand(new IRPushCommand(param));
-            context.freeRegister(param);
+            context.command(new IRPushCommand(param));
         }
 
         // call function
-        Register temp = context.getNewRegister();
-        if (symbol.isBounded() && symbol.instance != null) {
+        if (symbol.isBounded() && instance != null) {
             // bounded function
-            // we reuse the instance register for all calculations because we can
-            int virtualTableIndex = context.getVirtualTable(symbol.instance).get(symbol);
-            context.addCommand(new IRBinOpRightConstCommand(instance, instance, Operation.Plus, IRContext.VTABLE_POSITION)); // instance hold address of pointer to vtable
-            context.addCommand(new IRLoadCommand(instance, instance)); // instance hold address to vtable
-            context.addCommand(new IRBinOpRightConstCommand(instance, instance, Operation.Plus, virtualTableIndex)); // instance hold address to pointer to function
-            context.addCommand(new IRLoadCommand(instance, instance)); // instance hold address of function
-            context.addCommand(new IRCallRegisterCommand(instance));
-
-            context.freeRegister(instance);
+            int virtualTableIndex = context.getMethodOffsetInVtable(symbol);
+            Register temp1 = context.newRegister();
+            context.command(new IRBinOpRightConstCommand(temp1, instance, Operation.Plus, IRContext.VIRTUAL_TABLE_OFFSET_IN_OBJECT)); // temp1 = instance_addr + offset_for_vtable
+            Register temp2 = context.newRegister();
+            context.command(new IRLoadCommand(temp2, temp1)); // temp2 = *temp1
+            context.command(new IRBinOpRightConstCommand(temp2, temp2, Operation.Plus, virtualTableIndex)); // temp2 += offset
+            Register temp3 = context.newRegister();
+            context.command(new IRLoadCommand(temp3, temp2)); // temp3 = *temp2
+            context.command(new IRCallRegisterCommand(temp3)); // call temp3
         } else {
             // global function
-            IRLabel label = context.getFunction(symbol);
-            context.addCommand(new IRCallCommand(label));
+            IRLabel label = context.functionLabelFor(symbol);
+            context.command(new IRCallCommand(label));
         }
-        context.addCommand(new IRPopCommand(temp));
+        Register temp = context.newRegister();
+        context.command(new IRPopCommand(temp));
         return temp;
     }
 }

@@ -42,4 +42,9 @@ public abstract class Type {
     public String toString() {
         return "<" + name + ">";
     }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

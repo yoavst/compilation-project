@@ -1,7 +1,7 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.arithmetic.IRSetValueCommand;
 import ir.flow.IRGotoCommand;
 import ir.registers.NonExistsRegister;
@@ -65,10 +65,9 @@ public class AST_STMT_RETURN extends AST_STMT {
     public @NotNull Register irMe(IRContext context) {
         if (exp != null) {
             Register temp = exp.irMe(context);
-            context.addCommand(new IRSetValueCommand(ReturnRegister.instance, temp));
-            context.freeRegister(temp);
+            context.command(new IRSetValueCommand(ReturnRegister.instance, temp));
         }
-        context.addCommand(new IRGotoCommand(context.getReturnLabel(enclosingFunction)));
+        context.command(new IRGotoCommand(context.returnLabelFor(enclosingFunction)));
 
         return NonExistsRegister.instance;
     }

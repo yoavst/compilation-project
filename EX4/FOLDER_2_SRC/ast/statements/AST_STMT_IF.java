@@ -1,7 +1,7 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.flow.IRIfNotZeroCommand;
 import ir.flow.IRIfZeroCommand;
 import ir.flow.IRLabel;
@@ -14,6 +14,8 @@ import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.errors.SemanticException;
 
+import java.util.List;
+
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Block;
 
 public class AST_STMT_IF extends AST_STMT {
@@ -22,6 +24,7 @@ public class AST_STMT_IF extends AST_STMT {
     @NotNull
     public AST_STMT[] body;
     private Symbol enclosingFunction;
+    private List<Symbol> locals;
 
     public AST_STMT_IF(@NotNull AST_EXP cond, @NotNull AST_STMT[] body) {
         this.cond = cond;
@@ -52,7 +55,7 @@ public class AST_STMT_IF extends AST_STMT {
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }
-        symbolTable.endScope();
+        locals = symbolTable.endScope();
 
         enclosingFunction = symbolTable.getEnclosingFunction();
     }
@@ -60,16 +63,14 @@ public class AST_STMT_IF extends AST_STMT {
     @Override
     public @NotNull Register irMe(IRContext context) {
         Register conditionRegister = cond.irMe(context);
-        IRLabel afterLabel = context.generateLabel(enclosingFunction.name + "_after_if");
+        IRLabel afterLabel = context.newLabel("after_if");
         // if not true then jump, otherwise continue
-        context.addCommand(new IRIfZeroCommand(conditionRegister, afterLabel));
-        context.freeRegister(conditionRegister);
+        context.command(new IRIfZeroCommand(conditionRegister, afterLabel));
         // insert body
         for (AST_STMT statement : body) {
-            Register temp = statement.irMe(context);
-            context.freeRegister(temp);
+            statement.irMe(context);
         }
-        context.putLabel(afterLabel);
+        context.label(afterLabel);
         return NonExistsRegister.instance;
     }
 }

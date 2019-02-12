@@ -1,6 +1,6 @@
 package ast.expressions;
 
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.registers.Register;
 import ir.arithmetic.IRConstCommand;
 import types.builtins.TypeNil;
@@ -20,8 +20,8 @@ public class AST_EXP_NIL extends AST_EXP_CONSTANT {
     @NotNull
     @Override
     public Register irMe(IRContext context) {
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRConstCommand(temp, IRContext.NilValue));
+        Register temp = context.newRegister();
+        context.command(new IRConstCommand(temp, IRContext.NIL_VALUE));
         return temp;
     }
 }

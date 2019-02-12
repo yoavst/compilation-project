@@ -5,7 +5,9 @@ import types.builtins.TypeNil;
 import utils.NotNull;
 import utils.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -141,6 +143,20 @@ public final class TypeClass extends Type {
             currentType = currentType.parent;
         }
         return null;
+    }
+
+    /**
+     * Return the fields defined in the class (and not in parent)
+     */
+    public List<Symbol> getFields() {
+        return new ArrayList<>(fields.values());
+    }
+
+    /**
+     * Return the functions defined in the class (and not in parent)
+     */
+    public List<Symbol> getMethods() {
+        return new ArrayList<>(methods.values());
     }
 
     /**

@@ -1,7 +1,7 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP_FUNC_CALL;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import symbols.SymbolTable;
@@ -36,9 +36,7 @@ public class AST_STMT_FUNC_CALL extends AST_STMT {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
-       Register temp = funcCall.irMe(context);
-       context.freeRegister(temp);
-       return NonExistsRegister.instance;
+        return funcCall.irMe(context);
     }
 }
 

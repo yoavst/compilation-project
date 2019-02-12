@@ -4,7 +4,7 @@ import symbols.SymbolTable;
 import types.Type;
 
 public abstract class AST_EXP_CONSTANT extends AST_EXP {
-    public AST_EXP_CONSTANT(Type type) {
+    AST_EXP_CONSTANT(Type type) {
         this.type = type;
     }
 

@@ -1,6 +1,6 @@
 package ast.expressions;
 
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.functions.IRCallCommand;
 import ir.functions.IRPopCommand;
 import ir.functions.IRPushCommand;
@@ -61,14 +61,15 @@ public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
     @Override
     public Register irMe(IRContext context) {
         assert type != null;
+
+        // push size
         Register arraySize = subscript.irMe(context);
-        context.addCommand(new IRPushCommand(arraySize));
-        context.freeRegister(arraySize);
-
-        context.addCommand(new IRCallCommand(context.constructorOf(((TypeArray) type))));
-
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRPopCommand(temp));
+        context.command(new IRPushCommand(arraySize));
+        // cal constructor
+        context.command(new IRCallCommand(context.constructorOf(((TypeArray) type))));
+        // pop array
+        Register temp = context.newRegister();
+        context.command(new IRPopCommand(temp));
         return temp;
     }
 }

@@ -1,6 +1,6 @@
 package ast.expressions;
 
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.registers.Register;
 import ir.arithmetic.IRConstCommand;
 import types.builtins.TypeInt;
@@ -31,8 +31,8 @@ public class AST_EXP_INT extends AST_EXP_CONSTANT {
     @NotNull
     @Override
     public Register irMe(IRContext context) {
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRConstCommand(temp, value));
+        Register temp = context.newRegister();
+        context.command(new IRConstCommand(temp, value));
         return temp;
     }
 }

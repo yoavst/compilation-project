@@ -1,7 +1,8 @@
 package ast.variables;
 
 import ast.expressions.AST_EXP;
-import ir.IRContext;
+import ir.memory.IRStoreCommand;
+import ir.utils.IRContext;
 import ir.arithmetic.IRBinOpCommand;
 import ir.arithmetic.IRBinOpRightConstCommand;
 import ir.arithmetic.Operation;
@@ -13,6 +14,8 @@ import types.builtins.TypeArray;
 import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.errors.SemanticException;
+
+import java.util.function.Supplier;
 
 public class AST_VAR_SUBSCRIPT extends AST_VAR {
     @NotNull
@@ -66,13 +69,35 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
         assert symbol != null && symbol.instance != null;
 
         Register instance = var.irMe(context);
+        context.checkNotNull(instance);
         Register index = subscript.irMe(context);
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRBinOpRightConstCommand(index, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size()));
-        context.addCommand(new IRBinOpCommand(index, instance, Operation.Plus, index));
-        context.addCommand(new IRLoadCommand(temp, index)); // instance hold variable
-        context.freeRegister(instance);
-        context.freeRegister(index);
-        return temp;
+        context.checkLength(instance, index);
+
+        Register temp = context.newRegister();
+        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size())); // temp = index * sizeof(element)
+        context.command(new IRBinOpCommand(temp, instance, Operation.Plus, temp)); // temp = instance + temp
+        context.command(new IRBinOpRightConstCommand(temp, instance, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET)); // temp = temp + initial offset
+
+        Register temp2 = context.newRegister();
+        context.command(new IRLoadCommand(temp2, temp)); // instance hold variable
+        return temp2;
+    }
+
+    @Override
+    public void irAssignTo(IRContext context, Supplier<Register> data) {
+        assert symbol != null && symbol.instance != null;
+
+        Register instance = var.irMe(context);
+        context.checkNotNull(instance);
+        Register index = subscript.irMe(context);
+        context.checkLength(instance, index);
+
+        Register content = data.get();
+
+        Register temp = context.newRegister();
+        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size())); // temp = index * sizeof(element)
+        context.command(new IRBinOpCommand(temp, instance, Operation.Plus, temp)); // temp = instance + temp
+
+        context.command(new IRStoreCommand(temp, content));
     }
 }

@@ -1,6 +1,6 @@
 package ir.registers;
 
-public class TempRegister extends Register {
+public final class TempRegister extends Register {
     public TempRegister(int id) {
         super(id);
     }

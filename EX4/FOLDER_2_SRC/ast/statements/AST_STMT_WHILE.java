@@ -1,7 +1,7 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.flow.IRGotoCommand;
 import ir.flow.IRIfZeroCommand;
 import ir.flow.IRLabel;
@@ -25,7 +25,7 @@ public class AST_STMT_WHILE extends AST_STMT {
     @NotNull
     public AST_STMT[] body;
     private Symbol enclosingFunction;
-
+    private List<Symbol> locals;
 
     public AST_STMT_WHILE(@NotNull AST_EXP cond, @NotNull AST_STMT[] body) {
         this.cond = cond;
@@ -56,33 +56,28 @@ public class AST_STMT_WHILE extends AST_STMT {
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }
-        symbolTable.endScope();
+        locals = symbolTable.endScope();
 
         enclosingFunction = symbolTable.getEnclosingFunction();
     }
 
     @Override
     public @NotNull Register irMe(IRContext context) {
-        IRLabel afterLabel = context.generateLabel(enclosingFunction.name + "_after_while");
-        IRLabel conditionLabel = context.generateLabel(enclosingFunction.name + "_while_condition");
+        IRLabel afterLabel = context.newLabel("after_while");
+        IRLabel conditionLabel = context.newLabel("while_condition");
 
-        context.putLabel(conditionLabel);
+        context.label(conditionLabel);
         Register conditionRegister = cond.irMe(context);
-        context.freeRegister(conditionRegister);
 
         // if not true then jump, otherwise continue
-        context.addCommand(new IRIfZeroCommand(conditionRegister, afterLabel));
+        context.command(new IRIfZeroCommand(conditionRegister, afterLabel));
         // insert body
-        List<Register> temps = new ArrayList<>(body.length);
         for (AST_STMT statement : body) {
-            Register temp = statement.irMe(context);
-            temps.add(temp);
+            statement.irMe(context);
         }
-        context.addCommand(new IRGotoCommand(conditionLabel));
-        context.putLabel(afterLabel);
+        context.command(new IRGotoCommand(conditionLabel));
+        context.label(afterLabel);
 
-        context.freeRegister(conditionRegister);
-        temps.forEach(context::freeRegister);
         return NonExistsRegister.instance;
     }
 }

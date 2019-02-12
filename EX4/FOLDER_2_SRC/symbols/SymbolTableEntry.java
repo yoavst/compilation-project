@@ -60,7 +60,7 @@ class SymbolTableEntry {
         this.prevtop_index = prevtop_index;
         this.scopeMajor = scopeMajor;
 
-        this.name = symbol.name;
+        this.name = symbol.getName();
         this.isVariableDeclaration = isVariableDeclaration;
     }
 }

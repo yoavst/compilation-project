@@ -1,8 +1,9 @@
 package ast;
 
 
-import ir.IRContext;
+import ir.registers.NonExistsRegister;
 import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import types.Type;
 import utils.*;
@@ -89,7 +90,7 @@ public abstract class AST_Node implements Printable {
     @NotNull
     public Register irMe(IRContext context) {
         /* FIXME make this abstract */
-        return null;
+        return NonExistsRegister.instance;
     }
 
     @Override

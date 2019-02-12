@@ -1,7 +1,7 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.registers.Register;
 import symbols.SymbolTable;
 import utils.NotNull;

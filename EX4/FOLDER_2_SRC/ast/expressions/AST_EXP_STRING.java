@@ -1,8 +1,8 @@
 package ast.expressions;
 
-import ir.IRContext;
-import ir.arithmetic.IRSetValueCommand;
+import ir.memory.IRLoadFromLabelCommand;
 import ir.registers.Register;
+import ir.utils.IRContext;
 import types.builtins.TypeString;
 import utils.NotNull;
 
@@ -25,8 +25,8 @@ public class AST_EXP_STRING extends AST_EXP_CONSTANT {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRSetValueCommand(temp, context.preallocateString(value)));
+        Register temp = context.newRegister();
+        context.command(new IRLoadFromLabelCommand(temp, context.labelForConstantString(value)));
         return temp;
     }
 }

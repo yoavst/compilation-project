@@ -2,6 +2,9 @@ package ast.statements;
 
 import ast.expressions.AST_EXP;
 import ast.variables.AST_VAR;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -47,5 +50,11 @@ public class AST_STMT_ASSIGN extends AST_STMT {
         if (!var.getType().isAssignableFrom(exp.getType())) {
             throwSemantic("Trying to assign exp of type " + exp.getType() + " to a variable of type " + var.getType());
         }
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        var.irAssignTo(context, () -> exp.irMe(context));
+        return NonExistsRegister.instance;
     }
 }

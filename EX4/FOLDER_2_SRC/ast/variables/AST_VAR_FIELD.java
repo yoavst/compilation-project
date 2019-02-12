@@ -1,14 +1,17 @@
 package ast.variables;
 
-import ir.IRContext;
 import ir.arithmetic.IRBinOpRightConstCommand;
 import ir.arithmetic.Operation;
 import ir.memory.IRLoadCommand;
+import ir.memory.IRStoreCommand;
 import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import types.TypeClass;
 import utils.NotNull;
 import utils.errors.SemanticException;
+
+import java.util.function.Supplier;
 
 public class AST_VAR_FIELD extends AST_VAR {
     @NotNull
@@ -51,11 +54,30 @@ public class AST_VAR_FIELD extends AST_VAR {
         assert symbol != null && symbol.instance != null;
 
         Register instance = var.irMe(context);
-        int fieldOffset = context.getFieldsTable(symbol.instance).get(symbol);
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRBinOpRightConstCommand(temp, instance, Operation.Plus, fieldOffset)); // temp hold address of variable
-        context.addCommand(new IRLoadCommand(temp, temp)); // instance hold variable
-        context.freeRegister(instance);
-        return temp;
+        context.checkNotNull(instance);
+
+        int fieldOffset = context.getFieldOffset(symbol);
+        Register temp1 = context.newRegister();
+        context.command(new IRBinOpRightConstCommand(temp1, instance, Operation.Plus, fieldOffset)); // temp1 hold address of variable
+        Register temp2 = context.newRegister();
+        context.command(new IRLoadCommand(temp2, temp1)); // temp2 hold variable
+        return temp2;
+    }
+
+    @Override
+    public void irAssignTo(IRContext context, Supplier<Register> data) {
+        assert symbol != null;
+
+        Register instance = var.irMe(context);
+        context.checkNotNull(instance);
+
+        Register content = data.get();
+
+        int fieldOffset = context.getFieldOffset(symbol);
+        Register temp1 = context.newRegister();
+
+        context.command(new IRBinOpRightConstCommand(temp1, instance, Operation.Plus, fieldOffset)); // temp1 hold address of variable
+        context.command(new IRStoreCommand(temp1, content));
+
     }
 }

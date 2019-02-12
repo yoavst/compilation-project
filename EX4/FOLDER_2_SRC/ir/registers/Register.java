@@ -11,6 +11,10 @@ public class Register {
         return id;
     }
 
+    public boolean isConstant() {
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

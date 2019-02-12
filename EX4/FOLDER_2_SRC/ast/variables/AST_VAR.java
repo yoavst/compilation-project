@@ -1,11 +1,15 @@
 package ast.variables;
 
 import ast.AST_Node;
+import ir.utils.IRContext;
+import ir.registers.Register;
 import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import utils.NotNull;
 import utils.Nullable;
+
+import java.util.function.Supplier;
 
 public abstract class AST_VAR extends AST_Node {
     @Nullable
@@ -31,4 +35,6 @@ public abstract class AST_VAR extends AST_Node {
         }
         return symbol.type;
     }
+
+    public abstract void irAssignTo(IRContext context, Supplier<Register> data);
 }

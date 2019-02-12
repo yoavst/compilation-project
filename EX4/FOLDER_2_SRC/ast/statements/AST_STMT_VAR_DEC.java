@@ -1,7 +1,7 @@
 package ast.statements;
 
 import ast.declarations.AST_DEC_VAR;
-import ir.IRContext;
+import ir.utils.IRContext;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import symbols.SymbolTable;

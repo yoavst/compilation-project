@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Symbol {
     private static final String SYMBOL_SIGN = "::";
     @NotNull
-    public final String name;
+    private final String name;
     @NotNull
     public final Type type;
     @Nullable
@@ -51,6 +51,11 @@ public class Symbol {
 
     public boolean isBounded() {
         return  instance != null;
+    }
+
+    @NotNull
+    public String getName() {
+        return name;
     }
 
     @Override

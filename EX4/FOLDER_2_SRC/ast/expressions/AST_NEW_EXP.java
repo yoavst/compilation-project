@@ -1,9 +1,9 @@
 package ast.expressions;
 
-import ir.IRContext;
-import ir.registers.Register;
 import ir.functions.IRCallCommand;
 import ir.functions.IRPopCommand;
+import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import types.TypeClass;
 import utils.NotNull;
@@ -11,7 +11,7 @@ import utils.errors.SemanticException;
 
 public class AST_NEW_EXP extends AST_EXP {
     @NotNull
-    public String className;
+    String className;
 
     private TypeClass typeClass;
 
@@ -38,9 +38,9 @@ public class AST_NEW_EXP extends AST_EXP {
     @NotNull
     @Override
     public Register irMe(IRContext context) {
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRCallCommand(context.constructorOf(typeClass)));
-        context.addCommand(new IRPopCommand(temp));
+        Register temp = context.newRegister();
+        context.command(new IRCallCommand(context.constructorOf(typeClass)));
+        context.command(new IRPopCommand(temp));
         return temp;
     }
 }

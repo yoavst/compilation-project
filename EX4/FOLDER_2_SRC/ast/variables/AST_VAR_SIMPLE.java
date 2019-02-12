@@ -1,6 +1,7 @@
 package ast.variables;
 
-import ir.IRContext;
+import ir.memory.IRStoreCommand;
+import ir.utils.IRContext;
 import ir.arithmetic.IRBinOpRightConstCommand;
 import ir.arithmetic.IRSetValueCommand;
 import ir.arithmetic.Operation;
@@ -10,6 +11,8 @@ import ir.registers.ThisRegister;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
+
+import java.util.function.Supplier;
 
 public class AST_VAR_SIMPLE extends AST_VAR {
     @NotNull
@@ -38,23 +41,38 @@ public class AST_VAR_SIMPLE extends AST_VAR {
         assert symbol != null;
 
         if (symbol.isBounded() && symbol.instance != null) {
-            int fieldOffset = context.getFieldsTable(symbol.instance).get(symbol);
+            int fieldOffset = context.getFieldOffset(symbol);
             Register thisReg = ThisRegister.instance;
-            Register temp = context.getNewRegister();
-            context.addCommand(new IRBinOpRightConstCommand(temp, thisReg, Operation.Plus, fieldOffset)); // temp hold address of variable
-            context.addCommand(new IRLoadCommand(temp, temp)); // instance hold variable
-            return temp;
+            Register temp1 = context.newRegister();
+            context.command(new IRBinOpRightConstCommand(temp1, thisReg, Operation.Plus, fieldOffset)); // temp1 hold address of variable
+            Register temp2 = context.newRegister();
+            context.command(new IRLoadCommand(temp2, temp1)); // temp2 hold variable
+            return temp2;
         } else {
-            // global or local variable
-            if (context.isLocal(symbol)) {
-                Register temp = context.getNewRegister();
-                context.addCommand(new IRSetValueCommand(temp, context.getLocal(symbol)));
-                return temp;
-            } else {
-                Register temp = context.getNewRegister();
-                context.addCommand(new IRSetValueCommand(temp, context.getGlobals(symbol)));
-                return temp;
-            }
+            // unbounded variable
+            Register temp = context.newRegister();
+            context.command(new IRSetValueCommand(temp, context.registerFor(symbol)));
+            return temp;
+        }
+    }
+
+    @Override
+    public void irAssignTo(IRContext context, Supplier<Register> data) {
+        assert symbol != null;
+
+        Register content = data.get();
+
+
+        if (symbol.isBounded() && symbol.instance != null) {
+            int fieldOffset = context.getFieldOffset(symbol);
+            Register thisReg = ThisRegister.instance;
+            Register temp1 = context.newRegister();
+            context.command(new IRBinOpRightConstCommand(temp1, thisReg, Operation.Plus, fieldOffset)); // temp1 hold address of variable
+            context.command(new IRStoreCommand(temp1, content));
+
+        } else {
+            // unbounded variable
+            context.command(new IRSetValueCommand(context.registerFor(symbol), content));
         }
     }
 }

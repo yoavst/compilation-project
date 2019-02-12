@@ -1,9 +1,9 @@
 package ast.expressions;
 
-import ir.IRContext;
-import ir.registers.Register;
+import ir.utils.IRContext;
 import ir.arithmetic.IRBinOpCommand;
 import ir.arithmetic.Operation;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import types.TypeError;
 import types.builtins.TypeInt;
@@ -101,10 +101,8 @@ public class AST_EXP_BINOP extends AST_EXP {
     public Register irMe(IRContext context) {
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
-        Register temp = context.getNewRegister();
-        context.addCommand(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
-        context.freeRegister(leftRegister);
-        context.freeRegister(rightRegister);
+        Register temp = context.newRegister();
+        context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
         return temp;
     }
 }
