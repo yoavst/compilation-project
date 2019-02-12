@@ -1,19 +1,19 @@
 package ir.memory;
 
 import ir.IRAssignmentCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRReferenceCommand extends IRAssignmentCommand {
     @NotNull
-    private final Register source;
-    public IRReferenceCommand(@NotNull Register dest, @NotNull Register source) {
-        super("var1 := &var2", dest);
-        this.source = source;
+    private final String variable;
+    public IRReferenceCommand(@NotNull Register dest, @NotNull String variable) {
+        super("var1 := &variable", dest);
+        this.variable = variable;
     }
 
     @Override
     public String toString() {
-        return String.format("%s := &%s", dest, source);
+        return String.format("%s := &%s", dest, variable);
     }
 }

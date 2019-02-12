@@ -1,6 +1,16 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
+import ir.IRContext;
+import ir.arithmetic.IRBinOpRightConstCommand;
+import ir.arithmetic.Operation;
+import ir.flow.IRLabel;
+import ir.functions.IRCallCommand;
+import ir.functions.IRCallRegisterCommand;
+import ir.functions.IRPopCommand;
+import ir.functions.IRPushCommand;
+import ir.memory.IRLoadCommand;
+import ir.registers.Register;
 import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
@@ -23,7 +33,7 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
     public String id;
     @NotNull
     private List<AST_EXP> funcParameters;
-    private Symbol calledFunction;
+    private Symbol symbol;
 
     public AST_EXP_FUNC_CALL(@NotNull String id, @Nullable AST_VAR var, @NotNull List<AST_EXP> funcParameters) {
         this.var = var;
@@ -72,26 +82,26 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
             if (!callingType.isClass()) {
                 throwSemantic("Trying to make a function call on non class type: " + callingType);
             } else {
-                calledFunction = ((TypeClass) callingType).queryMethodRecursively(id);
-                if (calledFunction == null) {
+                symbol = ((TypeClass) callingType).queryMethodRecursively(id);
+                if (symbol == null) {
                     throwSemantic("Trying to call a non-existent member function: " + callingType + "." + id + "(...)");
                 } else
-                    checkFunctionCall(calledFunction.getFunction(), "Trying to call member function " + callingType + "." + id);
+                    checkFunctionCall(symbol.getFunction(), "Trying to call member function " + callingType + "." + id);
             }
         } else {
             // first, check in the class scope
             final TypeClass innerClass = symbolTable.getEnclosingClass();
             if (innerClass != null) {
-                calledFunction = innerClass.queryMethodRecursively(id);
+                symbol = innerClass.queryMethodRecursively(id);
             }
             // then, check if it in the global scope, skipping class scope
-            if (calledFunction == null) {
-                calledFunction = symbolTable.findMethod(id, true);
+            if (symbol == null) {
+                symbol = symbolTable.findMethod(id, true);
             }
 
-            if (calledFunction == null) {
+            if (symbol == null) {
                 throw new UndefinedFunctionCallException(this, id);
-            } else checkFunctionCall(calledFunction.getFunction(), "Trying to call function " + id + "(...)");
+            } else checkFunctionCall(symbol.getFunction(), "Trying to call function " + id + "(...)");
         }
     }
 
@@ -127,5 +137,41 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
 
             type = function.returnType;
         }
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        Register instance = var != null ? var.irMe(context) : null;
+        if (instance != null) {
+            context.addCommand(new IRPushCommand(instance));
+        }
+
+        // push parameters
+        for (AST_EXP funcParameter : funcParameters) {
+            Register param = funcParameter.irMe(context);
+            context.addCommand(new IRPushCommand(param));
+            context.freeRegister(param);
+        }
+
+        // call function
+        Register temp = context.getNewRegister();
+        if (symbol.isBounded() && symbol.instance != null) {
+            // bounded function
+            // we reuse the instance register for all calculations because we can
+            int virtualTableIndex = context.getVirtualTable(symbol.instance).get(symbol);
+            context.addCommand(new IRBinOpRightConstCommand(instance, instance, Operation.Plus, IRContext.VTABLE_POSITION)); // instance hold address of pointer to vtable
+            context.addCommand(new IRLoadCommand(instance, instance)); // instance hold address to vtable
+            context.addCommand(new IRBinOpRightConstCommand(instance, instance, Operation.Plus, virtualTableIndex)); // instance hold address to pointer to function
+            context.addCommand(new IRLoadCommand(instance, instance)); // instance hold address of function
+            context.addCommand(new IRCallRegisterCommand(instance));
+
+            context.freeRegister(instance);
+        } else {
+            // global function
+            IRLabel label = context.getFunction(symbol);
+            context.addCommand(new IRCallCommand(label));
+        }
+        context.addCommand(new IRPopCommand(temp));
+        return temp;
     }
 }

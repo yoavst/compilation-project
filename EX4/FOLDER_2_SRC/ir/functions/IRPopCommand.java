@@ -1,7 +1,7 @@
 package ir.functions;
 
 import ir.IRAssignmentCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRPopCommand extends IRAssignmentCommand {

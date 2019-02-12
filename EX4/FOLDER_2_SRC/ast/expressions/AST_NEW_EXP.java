@@ -1,12 +1,10 @@
 package ast.expressions;
 
 import ir.IRContext;
-import ir.Register;
-import ir.flow.IRLabel;
+import ir.registers.Register;
 import ir.functions.IRCallCommand;
 import ir.functions.IRPopCommand;
 import symbols.SymbolTable;
-import types.Type;
 import types.TypeClass;
 import utils.NotNull;
 import utils.errors.SemanticException;

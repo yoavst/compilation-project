@@ -1,10 +1,6 @@
 package ast.variables;
 
-import ir.IRContext;
-import ir.Register;
-import ir.memory.IRLoadVariableCommand;
 import symbols.SymbolTable;
-import types.Type;
 import utils.NotNull;
 import utils.errors.SemanticException;
 

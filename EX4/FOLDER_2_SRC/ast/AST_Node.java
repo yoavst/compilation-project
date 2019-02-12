@@ -2,7 +2,7 @@ package ast;
 
 
 import ir.IRContext;
-import ir.Register;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import types.Type;
 import utils.*;

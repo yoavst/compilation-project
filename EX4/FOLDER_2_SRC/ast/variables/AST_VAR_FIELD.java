@@ -1,6 +1,5 @@
 package ast.variables;
 
-import symbols.Symbol;
 import symbols.SymbolTable;
 import types.TypeClass;
 import utils.NotNull;

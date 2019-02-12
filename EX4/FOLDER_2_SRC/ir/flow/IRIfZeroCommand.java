@@ -1,7 +1,7 @@
 package ir.flow;
 
 import ir.IRCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRIfZeroCommand extends IRCommand {

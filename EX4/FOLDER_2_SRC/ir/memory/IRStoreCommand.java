@@ -1,7 +1,7 @@
 package ir.memory;
 
 import ir.IRAssignmentCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRStoreCommand extends IRAssignmentCommand {

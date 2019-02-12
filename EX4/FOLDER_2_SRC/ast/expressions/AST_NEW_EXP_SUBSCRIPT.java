@@ -1,12 +1,19 @@
 package ast.expressions;
 
+import ir.IRContext;
+import ir.functions.IRCallCommand;
+import ir.functions.IRPopCommand;
+import ir.functions.IRPushCommand;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import types.Type;
+import types.builtins.TypeArray;
 import types.builtins.TypeArrayUnspecified;
 import types.builtins.TypeInt;
 import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.errors.SemanticException;
+
 
 public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
     @NotNull
@@ -48,5 +55,20 @@ public class AST_NEW_EXP_SUBSCRIPT extends AST_NEW_EXP {
             throwSemantic("Trying to create a new[] expression of invalid type: \"" + className + "\".");
         }
         type = new TypeArrayUnspecified(classType);
+    }
+
+    @NotNull
+    @Override
+    public Register irMe(IRContext context) {
+        assert type != null;
+        Register arraySize = subscript.irMe(context);
+        context.addCommand(new IRPushCommand(arraySize));
+        context.freeRegister(arraySize);
+
+        context.addCommand(new IRCallCommand(context.constructorOf(((TypeArray) type))));
+
+        Register temp = context.getNewRegister();
+        context.addCommand(new IRPopCommand(temp));
+        return temp;
     }
 }

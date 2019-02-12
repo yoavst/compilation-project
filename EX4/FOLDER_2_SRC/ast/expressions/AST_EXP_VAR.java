@@ -2,7 +2,7 @@ package ast.expressions;
 
 import ast.variables.AST_VAR;
 import ir.IRContext;
-import ir.Register;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;

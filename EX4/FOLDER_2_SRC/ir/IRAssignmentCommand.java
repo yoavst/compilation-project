@@ -1,5 +1,6 @@
 package ir;
 
+import ir.registers.Register;
 import utils.NotNull;
 
 public abstract class IRAssignmentCommand extends IRCommand {

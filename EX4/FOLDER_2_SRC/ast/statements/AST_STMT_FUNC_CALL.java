@@ -1,6 +1,9 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP_FUNC_CALL;
+import ir.IRContext;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -29,6 +32,13 @@ public class AST_STMT_FUNC_CALL extends AST_STMT {
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         funcCall.semant(symbolTable);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+       Register temp = funcCall.irMe(context);
+       context.freeRegister(temp);
+       return NonExistsRegister.instance;
     }
 }
 

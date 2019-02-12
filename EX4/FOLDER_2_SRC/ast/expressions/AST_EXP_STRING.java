@@ -1,9 +1,8 @@
 package ast.expressions;
 
 import ir.IRContext;
-import ir.Register;
-import ir.arithmetic.IRConstCommand;
-import ir.memory.IRLoadPreallocatedCommand;
+import ir.arithmetic.IRSetValueCommand;
+import ir.registers.Register;
 import types.builtins.TypeString;
 import utils.NotNull;
 
@@ -24,12 +23,10 @@ public class AST_EXP_STRING extends AST_EXP_CONSTANT {
         return "STR(" + value + ")";
     }
 
-    @NotNull
     @Override
-    public Register irMe(IRContext context) {
-        int stringResource = context.preallocateString(value);
+    public @NotNull Register irMe(IRContext context) {
         Register temp = context.getNewRegister();
-        context.addCommand(new IRLoadPreallocatedCommand(temp, stringResource));
+        context.addCommand(new IRSetValueCommand(temp, context.preallocateString(value)));
         return temp;
     }
 }

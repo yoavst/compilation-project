@@ -1,6 +1,6 @@
-package ir;
+package ir.registers;
 
-public final class Register {
+public class Register {
     private final int id;
 
     public Register(int id) {
@@ -9,11 +9,6 @@ public final class Register {
 
     public int getId() {
         return id;
-    }
-
-    @Override
-    public String toString() {
-        return "t" + id;
     }
 
     @Override

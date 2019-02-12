@@ -1,7 +1,7 @@
 package ast.expressions;
 
 import ir.IRContext;
-import ir.Register;
+import ir.registers.Register;
 import ir.arithmetic.IRConstCommand;
 import types.builtins.TypeInt;
 import utils.NotNull;

@@ -1,6 +1,13 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
+import ir.IRContext;
+import ir.flow.IRIfNotZeroCommand;
+import ir.flow.IRIfZeroCommand;
+import ir.flow.IRLabel;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.TypeError;
 import types.builtins.TypeInt;
@@ -14,6 +21,7 @@ public class AST_STMT_IF extends AST_STMT {
     public AST_EXP cond;
     @NotNull
     public AST_STMT[] body;
+    private Symbol enclosingFunction;
 
     public AST_STMT_IF(@NotNull AST_EXP cond, @NotNull AST_STMT[] body) {
         this.cond = cond;
@@ -40,11 +48,28 @@ public class AST_STMT_IF extends AST_STMT {
             throwSemantic("if condition can only be int, received: " + cond.getType());
         }
 
-        symbolTable.beginScope(Block, null, "if(...)");
+        symbolTable.beginScope(Block, null, null,"if(...)");
         for (AST_STMT statement : body) {
             statement.semant(symbolTable);
         }
         symbolTable.endScope();
+
+        enclosingFunction = symbolTable.getEnclosingFunction();
     }
 
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        Register conditionRegister = cond.irMe(context);
+        IRLabel afterLabel = context.generateLabel(enclosingFunction.name + "_after_if");
+        // if not true then jump, otherwise continue
+        context.addCommand(new IRIfZeroCommand(conditionRegister, afterLabel));
+        context.freeRegister(conditionRegister);
+        // insert body
+        for (AST_STMT statement : body) {
+            Register temp = statement.irMe(context);
+            context.freeRegister(temp);
+        }
+        context.putLabel(afterLabel);
+        return NonExistsRegister.instance;
+    }
 }

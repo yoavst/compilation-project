@@ -49,6 +49,10 @@ public class Symbol {
         return !isFunction();
     }
 
+    public boolean isBounded() {
+        return  instance != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Symbol))

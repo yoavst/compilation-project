@@ -1,7 +1,7 @@
 package ir.arithmetic;
 
 import ir.IRAssignmentCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRConstCommand extends IRAssignmentCommand  {

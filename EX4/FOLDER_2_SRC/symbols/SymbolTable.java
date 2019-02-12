@@ -24,7 +24,7 @@ public class SymbolTable {
     private SymbolTableEntry top;
     private int topIndex = 0;
     private TypeClass enclosingClass;
-    private TypeFunction enclosingFunction;
+    private Symbol enclosingFunction;
     private boolean isClassScanning = false;
     private int currentScopeMajor = 0;
     private List<TypeClass> registeredClasses = new ArrayList<>();
@@ -226,7 +226,7 @@ public class SymbolTable {
      * Return the enclosing function for the current state of the symbol table, returning null if no such function.
      */
     @Nullable
-    public TypeFunction getEnclosingFunction() {
+    public Symbol getEnclosingFunction() {
         return enclosingFunction;
     }
 
@@ -258,7 +258,7 @@ public class SymbolTable {
      * Begins a new scope by adding <SCOPE-BOUNDARY> to the Hashmap.
      * In addition, if it is a class or function scope, update the enclosing field.
      */
-    public void beginScope(@NotNull Scope scope, @Nullable Type enclosingType, String debugInfo) {
+    public void beginScope(@NotNull Scope scope, @Nullable TypeClass enclosingType, @Nullable Symbol enclosingSymbol, String debugInfo) {
         if (scope == Scope.Block) {
             currentScopeMajor += 10;
         } else {
@@ -268,7 +268,7 @@ public class SymbolTable {
         enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("[" + currentScopeMajor + "] " + debugInfo, scope));
 
         if (scope == Scope.Function) {
-            enclosingFunction = (TypeFunction) enclosingType;
+            enclosingFunction = enclosingSymbol;
         } else if (scope == Scope.Class) {
             enclosingClass = (TypeClass) enclosingType;
             registeredClasses.add(enclosingClass);

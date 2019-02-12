@@ -1,7 +1,7 @@
 package ir.functions;
 
 import ir.IRCommand;
-import ir.Register;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRPushCommand extends IRCommand {

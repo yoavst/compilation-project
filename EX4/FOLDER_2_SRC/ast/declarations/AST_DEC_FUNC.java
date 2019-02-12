@@ -53,7 +53,7 @@ public class AST_DEC_FUNC extends AST_DEC {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        symbolTable.beginScope(Function, representingType, "func " + name);
+        symbolTable.beginScope(Function, null, symbol,"func " + name);
         for (AST_ID parameter : parameters) {
             symbolTable.enter(parameter.name, parameter.getType(), true,true);
         }
@@ -74,7 +74,7 @@ public class AST_DEC_FUNC extends AST_DEC {
         representingType = new TypeFunction(name, returnType, new ArrayList<>(), symbolTable.getEnclosingClass());
 
         SemanticException deferredException = null;
-        symbolTable.beginScope(Function, representingType, "funcParams " + name);
+        symbolTable.beginScope(Function, null, null, "funcParams " + name);
         try {
             for (AST_ID parameter : parameters) {
                 parameter.semant(symbolTable);

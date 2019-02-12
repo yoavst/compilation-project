@@ -1,8 +1,7 @@
 package ir.functions;
 
 import ir.IRCommand;
-import ir.Register;
-import ir.flow.IRLabel;
+import ir.registers.Register;
 import utils.NotNull;
 
 public class IRCallRegisterCommand extends IRCommand {

@@ -1,6 +1,13 @@
 package ast.statements;
 
 import ast.expressions.AST_EXP;
+import ir.IRContext;
+import ir.arithmetic.IRSetValueCommand;
+import ir.flow.IRGotoCommand;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.registers.ReturnRegister;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.TypeFunction;
 import types.builtins.TypeVoid;
@@ -10,7 +17,8 @@ import utils.errors.SemanticException;
 
 public class AST_STMT_RETURN extends AST_STMT {
     @Nullable
-    public AST_EXP exp;
+    private AST_EXP exp;
+    private Symbol enclosingFunction;
 
     public AST_STMT_RETURN(@Nullable AST_EXP exp) {
         this.exp = exp;
@@ -37,10 +45,12 @@ public class AST_STMT_RETURN extends AST_STMT {
         if (exp != null)
             exp.semant(symbolTable);
 
-        TypeFunction function = symbolTable.getEnclosingFunction();
-        if (function == null) {
+        enclosingFunction = symbolTable.getEnclosingFunction();
+        if (enclosingFunction == null) {
             throwSemantic("Trying to return not from function context");
-        } else if (function.returnType == TypeVoid.instance) {
+        }
+        TypeFunction function = enclosingFunction.getFunction();
+        if (function.returnType == TypeVoid.instance) {
             if (exp != null) {
                 throwSemantic("Trying to return " + exp.getType() + " from void function");
             }
@@ -49,5 +59,17 @@ public class AST_STMT_RETURN extends AST_STMT {
         } else if (!function.returnType.isAssignableFrom(exp.getType())) {
             throwSemantic("Trying to return invalid type from function. Expected: " + function.returnType + ". Received: " + exp.getType() + ".");
         }
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        if (exp != null) {
+            Register temp = exp.irMe(context);
+            context.addCommand(new IRSetValueCommand(ReturnRegister.instance, temp));
+            context.freeRegister(temp);
+        }
+        context.addCommand(new IRGotoCommand(context.getReturnLabel(enclosingFunction)));
+
+        return NonExistsRegister.instance;
     }
 }

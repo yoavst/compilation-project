@@ -1,7 +1,7 @@
 package ast.expressions;
 
 import ir.IRContext;
-import ir.Register;
+import ir.registers.Register;
 import ir.arithmetic.IRBinOpCommand;
 import ir.arithmetic.Operation;
 import symbols.SymbolTable;
