@@ -27,6 +27,9 @@ public final class IRContext {
 
     private int labelCounter = 0;
 
+    private HashMap<Symbol, Register> locals;
+    private HashMap<Symbol, Register> globals = new HashMap<>();
+
     //region Registers
     public Register getNewRegister() {
         int i = 1;
@@ -50,6 +53,28 @@ public final class IRContext {
         ConstantResourceRegister register = new ConstantResourceRegister(counter);
         preallocatedStrings.put(s, register);
         return register;
+    }
+
+    public boolean isLocal(@NotNull Symbol symbol) {
+        return locals.containsKey(symbol);
+    }
+
+    @NotNull
+    public Register getLocal(@NotNull Symbol symbol) {
+        return locals.get(symbol);
+    }
+
+    public void setLocals(@NotNull HashMap<Symbol, Register> locals) {
+        this.locals = locals;
+    }
+
+    @NotNull
+    public Register getGlobals(@NotNull Symbol symbol) {
+        return globals.get(symbol);
+    }
+
+    public void setGlobals(@NotNull HashMap<Symbol, Register> globals) {
+        this.globals = globals;
     }
     //endregion
 

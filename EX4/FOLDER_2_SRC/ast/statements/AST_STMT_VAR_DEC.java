@@ -1,6 +1,9 @@
 package ast.statements;
 
 import ast.declarations.AST_DEC_VAR;
+import ir.IRContext;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -29,5 +32,11 @@ public class AST_STMT_VAR_DEC extends AST_STMT {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         var.semantHeader(symbolTable);
         var.semant(symbolTable);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        // no-op
+        return NonExistsRegister.instance;
     }
 }

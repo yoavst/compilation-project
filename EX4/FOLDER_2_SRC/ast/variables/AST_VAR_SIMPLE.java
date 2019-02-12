@@ -2,6 +2,7 @@ package ast.variables;
 
 import ir.IRContext;
 import ir.arithmetic.IRBinOpRightConstCommand;
+import ir.arithmetic.IRSetValueCommand;
 import ir.arithmetic.Operation;
 import ir.memory.IRLoadCommand;
 import ir.registers.Register;
@@ -45,8 +46,15 @@ public class AST_VAR_SIMPLE extends AST_VAR {
             return temp;
         } else {
             // global or local variable
-            //FIXME
+            if (context.isLocal(symbol)) {
+                Register temp = context.getNewRegister();
+                context.addCommand(new IRSetValueCommand(temp, context.getLocal(symbol)));
+                return temp;
+            } else {
+                Register temp = context.getNewRegister();
+                context.addCommand(new IRSetValueCommand(temp, context.getGlobals(symbol)));
+                return temp;
+            }
         }
-        return null;
     }
 }

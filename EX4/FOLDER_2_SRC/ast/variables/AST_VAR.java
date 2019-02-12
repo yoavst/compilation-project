@@ -9,7 +9,7 @@ import utils.Nullable;
 
 public abstract class AST_VAR extends AST_Node {
     @Nullable
-    protected Symbol symbol;
+    public Symbol symbol;
 
     @NotNull
     @Override
