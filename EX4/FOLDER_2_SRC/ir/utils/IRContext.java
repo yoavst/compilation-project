@@ -38,12 +38,17 @@ public class IRContext {
     public static final int ARRAY_LENGTH_OFFSET = 0;
     public static final int PRIMITIVE_DATA_SIZE = 4; // pointer or int
     public static final int NIL_VALUE = 0;
+
     private static final int OBJECT_FIELDS_INITIAL_OFFSET = 8;
     private static final int VIRTUAL_TABLE_INITIAL_OFFSET = 0;
-    public static final int ID_OFFSET_IN_OBJECT = 0;
+    private static final int ID_OFFSET_IN_OBJECT = 0;
+    private static final int MAX_INT = 32767;
+    private static final int MIN_INT = -32768;
 
     public static final IRLabel STDLIB_FUNCTION_MAIN = new IRLabel("main");
     private static final IRLabel STDLIB_FUNCTION_THROW_NULL = new IRLabel("___throwNull___");
+    private static final IRLabel STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO = new IRLabel("___throwDivisionByZero___");
+
     private static final IRLabel STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS = new IRLabel("___throwOutOfBounds___");
     private static final IRLabel STDLIB_FUNCTION_MALLOC = new IRLabel("___malloc___");
     private static final IRLabel STDLIB_FUNCTION_EXIT = new IRLabel("___exit___");
@@ -137,10 +142,10 @@ public class IRContext {
             if (symbol.isFunction()) {
                 context.addFunction(symbol, generateFunctionLabelFor(symbol));
             } else if (isParameters) {
-                    context.addLocal(symbol, new ParameterRegister(parameterCounter++));
+                context.addLocal(symbol, new ParameterRegister(parameterCounter++));
             } else if (type == ScopeType.Global) {
                 context.addLocal(symbol, new GlobalRegister(parameterCounter++));
-            }else {
+            } else {
                 context.addLocal(symbol, allocator.newRegister());
             }
         }
@@ -225,6 +230,18 @@ public class IRContext {
     }
 
     /**
+     * Check if the value in the register is not zero
+     */
+    public void checkNotZero(@NotNull Register register) {
+        Register temp = newRegister();
+        command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, 0)); // temp = register == 0
+        IRLabel notZero = newLabel("notZero");
+        command(new IRIfNotZeroCommand(temp, notZero)); // if temp jump notnull
+        command(new IRCallCommand(STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));
+        label(notZero); // notnull:
+    }
+
+    /**
      * Check if array access is within bounds
      */
     public void checkLength(@NotNull Register array, @NotNull Register index) {
@@ -248,6 +265,42 @@ public class IRContext {
         label(outOfBounds);
         command(new IRCallCommand(STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS));
         label(inBounds);
+    }
+
+    /**
+     * keep result in [-2^15,2^15-1]
+     */
+    public Register binaryOpRestricted(Register left, Operation op, Register right) {
+        Register result = newRegister();
+        switch (op) {
+            case Divide:
+                checkNotZero(right);
+            case Plus:
+            case Times:
+            case Minus:
+                command(new IRBinOpCommand(result, left, op, right));
+
+                // check if result in range
+                Register temp = newRegister();
+                IRLabel coerceDown = newLabel("coerce_down"), coerceUp = newLabel("coerce_up"), ok = newLabel("op_good");
+                command(new IRBinOpRightConstCommand(temp, result, Operation.GreaterThan, MAX_INT));
+                command(new IRIfNotZeroCommand(temp, coerceDown));
+                command(new IRBinOpRightConstCommand(temp, result, Operation.LessThan, MIN_INT));
+                command(new IRIfNotZeroCommand(temp, coerceUp));
+                command(new IRGotoCommand(ok));
+                label(coerceDown);
+                command(new IRConstCommand(result, MAX_INT));
+                command(new IRGotoCommand(ok));
+                label(coerceUp);
+                command(new IRConstCommand(result, MIN_INT));
+                command(new IRGotoCommand(ok));
+                label(ok);
+                break;
+            default:
+                command(new IRBinOpCommand(result, left, op, right));
+                break;
+        }
+        return result;
     }
 
     public Register malloc(@NotNull Register size) {

@@ -1,5 +1,6 @@
 package ast.expressions;
 
+import ir.flow.IRLabel;
 import ir.utils.IRContext;
 import ir.arithmetic.IRBinOpCommand;
 import ir.arithmetic.Operation;
@@ -101,16 +102,15 @@ public class AST_EXP_BINOP extends AST_EXP {
     public Register irMe(IRContext context) {
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
-        Register temp = context.newRegister();
         if (TypeString.instance.equals(type)) {
+            Register temp = context.newRegister();
             if (op == Op.Plus)
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.Concat, rightRegister));
             else
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.StrEquals, rightRegister));
-
+            return temp;
         } else {
-            context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
+            return context.binaryOpRestricted(leftRegister, Operation.fromAstOp(op), rightRegister);
         }
-        return temp;
     }
 }

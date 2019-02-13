@@ -4,7 +4,7 @@ import ast.expressions.AST_EXP_BINOP;
 import utils.NotNull;
 
 public enum Operation {
-    Plus("+"), Minus("-"), Times("*"), Divide("/"), Equals("=="), GreaterThan(">"), LessThan("<"), Or("||"), And("&&"), Concat("concat"), StrEquals("~");
+    Plus("+"), Minus("-"), Times("*"), Divide("/"), Equals("=="), GreaterThan(">"), LessThan("<"), Concat("concat"), StrEquals("~");
 
     @NotNull
     String text;
