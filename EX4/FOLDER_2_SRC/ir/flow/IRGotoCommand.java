@@ -1,14 +1,10 @@
 package ir.flow;
 
-import ir.IRCommand;
 import utils.NotNull;
 
-public class IRGotoCommand extends IRCommand {
-    @NotNull
-    private final IRLabel label;
+public class IRGotoCommand extends IRFlowCommand {
     public IRGotoCommand(@NotNull IRLabel label) {
-        super("goto label");
-        this.label = label;
+        super("goto label", label);
     }
 
     @Override

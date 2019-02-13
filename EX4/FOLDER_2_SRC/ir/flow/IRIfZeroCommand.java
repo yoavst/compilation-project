@@ -4,15 +4,13 @@ import ir.IRCommand;
 import ir.registers.Register;
 import utils.NotNull;
 
-public class IRIfZeroCommand extends IRCommand {
+public class IRIfZeroCommand extends IRFlowCommand{
     @NotNull
     private final Register condition;
-    @NotNull
-    private final IRLabel label;
+
     public IRIfZeroCommand(@NotNull Register condition, @NotNull IRLabel label) {
-        super("ifz var1 goto label");
+        super("ifz var1 goto label", label);
         this.condition = condition;
-        this.label = label;
     }
 
     @Override

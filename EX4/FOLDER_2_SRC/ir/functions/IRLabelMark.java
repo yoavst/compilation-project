@@ -12,6 +12,11 @@ public class IRLabelMark extends IRCommand {
         this.label = label;
     }
 
+    @NotNull
+    public IRLabel getLabel() {
+        return label;
+    }
+
     @Override
     public String toString() {
         return String.format("%s:", label);

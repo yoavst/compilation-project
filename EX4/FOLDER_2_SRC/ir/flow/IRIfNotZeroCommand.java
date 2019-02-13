@@ -1,18 +1,15 @@
 package ir.flow;
 
-import ir.IRCommand;
 import ir.registers.Register;
 import utils.NotNull;
 
-public class IRIfNotZeroCommand extends IRCommand {
+public class IRIfNotZeroCommand extends IRFlowCommand {
     @NotNull
     private final Register condition;
-    @NotNull
-    private final IRLabel label;
+
     public IRIfNotZeroCommand(@NotNull Register condition, @NotNull IRLabel label) {
-        super("ifnz var1 goto label");
+        super("ifnz var1 goto label", label);
         this.condition = condition;
-        this.label = label;
     }
 
     @Override

@@ -1,4 +1,6 @@
 import ast.AST_PROGRAM;
+import ir.optimizations.IRBlock;
+import ir.optimizations.IRBlockGenerator;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
 import utils.Graphwiz;
@@ -6,6 +8,8 @@ import utils.errors.SemanticException;
 
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] argv) {
@@ -25,6 +29,9 @@ public class Main {
                 IRContext context = new IRContext();
                 AST.irMe(context);
                 System.out.println(context.toString());
+                List<IRBlock> blocks = context.getBlocks();
+                List<IRBlock> openingBlocks = blocks.stream().filter(IRBlock::isOrphanBlock).collect(Collectors.toList());
+                System.out.println();
 
             } catch (IllegalStateException e) {
                 e.printStackTrace();

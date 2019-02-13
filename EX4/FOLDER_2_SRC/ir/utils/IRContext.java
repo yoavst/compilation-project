@@ -13,6 +13,8 @@ import ir.functions.IRPushCommand;
 import ir.memory.IRLoadCommand;
 import ir.memory.IRLoadFromLabelCommand;
 import ir.memory.IRStoreCommand;
+import ir.optimizations.IRBlock;
+import ir.optimizations.IRBlockGenerator;
 import ir.registers.GlobalRegister;
 import ir.registers.ParameterRegister;
 import ir.registers.Register;
@@ -198,6 +200,13 @@ public class IRContext {
     //endregion
 
     //region Commands
+    @NotNull
+    public List<IRBlock> getBlocks() {
+        IRBlockGenerator generator = new IRBlockGenerator();
+        commands.forEach(generator::handle);
+        return generator.finish();
+    }
+
     @NotNull
     public Register newRegister() {
         return currentContext().registerAllocator.newRegister();
