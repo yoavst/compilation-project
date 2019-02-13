@@ -1,6 +1,12 @@
 package ast.declarations;
 
 import ast.statements.AST_STMT;
+import ir.arithmetic.IRSetValueCommand;
+import ir.functions.IRReturnCommand;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.registers.ThisRegister;
+import ir.utils.IRContext;
 import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
@@ -14,6 +20,8 @@ import utils.errors.SemanticException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Function;
 
@@ -53,14 +61,15 @@ public class AST_DEC_FUNC extends AST_DEC {
 
     @Override
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
-        symbolTable.beginScope(Function, null, symbol,"func " + name);
+        symbolTable.beginScope(Function, null, symbol, "func" + name);
         for (AST_ID parameter : parameters) {
-            symbolTable.enter(parameter.name, parameter.getType(), true,true);
+            symbolTable.enter(parameter.name, parameter.getType(), true, true);
         }
         for (AST_STMT statement : statements) {
             statement.semant(symbolTable);
         }
-        locals = symbolTable.endScope();
+        Set<String> paramNames = parameters.stream().map(p -> p.name).collect(Collectors.toSet());
+        locals = symbolTable.endScope().stream().filter(x -> !paramNames.contains(x.getName())).collect(Collectors.toList());
     }
 
     @Override
@@ -133,5 +142,30 @@ public class AST_DEC_FUNC extends AST_DEC {
 
         symbolTable.enter(name, representingType);
         symbol = symbolTable.findMethod(name, true);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        // open scope
+        context.openScope(symbol.toString(), parameters.stream().map(id -> new Symbol(id.name, id.getType())).collect(Collectors.toList()), IRContext.ScopeType.Function, true, symbol.isBounded());
+        context.openScope(symbol.toString() + "_locals", locals, IRContext.ScopeType.Inner, false, false);
+
+        context.label(context.functionLabelFor(symbol));
+
+        if (symbol.isBounded()) {
+            context.command(new IRSetValueCommand(ThisRegister.instance, IRContext.FIRST_FUNCTION_PARAMETER));
+        }
+        // function body
+        for (AST_STMT statement : statements) {
+            statement.irMe(context);
+        }
+
+        context.closeScope();
+        context.closeScope();
+
+        context.label(context.returnLabelFor(symbol));
+        context.command(new IRReturnCommand());
+
+        return NonExistsRegister.instance;
     }
 }

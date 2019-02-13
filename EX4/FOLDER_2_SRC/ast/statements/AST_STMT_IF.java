@@ -67,9 +67,12 @@ public class AST_STMT_IF extends AST_STMT {
         // if not true then jump, otherwise continue
         context.command(new IRIfZeroCommand(conditionRegister, afterLabel));
         // insert body
+        context.openScope("if_body", locals, IRContext.ScopeType.Inner, false, false);
         for (AST_STMT statement : body) {
             statement.irMe(context);
         }
+        context.closeScope();
+
         context.label(afterLabel);
         return NonExistsRegister.instance;
     }

@@ -25,10 +25,6 @@ public abstract class Type {
         return false;
     }
 
-    public int size() {
-        return 4;
-    }
-
     public Type(@NotNull String name) {
         this.name = name;
     }

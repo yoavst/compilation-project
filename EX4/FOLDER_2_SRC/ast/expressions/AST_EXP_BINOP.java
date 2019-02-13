@@ -102,7 +102,15 @@ public class AST_EXP_BINOP extends AST_EXP {
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
         Register temp = context.newRegister();
-        context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
+        if (TypeString.instance.equals(type)) {
+            if (op == Op.Plus)
+                context.command(new IRBinOpCommand(temp, leftRegister, Operation.Concat, rightRegister));
+            else
+                context.command(new IRBinOpCommand(temp, leftRegister, Operation.StrEquals, rightRegister));
+
+        } else {
+            context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOp(op), rightRegister));
+        }
         return temp;
     }
 }

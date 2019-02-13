@@ -55,7 +55,14 @@ public class TypeFunction extends Type {
      * Check if the two functions has the same signature
      */
     public boolean sameSignature(TypeFunction func) {
-        if (func.params.size() != params.size() || !func.returnType.equals(returnType) || !Objects.equals(instanceType, func.instanceType))
+        if (func.params.size() != params.size() || !func.returnType.equals(returnType))
+            return false;
+
+        if ((instanceType == null && func.instanceType != null) ||
+                (instanceType != null && func.instanceType == null))
+            return false;
+
+        if (instanceType != null && !func.instanceType.isAssignableFrom(instanceType) && !instanceType.isAssignableFrom(func.instanceType))
             return false;
 
         for (int i = 0; i < func.params.size(); i++) {

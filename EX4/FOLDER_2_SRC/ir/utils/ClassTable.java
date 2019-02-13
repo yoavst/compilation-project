@@ -11,8 +11,9 @@ import java.util.Map;
 /**
  * Virtual table and fields table for a class
  */
-public class ClassTable {
+final class ClassTable {
     private static final int OFFSET_CHANGE = 4;
+    private static int current_id = 1;
     @Nullable
     private ClassTable parentTable;
     @NotNull
@@ -23,9 +24,10 @@ public class ClassTable {
     private TypeClass type;
     private int functionsLastOffset;
     private int fieldsLastOffset;
+    public final int id;
 
 
-    public ClassTable(@NotNull TypeClass type, @Nullable ClassTable parentTable, int initialVtableOffset, int initialFieldOffset) {
+    ClassTable(@NotNull TypeClass type, @Nullable ClassTable parentTable, int initialVtableOffset, int initialFieldOffset) {
         this.type = type;
         this.parentTable = parentTable;
 
@@ -36,12 +38,13 @@ public class ClassTable {
             functionsLastOffset = parentTable.functionsLastOffset;
             fieldsLastOffset = parentTable.fieldsLastOffset;
         }
+        id = current_id++;
     }
 
     /**
      * Will put the symbol to the virtual table, override the function if already exists.
      */
-    public void insertFunction(@NotNull Symbol symbol) {
+    void insertFunction(@NotNull Symbol symbol) {
         assert type.equals(symbol.instance);
         assert symbol.isFunction();
 
@@ -59,20 +62,20 @@ public class ClassTable {
     /**
      * Will save the field's offset, throws if already exists.
      */
-    public void insertField(@NotNull Symbol symbol) {
+    void insertField(@NotNull Symbol symbol) {
         assert type.equals(symbol.instance);
-        assert getField(symbol) < 0;
+        assert hasField(symbol);
         assert symbol.isField();
 
 
         fieldsOffsets.put(symbol, fieldsLastOffset);
-        fieldsLastOffset += type.size();
+        fieldsLastOffset += IRContext.PRIMITIVE_DATA_SIZE;
     }
 
     /**
      * get the offset for the function on the vtable, or -1 if missing
      */
-    public int getFunction(@NotNull Symbol symbol) {
+    int getFunction(@NotNull Symbol symbol) {
         assert type.isAssignableFrom(symbol.instance);
 
         if (functionOffsets.containsKey(symbol)) {
@@ -85,17 +88,49 @@ public class ClassTable {
     }
 
     /**
-     * get the offset from the object beginning  or -1 if missing
+     * get the offset from the object beginning
      */
-    public int getField(@NotNull Symbol symbol) {
+    int getField(@NotNull Symbol symbol) {
         assert type.isAssignableFrom(symbol.instance);
 
-        if (functionOffsets.containsKey(symbol)) {
+        if (fieldsOffsets.containsKey(symbol)) {
             return fieldsOffsets.get(symbol);
         } else if (parentTable != null) {
             return parentTable.getField(symbol);
         } else {
-            return -1;
+            throw new IllegalArgumentException("cannot find the field: " + symbol);
         }
+    }
+    /**
+     * check if has field
+     */
+    boolean hasField(@NotNull Symbol symbol) {
+        assert type.isAssignableFrom(symbol.instance);
+
+        if (fieldsOffsets.containsKey(symbol)) {
+            return true;
+        } else if (parentTable != null) {
+            return parentTable.hasField(symbol);
+        } else {
+            return false;
+        }
+    }
+
+
+    int getTotalSize() {
+        return fieldsLastOffset;
+    }
+
+    Map<Symbol, Integer> getFullVtable() {
+        Map<Symbol, Integer> vtable = new HashMap<>();
+        ClassTable instance = this;
+        while (instance != null) {
+            for (Map.Entry<Symbol, Integer> entry : instance.functionOffsets.entrySet()) {
+                if (!vtable.containsKey(entry.getKey()))
+                    vtable.put(entry.getKey(), entry.getValue());
+            }
+            instance = instance.parentTable;
+        }
+        return vtable;
     }
 }

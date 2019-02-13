@@ -6,10 +6,8 @@ import types.TypeFunction;
 import utils.NotNull;
 import utils.Nullable;
 
-import java.util.Objects;
-
 public class Symbol {
-    private static final String SYMBOL_SIGN = "::";
+    private static final String SYMBOL_SIGN = "_";
     @NotNull
     private final String name;
     @NotNull
@@ -50,7 +48,7 @@ public class Symbol {
     }
 
     public boolean isBounded() {
-        return  instance != null;
+        return instance != null;
     }
 
     @NotNull
@@ -66,14 +64,14 @@ public class Symbol {
         Symbol s = (Symbol) o;
         return s.name.equals(name) &&
                 s.type.equals(type) &&
-                Objects.equals(instance, s.instance);
+                ((s.instance == null && instance == null) ||
+                        (s.instance != null && instance != null && (s.instance.isAssignableFrom(instance) || instance.isAssignableFrom(s.instance))));
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
         result = 31 * result + type.hashCode();
-        result = 31 * result + (instance != null ? instance.hashCode() : 0);
         return result;
     }
 }

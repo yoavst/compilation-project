@@ -16,16 +16,17 @@ import utils.Utils;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Predicate;
 
 public class SymbolTable {
     private int hashArraySize = 13;
     private SymbolTableEntry[] table = new SymbolTableEntry[hashArraySize];
     private SymbolTableEntry top;
+    private Stack<Scope> scopeStack = new Stack<>();
     private int topIndex = 0;
     private TypeClass enclosingClass;
     private Symbol enclosingFunction;
-    private boolean isClassScanning = false;
     private int currentScopeMajor = 0;
     private List<TypeClass> registeredClasses = new ArrayList<>();
     private List<TypeArray> registeredArrays = new ArrayList<>();
@@ -68,7 +69,12 @@ public class SymbolTable {
     }
 
     public void enter(String name, Type t, boolean isVariableDeclaration, boolean isAddingForNamespace) {
-        Symbol s = new Symbol(name, t, enclosingClass);
+        final Symbol s;
+        if (enclosingFunction == null)
+            s = new Symbol(name, t, enclosingClass);
+        else
+            s = new Symbol(name, t);
+
         int hashValue = hash(name);
         SymbolTableEntry next = table[hashValue];
         SymbolTableEntry e = new SymbolTableEntry(s, isVariableDeclaration, hashValue, next, top, topIndex++, currentScopeMajor);
@@ -264,7 +270,7 @@ public class SymbolTable {
         } else {
             currentScopeMajor += 1;
         }
-
+        scopeStack.push(scope);
         enter("SCOPE-BOUNDARY", new TYPE_FOR_SCOPE_BOUNDARIES("[" + currentScopeMajor + "] " + debugInfo, scope));
 
         if (scope == Scope.Function) {
@@ -273,7 +279,6 @@ public class SymbolTable {
             enclosingClass = (TypeClass) enclosingType;
             registeredClasses.add(enclosingClass);
         } else if (scope == Scope.ClassScan) {
-            isClassScanning = true;
             enclosingClass = (TypeClass) enclosingType;
         }
 
@@ -287,7 +292,7 @@ public class SymbolTable {
     public List<Symbol> endScope() {
         List<Symbol> symbols = new ArrayList<>();
         // we create a scope to semant the function parameters in the header
-        boolean shouldSaveToClass = isClassScanning && getEnclosingFunction() == null;
+        boolean shouldSaveToClass = scopeStack.peek() == Scope.ClassScan && getEnclosingFunction() == null;
         // Pop elements from the symbol table stack until a SCOPE-BOUNDARY is hit
         while (!top.name.equals("SCOPE-BOUNDARY")) {
             if (shouldSaveToClass) {
@@ -300,7 +305,8 @@ public class SymbolTable {
                 }
             }
 
-            symbols.add(top.symbol);
+            if (top.isVariableDeclaration)
+                symbols.add(top.symbol);
             table[top.index] = top.next;
             topIndex = topIndex - 1;
             top = top.prev;
@@ -311,7 +317,6 @@ public class SymbolTable {
             enclosingFunction = null;
         } else if (scope == Scope.Class || scope == Scope.ClassScan) {
             enclosingClass = null;
-            isClassScanning = false;
         }
 
         // remove the boundary
@@ -321,6 +326,7 @@ public class SymbolTable {
 
         // update current scope
         currentScopeMajor = top == null ? 0 : top.scopeMajor;
+        scopeStack.pop();
 
         PrintMe();
         return symbols;

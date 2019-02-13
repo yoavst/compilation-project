@@ -74,7 +74,7 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
         context.checkLength(instance, index);
 
         Register temp = context.newRegister();
-        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size())); // temp = index * sizeof(element)
+        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, IRContext.PRIMITIVE_DATA_SIZE)); // temp = index * sizeof(element)
         context.command(new IRBinOpCommand(temp, instance, Operation.Plus, temp)); // temp = instance + temp
         context.command(new IRBinOpRightConstCommand(temp, instance, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET)); // temp = temp + initial offset
 
@@ -95,8 +95,9 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
         Register content = data.get();
 
         Register temp = context.newRegister();
-        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, ((TypeArray) var.getType()).arrayType.size())); // temp = index * sizeof(element)
+        context.command(new IRBinOpRightConstCommand(temp, index, Operation.Times, IRContext.PRIMITIVE_DATA_SIZE)); // temp = index * sizeof(element)
         context.command(new IRBinOpCommand(temp, instance, Operation.Plus, temp)); // temp = instance + temp
+        context.command(new IRBinOpRightConstCommand(temp, instance, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET)); // temp = temp + initial offset
 
         context.command(new IRStoreCommand(temp, content));
     }

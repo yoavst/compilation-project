@@ -1,5 +1,17 @@
 package ast.declarations;
 
+import ir.arithmetic.IRConstCommand;
+import ir.arithmetic.IRSetValueCommand;
+import ir.flow.IRLabel;
+import ir.functions.IRCallCommand;
+import ir.functions.IRPopCommand;
+import ir.functions.IRPushCommand;
+import ir.functions.IRReturnCommand;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.registers.ReturnRegister;
+import ir.registers.ThisRegister;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.ClassScan;
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Class;
@@ -7,6 +19,8 @@ import types.TypeClass;
 import utils.NotNull;
 import utils.Nullable;
 import utils.errors.SemanticException;
+
+import java.util.Collections;
 
 public class AST_DEC_CLASS extends AST_DEC {
     @Nullable
@@ -87,5 +101,65 @@ public class AST_DEC_CLASS extends AST_DEC {
         }
 
         symbolTable.enter(name, representingType, false,true);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        context.loadClass(representingType);
+        int size = context.sizeOf(representingType);
+
+        IRLabel constructorLabel = context.constructorOf(representingType);
+        context.openScope(constructorLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
+
+        context.label(constructorLabel);
+        Register allocationSize = context.newRegister();
+        context.command(new IRConstCommand(allocationSize, size));
+        Register thisReg = context.malloc(allocationSize);
+        context.assignVirtualTable(thisReg, representingType);
+
+        Register temp = context.newRegister();
+        if (representingType.parent != null) {
+            // call parent internal constructor
+            context.command(new IRPushCommand(thisReg));
+            context.command(new IRCallCommand(context.internalConstructorOf(representingType.parent)));
+            context.command(new IRPopCommand(temp));
+        }
+
+        // call internal constructor
+        context.command(new IRPushCommand(thisReg));
+        context.command(new IRCallCommand(context.internalConstructorOf(representingType)));
+        context.command(new IRPopCommand(temp));
+
+        // return instance
+        context.command(new IRSetValueCommand(ReturnRegister.instance, thisReg));
+        context.command(new IRReturnCommand());
+
+        context.closeScope();
+
+        context.openObjectScope(representingType);
+
+        // now, internal constructor
+        IRLabel internalLabel = context.internalConstructorOf(representingType);
+        context.label(internalLabel);
+        context.openScope(internalLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
+
+        for (AST_DEC field : fields) {
+            if (field instanceof AST_DEC_VAR) {
+                field.irMe(context);
+            }
+        }
+        context.command(new IRReturnCommand());
+        context.closeScope();
+
+        // now, class body
+        for (AST_DEC field : fields) {
+            if (!(field instanceof AST_DEC_VAR)) {
+                field.irMe(context);
+            }
+        }
+
+        context.closeObjectScope();
+
+        return NonExistsRegister.instance;
     }
 }

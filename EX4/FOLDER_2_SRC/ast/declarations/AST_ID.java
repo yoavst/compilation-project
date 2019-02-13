@@ -1,6 +1,9 @@
 package ast.declarations;
 
 import ast.AST_Node;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeVoid;
@@ -53,5 +56,11 @@ public class AST_ID extends AST_Node {
         }
 
         symbolTable.enter(name, typing, true, true);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        // no-op
+        return NonExistsRegister.instance;
     }
 }

@@ -1,5 +1,16 @@
 package ast.declarations;
 
+import ir.arithmetic.IRBinOpRightConstCommand;
+import ir.arithmetic.IRSetValueCommand;
+import ir.arithmetic.Operation;
+import ir.flow.IRLabel;
+import ir.functions.IRReturnCommand;
+import ir.memory.IRStoreCommand;
+import ir.registers.NonExistsRegister;
+import ir.registers.Register;
+import ir.registers.ReturnRegister;
+import ir.utils.IRContext;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArray;
@@ -7,7 +18,11 @@ import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.errors.SemanticException;
 
+import java.util.Collections;
+
 public class AST_DEC_ARRAY extends AST_DEC {
+    TypeArray array;
+
     public AST_DEC_ARRAY(@NotNull String type, @NotNull String name) {
         super(type, name);
     }
@@ -37,6 +52,32 @@ public class AST_DEC_ARRAY extends AST_DEC {
         if (symbolTable.find(name) != null) {
             throwSemantic("Trying to declare an array typedef but the name \"" + name + "\" is already in use");
         }
-        symbolTable.enter(name, new TypeArray(name, arrayType), false, true);
+        array = new TypeArray(name, arrayType);
+        symbolTable.enter(name, array, false, true);
+    }
+
+    @Override
+    public @NotNull Register irMe(IRContext context) {
+        // create constructor
+        IRLabel constructorLabel = context.constructorOf(array);
+
+        context.openScope(constructorLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
+        // getting size as first parameter
+        context.label(constructorLabel);
+        // calculate the right size to allocate
+        Register allocationSize = context.newRegister();
+        context.command(new IRBinOpRightConstCommand(allocationSize, IRContext.FIRST_FUNCTION_PARAMETER, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET));
+        // call malloc
+        Register mallocResult = context.malloc(allocationSize);
+        // save length
+        Register temp = context.newRegister();
+        context.command(new IRBinOpRightConstCommand(temp, mallocResult, Operation.Plus, IRContext.ARRAY_LENGTH_OFFSET));
+        context.command(new IRStoreCommand(temp, IRContext.FIRST_FUNCTION_PARAMETER));
+        // return
+        context.command(new IRSetValueCommand(ReturnRegister.instance, mallocResult));
+        context.command(new IRReturnCommand());
+        context.closeScope();
+
+        return NonExistsRegister.instance;
     }
 }

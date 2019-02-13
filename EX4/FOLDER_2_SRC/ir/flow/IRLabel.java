@@ -14,6 +14,6 @@ public class IRLabel extends IRCommand {
 
     @Override
     public String toString() {
-        return name + ":";
+        return name;
     }
 }

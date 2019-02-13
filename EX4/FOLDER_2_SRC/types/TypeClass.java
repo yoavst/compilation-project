@@ -1,5 +1,6 @@
 package types;
 
+import ir.utils.IRContext;
 import symbols.Symbol;
 import types.builtins.TypeNil;
 import utils.NotNull;
@@ -163,7 +164,8 @@ public final class TypeClass extends Type {
      * Check if t extends this class
      */
     @Override
-    public boolean isAssignableFrom(Type t) {
+    public boolean isAssignableFrom(@Nullable Type t) {
+        if (t == null) return false;
         if (t == TypeNil.instance) return true;
         else if (t == TypeError.instance) return true;
         else if (!t.isClass()) return false;

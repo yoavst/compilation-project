@@ -1,4 +1,5 @@
 import ast.AST_PROGRAM;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import utils.Graphwiz;
 import utils.errors.SemanticException;
@@ -20,24 +21,31 @@ public class Main {
                 AST.printMe();
                 fileWriter.write("OK\n");
                 Graphwiz.getInstance().finalizeFile();
-                System.out.println("OK");
+
+                IRContext context = new IRContext();
+                AST.irMe(context);
+                System.out.println(context.toString());
+
             } catch (IllegalStateException e) {
+                e.printStackTrace();
                 // Invalid syntax
                 fileWriter.write("ERROR(" + parser.line + ")\n");
                 System.out.println("Syntax error ERROR(" + parser.line + ")");
             } catch (ClassCastException e) {
+                e.printStackTrace();
                 // Valid syntax but program doesn't start as AST_PROGRAM
                 fileWriter.write("ERROR(1)\n");
                 System.out.println("Syntax error starting rule");
             } catch (UnsupportedOperationException e) {
+                e.printStackTrace();
                 // Lexer throws error
                 fileWriter.write("ERROR(" + lexer.getLine() + ")\n");
                 System.out.println("lexer ERROR(" + lexer.getLine() + ")");
             } catch (SemanticException e) {
+                e.printStackTrace();
                 // semantic analysis throws error
                 fileWriter.write("ERROR(" + e.getNode().lineNumber + ")\n");
                 System.out.println("semantic ERROR(" + e.getNode().lineNumber + ")");
-                e.printStackTrace(); // FIXME
             }
         } catch (Exception e) {
             e.printStackTrace();
