@@ -1,6 +1,6 @@
 package ast.expressions;
 
-import ir.memory.IRLoadFromLabelCommand;
+import ir.commands.memory.IRLoadFromLabelCommand;
 import ir.registers.Register;
 import ir.utils.IRContext;
 import types.builtins.TypeString;

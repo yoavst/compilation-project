@@ -6,13 +6,15 @@ import utils.NotNull;
 import utils.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Virtual table and fields table for a class
+ * Virtual table and fields table for a class. Support recursive lookups.
  */
 final class ClassTable {
-    private static final int OFFSET_CHANGE = 4;
+    private static final int OFFSET_CHANGE = IRContext.PRIMITIVE_DATA_SIZE;
     private static int current_id = 1;
     @Nullable
     private ClassTable parentTable;
@@ -104,7 +106,7 @@ final class ClassTable {
     /**
      * check if has field
      */
-    boolean hasField(@NotNull Symbol symbol) {
+    private boolean hasField(@NotNull Symbol symbol) {
         assert type.isAssignableFrom(symbol.instance);
 
         if (fieldsOffsets.containsKey(symbol)) {
@@ -116,12 +118,17 @@ final class ClassTable {
         }
     }
 
-
+    /**
+     * Returns total size of object in memory, including prefix.
+     */
     int getTotalSize() {
         return fieldsLastOffset;
     }
 
-    Map<Symbol, Integer> getFullVtable() {
+    /**
+     * Returns the full virtual table for the given object.
+     */
+    List<Symbol> getFullVtable() {
         Map<Symbol, Integer> vtable = new HashMap<>();
         ClassTable instance = this;
         while (instance != null) {
@@ -131,6 +138,10 @@ final class ClassTable {
             }
             instance = instance.parentTable;
         }
-        return vtable;
+        return vtable.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 }

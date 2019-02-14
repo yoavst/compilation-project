@@ -2,8 +2,8 @@ package ast.statements;
 
 import ast.expressions.AST_EXP;
 import ir.utils.IRContext;
-import ir.arithmetic.IRSetValueCommand;
-import ir.flow.IRGotoCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.flow.IRGotoCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;

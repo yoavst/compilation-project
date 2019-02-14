@@ -1,16 +1,15 @@
 package ast.declarations;
 
-import ir.arithmetic.IRConstCommand;
-import ir.arithmetic.IRSetValueCommand;
-import ir.flow.IRLabel;
-import ir.functions.IRCallCommand;
-import ir.functions.IRPopCommand;
-import ir.functions.IRPushCommand;
-import ir.functions.IRReturnCommand;
+import ir.commands.arithmetic.IRConstCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRCallCommand;
+import ir.commands.functions.IRPopCommand;
+import ir.commands.functions.IRPushCommand;
+import ir.commands.functions.IRReturnCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
-import ir.registers.ThisRegister;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.ClassScan;

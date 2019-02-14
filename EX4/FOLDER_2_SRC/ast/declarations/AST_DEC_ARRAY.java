@@ -1,16 +1,15 @@
 package ast.declarations;
 
-import ir.arithmetic.IRBinOpRightConstCommand;
-import ir.arithmetic.IRSetValueCommand;
-import ir.arithmetic.Operation;
-import ir.flow.IRLabel;
-import ir.functions.IRReturnCommand;
-import ir.memory.IRStoreCommand;
+import ir.commands.arithmetic.IRBinOpRightConstCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.arithmetic.Operation;
+import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRReturnCommand;
+import ir.commands.memory.IRStoreCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
 import ir.utils.IRContext;
-import symbols.Symbol;
 import symbols.SymbolTable;
 import types.Type;
 import types.builtins.TypeArray;

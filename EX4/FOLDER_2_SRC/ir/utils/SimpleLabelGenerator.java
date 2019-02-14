@@ -1,21 +1,21 @@
 package ir.utils;
 
-import ir.flow.IRLabel;
+import ir.commands.flow.IRLabel;
 import utils.Nullable;
 
 /**
- * Simple count
+ * Simple counter implementation for label generation
  */
 public class SimpleLabelGenerator implements LabelGenerator {
     private static int counter = 0;
     @Nullable
     private final String prefix;
 
-    public SimpleLabelGenerator(@Nullable String prefix) {
+    private SimpleLabelGenerator(@Nullable String prefix) {
         this.prefix = prefix;
     }
 
-    public SimpleLabelGenerator() {
+    SimpleLabelGenerator() {
         this(null);
     }
 

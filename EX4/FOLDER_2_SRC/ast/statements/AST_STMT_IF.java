@@ -2,15 +2,12 @@ package ast.statements;
 
 import ast.expressions.AST_EXP;
 import ir.utils.IRContext;
-import ir.flow.IRIfNotZeroCommand;
-import ir.flow.IRIfZeroCommand;
-import ir.flow.IRLabel;
+import ir.commands.flow.IRIfZeroCommand;
+import ir.commands.flow.IRLabel;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import symbols.Symbol;
 import symbols.SymbolTable;
-import types.TypeError;
-import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.errors.SemanticException;
 

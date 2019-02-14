@@ -1,9 +1,9 @@
 package ast.expressions;
 
 import ir.utils.IRContext;
-import ir.functions.IRCallCommand;
-import ir.functions.IRPopCommand;
-import ir.functions.IRPushCommand;
+import ir.commands.functions.IRCallCommand;
+import ir.commands.functions.IRPopCommand;
+import ir.commands.functions.IRPushCommand;
 import ir.registers.Register;
 import symbols.SymbolTable;
 import types.Type;

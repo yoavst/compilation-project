@@ -1,10 +1,9 @@
 package ast;
 
 import ast.declarations.AST_DEC;
-import ast.declarations.AST_DEC_VAR;
-import ir.flow.IRLabel;
-import ir.functions.IRCallCommand;
-import ir.functions.IRPopCommand;
+import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRCallCommand;
+import ir.commands.functions.IRPopCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.utils.IRContext;

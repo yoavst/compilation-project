@@ -1,8 +1,11 @@
 package ir.utils;
 
 
-import ir.flow.IRLabel;
+import ir.commands.flow.IRLabel;
 
+/**
+ * Abstraction for label generation
+ */
 @FunctionalInterface
 public interface LabelGenerator {
     /**

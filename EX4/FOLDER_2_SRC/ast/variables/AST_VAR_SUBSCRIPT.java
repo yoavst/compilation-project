@@ -1,12 +1,12 @@
 package ast.variables;
 
 import ast.expressions.AST_EXP;
-import ir.memory.IRStoreCommand;
+import ir.commands.memory.IRStoreCommand;
 import ir.utils.IRContext;
-import ir.arithmetic.IRBinOpCommand;
-import ir.arithmetic.IRBinOpRightConstCommand;
-import ir.arithmetic.Operation;
-import ir.memory.IRLoadCommand;
+import ir.commands.arithmetic.IRBinOpCommand;
+import ir.commands.arithmetic.IRBinOpRightConstCommand;
+import ir.commands.arithmetic.Operation;
+import ir.commands.memory.IRLoadCommand;
 import ir.registers.Register;
 import symbols.SymbolTable;
 import types.Type;
@@ -66,8 +66,6 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
-        assert symbol != null && symbol.instance != null;
-
         Register instance = var.irMe(context);
         context.checkNotNull(instance);
         Register index = subscript.irMe(context);
@@ -85,8 +83,6 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
 
     @Override
     public void irAssignTo(IRContext context, Supplier<Register> data) {
-        assert symbol != null && symbol.instance != null;
-
         Register instance = var.irMe(context);
         context.checkNotNull(instance);
         Register index = subscript.irMe(context);

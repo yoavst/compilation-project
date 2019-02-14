@@ -1,8 +1,8 @@
 package ast.declarations;
 
 import ast.statements.AST_STMT;
-import ir.arithmetic.IRSetValueCommand;
-import ir.functions.IRReturnCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.functions.IRReturnCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ThisRegister;

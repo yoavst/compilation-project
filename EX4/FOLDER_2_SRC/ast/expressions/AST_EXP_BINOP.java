@@ -1,9 +1,8 @@
 package ast.expressions;
 
-import ir.flow.IRLabel;
 import ir.utils.IRContext;
-import ir.arithmetic.IRBinOpCommand;
-import ir.arithmetic.Operation;
+import ir.commands.arithmetic.IRBinOpCommand;
+import ir.commands.arithmetic.Operation;
 import ir.registers.Register;
 import symbols.SymbolTable;
 import types.TypeError;

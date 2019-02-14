@@ -16,7 +16,7 @@ public class SimpleRegisterAllocator implements RegisterAllocator {
 
     @Override
     public void free(Register register) {
-        if (!register.isConstant() && register.getId() == counter - 1) {
+        if (register.isTemporary() && register.getId() == counter - 1) {
             counter--;
         }
     }

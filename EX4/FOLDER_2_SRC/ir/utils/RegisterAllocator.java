@@ -2,6 +2,9 @@ package ir.utils;
 
 import ir.registers.Register;
 
+/**
+ * Abstraction for temporary register allocation
+ */
 public interface RegisterAllocator {
     /**
      * Allocate new temporary register

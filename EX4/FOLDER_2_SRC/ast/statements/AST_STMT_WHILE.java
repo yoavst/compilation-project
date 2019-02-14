@@ -2,19 +2,16 @@ package ast.statements;
 
 import ast.expressions.AST_EXP;
 import ir.utils.IRContext;
-import ir.flow.IRGotoCommand;
-import ir.flow.IRIfZeroCommand;
-import ir.flow.IRLabel;
+import ir.commands.flow.IRGotoCommand;
+import ir.commands.flow.IRIfZeroCommand;
+import ir.commands.flow.IRLabel;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import symbols.Symbol;
 import symbols.SymbolTable;
-import types.TypeError;
-import types.builtins.TypeInt;
 import utils.NotNull;
 import utils.errors.SemanticException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.Block;

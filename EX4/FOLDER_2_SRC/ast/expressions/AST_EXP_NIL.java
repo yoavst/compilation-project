@@ -2,7 +2,7 @@ package ast.expressions;
 
 import ir.utils.IRContext;
 import ir.registers.Register;
-import ir.arithmetic.IRConstCommand;
+import ir.commands.arithmetic.IRConstCommand;
 import types.builtins.TypeNil;
 import utils.NotNull;
 

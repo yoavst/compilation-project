@@ -1,6 +1,18 @@
 import ast.AST_PROGRAM;
-import ir.optimizations.IRBlock;
-import ir.optimizations.LivenessAnalysis;
+import ir.analysis.liveness.LimitedRegisterAllocator;
+import ir.commands.IRCommand;
+import ir.commands.arithmetic.IRBinOpCommand;
+import ir.commands.arithmetic.Operation;
+import ir.commands.flow.IRGotoCommand;
+import ir.commands.flow.IRIfNotZeroCommand;
+import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRCallCommand;
+import ir.analysis.IRBlock;
+import ir.analysis.IRBlockGenerator;
+import ir.analysis.liveness.LivenessAnalysis;
+import ir.registers.Register;
+import ir.registers.ReturnRegister;
+import ir.registers.TempRegister;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
 import utils.Graphwiz;
@@ -8,7 +20,11 @@ import utils.errors.SemanticException;
 
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] argv) {
@@ -29,37 +45,18 @@ public class Main {
                 AST.irMe(context);
                 System.out.println(context.toString());
                 List<IRBlock> blocks = context.getBlocks();
+                List<IRBlock> startingBlocks = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
+                List<Set<IRBlock>> programParts = startingBlocks.stream().filter(IRBlock::isStartingBlock).map(IRBlock::scanGraph).collect(Collectors.toList());
+                for (Set<IRBlock> programPart : programParts) {
+                    Map<Register, Integer> coloring = new LimitedRegisterAllocator(7).allocateRealRegister(programPart);
+                    System.out.println("--------------------");
+                    coloring.forEach((reg, value) -> System.out.println(reg + " -> "+ value));
+                }
 
-//                Register a = ReturnRegister.instance;
-//                Register b = new TempRegister(2);
-//                Register c = new TempRegister(3);
-//                Register d = new TempRegister(4);
-//
-//                List<IRCommand> commands = Arrays.asList(
-//                        new IRLabel("entry"),
-//                        new IRBinOpCommand(b, c, Operation.Plus, d),
-//                        new IRBinOpCommand(c, c, Operation.Plus, d),
-//                        new IRIfNotZeroCommand(a, new IRLabel("if1")),
-//                        new IRBinOpCommand(c, a, Operation.Plus, b),
-//                        new IRGotoCommand(new IRLabel("after_if")),
-//                        new IRLabel("if1"),
-//                        new IRBinOpCommand(a, b, Operation.Plus, c),
-//                        new IRBinOpCommand(d, a, Operation.Plus, c),
-//                        new IRLabel("after_if"),
-//                        new IRBinOpCommand(a, a, Operation.Plus, b),
-//                        new IRBinOpCommand(d, b, Operation.Plus, c),
-//                        new IRIfNotZeroCommand(a, new IRLabel("entry")),
-//                        new IRCallCommand(new IRLabel("exit"))
-//                        );
-//                IRBlockGenerator generator = new IRBlockGenerator();
-//                commands.forEach(generator::handle);
-//                List<IRBlock> generatedBlocks = generator.finish();
+
 //                LivenessAnalysis analysis = new LivenessAnalysis();
-//                analysis.run(generatedBlocks);
-
-                LivenessAnalysis analysis = new LivenessAnalysis();
-                analysis.run(blocks);
-                System.out.println();
+//                analysis.run(blocks);
+//                System.out.println();
 
 
             } catch (IllegalStateException e) {
@@ -86,6 +83,34 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void test() {
+        Register a = ReturnRegister.instance;
+        Register b = new TempRegister(2);
+        Register c = new TempRegister(3);
+        Register d = new TempRegister(4);
+
+        List<IRCommand> commands = Arrays.asList(
+                new IRLabel("entry"),
+                new IRBinOpCommand(b, c, Operation.Plus, d),
+                new IRBinOpCommand(c, c, Operation.Plus, d),
+                new IRIfNotZeroCommand(a, new IRLabel("if1")),
+                new IRBinOpCommand(c, a, Operation.Plus, b),
+                new IRGotoCommand(new IRLabel("after_if")),
+                new IRLabel("if1"),
+                new IRBinOpCommand(a, b, Operation.Plus, c),
+                new IRBinOpCommand(d, a, Operation.Plus, c),
+                new IRLabel("after_if"),
+                new IRBinOpCommand(a, a, Operation.Plus, b),
+                new IRBinOpCommand(d, b, Operation.Plus, c),
+                new IRIfNotZeroCommand(a, new IRLabel("entry")),
+                new IRCallCommand(new IRLabel("exit"))
+        );
+        IRBlockGenerator generator = new IRBlockGenerator();
+        commands.forEach(generator::handle);
+        List<IRBlock> generatedBlocks = generator.finish();
+        Map<Register, Integer> colors = new LimitedRegisterAllocator(4).allocateRealRegister(generatedBlocks);
     }
 }
 

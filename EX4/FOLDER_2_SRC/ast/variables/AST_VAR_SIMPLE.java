@@ -1,11 +1,11 @@
 package ast.variables;
 
-import ir.memory.IRStoreCommand;
+import ir.commands.memory.IRStoreCommand;
 import ir.utils.IRContext;
-import ir.arithmetic.IRBinOpRightConstCommand;
-import ir.arithmetic.IRSetValueCommand;
-import ir.arithmetic.Operation;
-import ir.memory.IRLoadCommand;
+import ir.commands.arithmetic.IRBinOpRightConstCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.arithmetic.Operation;
+import ir.commands.memory.IRLoadCommand;
 import ir.registers.Register;
 import ir.registers.ThisRegister;
 import symbols.SymbolTable;

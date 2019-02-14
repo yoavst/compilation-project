@@ -1,9 +1,12 @@
 package ir.registers;
 
-public class Register {
+/**
+ * Represents a register in the IR level. There are many types of IR registers, and each may have different real representation.
+ */
+public abstract class Register {
     private final int id;
 
-    public Register(int id) {
+    Register(int id) {
         this.id = id;
     }
 
@@ -11,7 +14,7 @@ public class Register {
         return id;
     }
 
-    public boolean isConstant() {
+    public boolean isTemporary() {
         return false;
     }
 
@@ -19,8 +22,7 @@ public class Register {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Register register = (Register) o;
-        return id == register.id;
+        return toString().equals(o.toString());
     }
 
     @Override
