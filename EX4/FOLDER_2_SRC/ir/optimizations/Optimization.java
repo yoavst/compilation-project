@@ -3,41 +3,37 @@ package ir.optimizations;
 import ir.IRCommand;
 import utils.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
-import java.util.function.UnaryOperator;
 
 public class Optimization<@NotNull K> {
     private boolean isForward;
     @NotNull
     private final BinaryOperator<K> joiner;
     @NotNull
-    private final Transfer<K> transfer;
+    private final BiFunction<IRCommand, K, K> transfer;
     @NotNull
     private final K initialValue;
     @NotNull
     private final K zero;
 
-    public Optimization(boolean isForward, @NotNull BinaryOperator<K> joiner, @NotNull List<Transfer<K>> transfers, @NotNull K defaultValue, @NotNull K zero) {
+    public Optimization(boolean isForward, @NotNull BinaryOperator<K> joiner, @NotNull List<BiFunction<IRCommand, K, K>> transfers, @NotNull K defaultValue, @NotNull K zero) {
         this.isForward = isForward;
         this.joiner = joiner;
-        this.transfer = transfers.stream().reduce((command, value) -> value, (f1, f2) -> (command, value) -> f1.handle(command, f2.handle(command, value)));
+        this.transfer = transfers.stream().reduce((command, value) -> value, (f1, f2) -> (command, value) -> f1.apply(command, f2.apply(command, value)));
         this.initialValue = defaultValue;
         this.zero = zero;
     }
 
 
-    class OptimizationRun {
-        HashMap<IRBlock, List<K>> in = new HashMap<>();
-        HashMap<IRBlock, List<K>> out = new HashMap<>();
+    protected class OptimizationRun {
+        Map<IRBlock, List<K>> in = new HashMap<>();
+        Map<IRBlock, List<K>> out = new HashMap<>();
         List<IRBlock> blocks;
         boolean isFixed = false;
 
-        OptimizationRun(List<IRBlock> blocks) {
+        public OptimizationRun(List<IRBlock> blocks) {
             this.blocks = blocks;
             for (IRBlock block : blocks) {
                 List<K> inList = new ArrayList<>(block.commands.size());
@@ -60,7 +56,7 @@ public class Optimization<@NotNull K> {
             }
         }
 
-        void run() {
+        public void run() {
             while (!isFixed) {
                 isFixed = true;
                 for (IRBlock block : blocks) {
@@ -82,17 +78,25 @@ public class Optimization<@NotNull K> {
                     } else {
                         // run transfer
                         for (int i = 0; i < blockIn.size() - 1; i++) {
-                            K transferResult = transfer.handle(get(block.commands, i), get(blockIn, i));
+                            K transferResult = transfer.apply(get(block.commands, i), get(blockIn, i));
                             set(blockOut, i, transferResult);
                             set(blockIn, i + 1, transferResult);
                         }
                         // handle last - need only out.
                         int i = blockIn.size() - 1;
-                        K transferResult = transfer.handle(get(block.commands, i), get(blockIn, i));
+                        K transferResult = transfer.apply(get(block.commands, i), get(blockIn, i));
                         set(blockOut, i, transferResult);
                     }
                 }
             }
+        }
+
+        public Map<IRBlock, List<K>> in() {
+            return in;
+        }
+
+        public Map<IRBlock, List<K>> out() {
+            return out;
         }
 
         private void set(List<K> l, int i, K value) {
@@ -117,26 +121,5 @@ public class Optimization<@NotNull K> {
             List<K> values = out.get(block);
             return isForward ? values.get(values.size() - 1) : values.get(0);
         }
-    }
-
-
-    interface Transfer<K> {
-        @NotNull
-        K handle(@NotNull IRCommand command, @NotNull K old);
-
-        static <K, T extends IRCommand> Transfer<K> createFor(Class<T> wantedCommand, BiFunction<T, K, K> body) {
-            return (command, old) -> {
-                if (wantedCommand.isInstance(command))
-                    //noinspection unchecked
-                    return body.apply((T) command, old);
-                else
-                    return old;
-            };
-        }
-    }
-
-    @FunctionalInterface
-    interface Joiner<K> {
-        K join(K first, K second);
     }
 }
