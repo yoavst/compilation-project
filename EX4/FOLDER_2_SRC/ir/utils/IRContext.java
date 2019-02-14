@@ -7,7 +7,6 @@ import ir.flow.IRIfNotZeroCommand;
 import ir.flow.IRIfZeroCommand;
 import ir.flow.IRLabel;
 import ir.functions.IRCallCommand;
-import ir.functions.IRLabelMark;
 import ir.functions.IRPopCommand;
 import ir.functions.IRPushCommand;
 import ir.memory.IRLoadCommand;
@@ -16,6 +15,7 @@ import ir.memory.IRStoreCommand;
 import ir.optimizations.IRBlock;
 import ir.optimizations.IRBlockGenerator;
 import ir.registers.GlobalRegister;
+import ir.registers.LocalRegister;
 import ir.registers.ParameterRegister;
 import ir.registers.Register;
 import symbols.Symbol;
@@ -135,20 +135,20 @@ public class IRContext {
         LocalContext context = new LocalContext(name, allocator, new SimpleLabelGenerator(), type);
 
         // we assumes no inner function, so parameters are once per function
-        int parameterCounter = 1;
+        int counter = 1;
         if (type == ScopeType.Function && isBounded) {
-            parameterCounter++;
+            counter++;
         }
 
         for (Symbol symbol : newSymbols) {
             if (symbol.isFunction()) {
                 context.addFunction(symbol, generateFunctionLabelFor(symbol));
             } else if (isParameters) {
-                context.addLocal(symbol, new ParameterRegister(parameterCounter++));
+                context.addLocal(symbol, new ParameterRegister(counter++));
             } else if (type == ScopeType.Global) {
-                context.addLocal(symbol, new GlobalRegister(parameterCounter++));
+                context.addLocal(symbol, new GlobalRegister(counter++));
             } else {
-                context.addLocal(symbol, allocator.newRegister());
+                context.addLocal(symbol, new LocalRegister(counter++));
             }
         }
         localsStack.add(context);
@@ -223,7 +223,7 @@ public class IRContext {
 
 
     public void label(@NotNull IRLabel label) {
-        command(new IRLabelMark(label));
+        command(label);
     }
 
     /**

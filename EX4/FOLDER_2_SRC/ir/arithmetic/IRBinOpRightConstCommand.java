@@ -4,6 +4,10 @@ import ir.IRAssignmentCommand;
 import ir.registers.Register;
 import utils.NotNull;
 
+import java.util.Set;
+
+import static utils.Utils.setOf;
+
 public class IRBinOpRightConstCommand extends IRAssignmentCommand {
     @NotNull
     private final Register first;
@@ -15,6 +19,16 @@ public class IRBinOpRightConstCommand extends IRAssignmentCommand {
         this.first = first;
         this.op = op;
         this.second = second;
+    }
+
+    @Override
+    public Set<Register> getDependencies() {
+        return setOf(first);
+    }
+
+    @Override
+    public Set<Register> getInvalidates() {
+        return setOf(dest);
     }
 
     @Override

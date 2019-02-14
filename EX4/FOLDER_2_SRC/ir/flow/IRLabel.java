@@ -1,7 +1,12 @@
 package ir.flow;
 
 import ir.IRCommand;
+import ir.registers.Register;
 import utils.NotNull;
+
+import java.util.Set;
+
+import static utils.Utils.setOf;
 
 public final class IRLabel extends IRCommand {
     @NotNull
@@ -10,6 +15,16 @@ public final class IRLabel extends IRCommand {
     public IRLabel(@NotNull String name) {
         super("label:");
         this.name = name;
+    }
+
+    @Override
+    public Set<Register> getDependencies() {
+        return setOf();
+    }
+
+    @Override
+    public Set<Register> getInvalidates() {
+        return setOf();
     }
 
     @Override

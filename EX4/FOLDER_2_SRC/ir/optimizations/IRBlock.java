@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class IRBlock {
     private static int counter = 0;
@@ -54,7 +56,16 @@ public class IRBlock {
     }
 
     @Override
+    public String toString() {
+        return commands.stream().map(IRCommand::toString).collect(Collectors.joining(" :: "));
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof IRBlock && ((IRBlock) obj).id == id;
+    }
+
+    public boolean isEmpty() {
+        return commands.isEmpty();
     }
 }

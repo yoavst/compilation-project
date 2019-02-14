@@ -25,6 +25,6 @@ public class Register {
 
     @Override
     public int hashCode() {
-        return id;
+        return toString().hashCode();
     }
 }

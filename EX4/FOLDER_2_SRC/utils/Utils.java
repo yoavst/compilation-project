@@ -1,9 +1,6 @@
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,5 +25,9 @@ public class Utils {
     @NotNull
     public static <K> K last(@NotNull List<K> list) {
         return list.get(list.size() - 1);
+    }
+
+    public static <K> Set<K> setOf(K... items) {
+        return new HashSet<>(Arrays.asList(items));
     }
 }

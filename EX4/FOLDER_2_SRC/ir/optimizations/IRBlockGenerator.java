@@ -5,7 +5,6 @@ import ir.IRCommand;
 import ir.flow.IRFlowCommand;
 import ir.flow.IRGotoCommand;
 import ir.flow.IRLabel;
-import ir.functions.IRLabelMark;
 import ir.functions.IRReturnCommand;
 import utils.NotNull;
 import utils.Nullable;
@@ -44,8 +43,8 @@ public class IRBlockGenerator {
     public void handle(@NotNull IRCommand command) {
         if (command instanceof IRFlowCommand) {
             handleFlow(((IRFlowCommand) command));
-        } else if (command instanceof IRLabelMark) {
-            handleLabel(((IRLabelMark) command).getLabel());
+        } else if (command instanceof IRLabel) {
+            handleLabel(((IRLabel) command));
         } else {
             handleNormal(command);
         }
