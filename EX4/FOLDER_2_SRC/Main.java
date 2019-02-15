@@ -33,31 +33,19 @@ public class Main {
             Lexer lexer = new Lexer(fileReader);
             Parser parser = new Parser(lexer);
             try {
+                // lex and parse the input
                 AST_PROGRAM AST = (AST_PROGRAM) parser.parse().value;
+                // semantic analysis
                 AST.semant(SymbolTable.getInstance());
-                AST.printMe();
-                fileWriter.write("OK\n");
-                Graphwiz.getInstance().finalizeFile();
-
+                // produce IR
                 IRContext context = new IRContext();
                 AST.irMe(context);
-//                System.out.println(context.toString());
-                new Mips().process(context.getCommands(), context.getVirtualTables(), context.getConstantStrings(), context.getGlobals());
-//                List<IRBlock> blocks = context.getBlocks();
-//                List<IRBlock> startingBlocks = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
-//                List<Set<IRBlock>> programParts = startingBlocks.stream().filter(IRBlock::isStartingBlock).map(IRBlock::scanGraph).collect(Collectors.toList());
-//                for (Set<IRBlock> programPart : programParts) {
-//                    Map<Register, Integer> coloring = new LimitedRegisterAllocator(7).allocateRealRegister(programPart);
-//                    System.out.println("--------------------");
-//                    coloring.forEach((reg, value) -> System.out.println(reg + " -> "+ value));
-//                }
-
-
-//                LivenessAnalysis analysis = new LivenessAnalysis();
-//                analysis.run(blocks);
-//                System.out.println();
-
-
+                // generate assembly
+                Mips mips = new Mips();
+                mips.process(context.getCommands(), context.getVirtualTables(), context.getConstantStrings(), context.getGlobals());
+                String assembly = mips.export();
+                // write result
+                fileWriter.write(assembly);
             } catch (IllegalStateException e) {
                 e.printStackTrace();
                 // Invalid syntax
@@ -82,34 +70,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static void test() {
-        Register a = ReturnRegister.instance;
-        Register b = new TempRegister(2);
-        Register c = new TempRegister(3);
-        Register d = new TempRegister(4);
-
-        List<IRCommand> commands = Arrays.asList(
-                new IRLabel("entry"),
-                new IRBinOpCommand(b, c, Operation.Plus, d),
-                new IRBinOpCommand(c, c, Operation.Plus, d),
-                new IRIfNotZeroCommand(a, new IRLabel("if1")),
-                new IRBinOpCommand(c, a, Operation.Plus, b),
-                new IRGotoCommand(new IRLabel("after_if")),
-                new IRLabel("if1"),
-                new IRBinOpCommand(a, b, Operation.Plus, c),
-                new IRBinOpCommand(d, a, Operation.Plus, c),
-                new IRLabel("after_if"),
-                new IRBinOpCommand(a, a, Operation.Plus, b),
-                new IRBinOpCommand(d, b, Operation.Plus, c),
-                new IRIfNotZeroCommand(a, new IRLabel("entry")),
-                new IRCallCommand(new IRLabel("exit"))
-        );
-        IRBlockGenerator generator = new IRBlockGenerator();
-        commands.forEach(generator::handle);
-        List<IRBlock> generatedBlocks = generator.finish();
-        Map<Register, Integer> colors = new LimitedRegisterAllocator(4).allocateRealRegister(generatedBlocks);
     }
 }
 

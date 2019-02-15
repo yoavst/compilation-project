@@ -25,9 +25,12 @@ SRC_FILES                 = ${SRC_DIR}/*.java              \
 							${SRC_DIR}/types/*/*.java      \
 							${SRC_DIR}/utils/*.java        \
 							${SRC_DIR}/utils/*/*.java      \
-							${SRC_DIR}/ir/*.java           \
 							${SRC_DIR}/ir/*/*.java         \
-                            ${SRC_DIR}/symbols/*.java
+                            ${SRC_DIR}/symbols/*.java	   \
+							${SRC_DIR}/asm/*.java	   	   \
+							${SRC_DIR}/ir/*/*.java	       \
+							${SRC_DIR}/ir/*/*/*.java	   \
+							${SRC_DIR}/symbols/*.java	   
 EXTERNAL_JAR_FILES        = ${EXTERNAL_JARS_DIR}/java-cup-11b-runtime.jar
 MANIFEST_FILE             = ${MANIFEST_DIR}/MANIFEST.MF
 
@@ -46,10 +49,6 @@ CUP_PROGRAM                    = java -jar ${EXTERNAL_JARS_DIR}/java-cup-11b.jar
 CUP_FILE                       = ${CUP_DIR}/CUP_FILE.cup
 CUP_GENERATED_PARSER_NAME      = Parser
 CUP_GENERATED_SYMBOLS_FILENAME = TokenNames
-
-######################
-# DEFINITIONS :: CUP #
-######################
 CUP_FLAGS =                                \
 -nowarn                                    \
 -parser  ${CUP_GENERATED_PARSER_NAME}      \
@@ -59,7 +58,7 @@ CUP_FLAGS =                                \
 # DEFINITIONS :: PARSER #
 #########################
 INPUT    = ${INPUT_DIR}/Input.txt
-OUTPUT   = ${OUTPUT_DIR}/SemanticStatus.txt
+OUTPUT   = ${OUTPUT_DIR}/Output.s
 
 ##########
 # TARGET #
@@ -126,21 +125,13 @@ compile:
 run: clear
 	@echo "Run compiler on input"
 	java -jar COMPILER ${INPUT} ${OUTPUT}
-	@echo "\n"
-	@echo "create a jpeg ast visualization"
-	dot -Tjpeg -o${OUTPUT_DIR}/AST.jpeg ${OUTPUT_DIR}/AST_IN_GRAPHVIZ_DOT_FORMAT.txt
-	@echo "\n"
-	@echo "create symbol table visualizations"
-	for symbolTable in `ls ${OUTPUT_DIR}/ | grep -E "SYMBOL_TABLE_([0-9]+)_IN_GRAPHVIZ_DOT_FORMAT.txt" | sed -e "s/_IN_GRAPHVIZ_DOT_FORMAT\.txt//"`; do \
-		dot -Tjpeg -o${OUTPUT_DIR}/$$symbolTable.jpg "${OUTPUT_DIR}/$$symbolTable""_IN_GRAPHVIZ_DOT_FORMAT.txt"; \
-    done
-	cat ${OUTPUT}
+	spim -f ${OUTPUT}
 
 clear:
 	rm -rf ${OUTPUT_DIR}/*
 
 test: clear
-	./run_tests.sh --ast
+	./run_tests.sh
 
 all_tests: clear
-	./run_tests.sh --ast --all
+	./run_tests.sh --all

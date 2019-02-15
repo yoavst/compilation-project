@@ -17,8 +17,6 @@ import ir.registers.*;
 import ir.utils.IRContext;
 import symbols.Symbol;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class Mips {
     private static final String INDENTATION = "\t";
-    private static final String NEWLINE = "\r\n";
+    private static final String NEWLINE = "\n";
     private static final int SIZE = IRContext.PRIMITIVE_DATA_SIZE;
     private static final int REGISTERS_COUNT = 8;
     private static final int COLORING_OFFSET = 8;
@@ -77,25 +75,15 @@ public class Mips {
 
     public void process(List<IRCommand> commands, Map<IRLabel, List<IRLabel>> virtualTables, Map<String, IRLabel> constantStrings, Map<Symbol, Register> globals) {
         loadConstants(constantStrings);
-        dataSection.append(NEWLINE);
         loadVirtualTables(virtualTables);
-        dataSection.append(NEWLINE);
         loadGlobals(globals);
-        dataSection.append(NEWLINE);
-        jump(new IRLabel("main"));
-        codeSection.append(NEWLINE);
+        jump(new IRLabel("main")); // for simulator that does not support main
         loadStdlib();
-        codeSection.append(NEWLINE);
         loadCode(commands);
-        try (PrintWriter out = new PrintWriter("mips.s")) {
-            out.println(".data");
-            out.println(dataSection);
-            out.println();
-            out.println(".text");
-            out.println(codeSection);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    }
+
+    public String export() {
+        return ".data" + NEWLINE + dataSection + NEWLINE + ".text" + NEWLINE + codeSection + NEWLINE;
     }
 
     //region Loading
@@ -105,10 +93,17 @@ public class Mips {
 
     private void loadVirtualTables(Map<IRLabel, List<IRLabel>> virtualTables) {
         virtualTables.forEach((label, methods) ->
-                dataSection.append(label)
-                        .append(": .word ")
-                        .append(methods.stream().map(IRLabel::toString).collect(Collectors.joining(",")))
-                        .append(NEWLINE)
+                {
+                    if (!methods.isEmpty()) {
+                        dataSection.append(label)
+                                .append(": .word ")
+                                .append(methods.stream().map(IRLabel::toString).collect(Collectors.joining(",")))
+                                .append(NEWLINE);
+                    } else {
+                        dataSection.append(label)
+                                .append(": .word 0\t# no methods").append(NEWLINE);
+                    }
+                }
         );
     }
 
@@ -351,7 +346,7 @@ public class Mips {
         IRLabel after = new IRLabel("__malloc_zero_after__");
 
         selfAddConst($v0, -SIZE);
-        binOp($t8,$v0,Operation.Plus, $t8);
+        binOp($t8, $v0, Operation.Plus, $t8);
 
         label(cond);
         branchEqual($v0, $t8, after);
@@ -416,8 +411,8 @@ public class Mips {
         jumpRegister($ra);
 
 
-
     }
+
     private void generateStringConcat() {
         label(STRING_CONCAT_LABEL);
         comment("Stdlib builtin intrinsic");
@@ -798,7 +793,7 @@ public class Mips {
     }
 
     private void andConst(int dest, int reg, String integerConstant) {
-        codeSection.append(INDENTATION).append("ANDI ").append(name(dest)).append(",").append(name(reg)).append(",").append(integerConstant).append(NEWLINE);
+        codeSection.append(INDENTATION).append("andi ").append(name(dest)).append(",").append(name(reg)).append(",").append(integerConstant).append(NEWLINE);
     }
 
     private void loadByteFromMemory(int dest, int memRegister) {
