@@ -10,10 +10,10 @@ import static utils.Utils.setOf;
 
 public class IRBinOpCommand extends IRAssignmentCommand {
     @NotNull
-    private final Register first;
-    private final Operation op;
+    public final Register first;
+    public final Operation op;
     @NotNull
-    private final Register second;
+    public final Register second;
 
     public IRBinOpCommand(@NotNull Register dest, @NotNull Register first, Operation op, @NotNull Register second) {
         super("var1 := var2 op var3", dest);

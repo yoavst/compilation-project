@@ -9,12 +9,12 @@ import java.util.Set;
 
 import static utils.Utils.setOf;
 
-public class IRLoadFromLabelCommand extends IRAssignmentCommand {
+public class IRLoadAddressFromLabelCommand extends IRAssignmentCommand {
     @NotNull
-    private IRLabel label;
+    public IRLabel label;
 
-    public IRLoadFromLabelCommand(@NotNull Register dest, @NotNull IRLabel label) {
-        super("var1 := [variable]", dest);
+    public IRLoadAddressFromLabelCommand(@NotNull Register dest, @NotNull IRLabel label) {
+        super("var1 := addr [variable]", dest);
         this.label = label;
     }
 
@@ -25,6 +25,6 @@ public class IRLoadFromLabelCommand extends IRAssignmentCommand {
 
     @Override
     public String toString() {
-        return String.format("%s := [%s]", dest, label);
+        return String.format("%s := addr [%s]", dest, label);
     }
 }

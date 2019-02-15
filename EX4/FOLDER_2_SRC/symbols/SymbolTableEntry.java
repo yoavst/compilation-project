@@ -32,6 +32,11 @@ class SymbolTableEntry {
     public final boolean isVariableDeclaration;
 
     /**
+     * whether this is type deceleration
+     */
+    public final boolean isTypeDeclaration;
+
+    /**
      * There are three types of scope: Class/ClassScan, Function, Block
      * Class and Function scopes are considered enclosing scope, and have special rules for resolving.
      * <br /><br />
@@ -48,6 +53,7 @@ class SymbolTableEntry {
     SymbolTableEntry(
             @NotNull Symbol symbol,
             boolean isVariableDeclaration,
+            boolean isTypeDeclaration,
             int index,
             SymbolTableEntry next,
             SymbolTableEntry prev,
@@ -62,5 +68,6 @@ class SymbolTableEntry {
 
         this.name = symbol.getName();
         this.isVariableDeclaration = isVariableDeclaration;
+        this.isTypeDeclaration = isTypeDeclaration;
     }
 }

@@ -10,7 +10,7 @@ import static utils.Utils.setOf;
 
 public class IRCallRegisterCommand extends IRCommand {
     @NotNull
-    private final Register function;
+    public final Register function;
 
     public IRCallRegisterCommand(@NotNull Register function) {
         super("call *var1");

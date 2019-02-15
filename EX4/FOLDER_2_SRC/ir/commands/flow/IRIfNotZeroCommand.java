@@ -9,7 +9,7 @@ import static utils.Utils.setOf;
 
 public class IRIfNotZeroCommand extends IRFlowCommand {
     @NotNull
-    private final Register condition;
+    public final Register condition;
 
     public IRIfNotZeroCommand(@NotNull Register condition, @NotNull IRLabel label) {
         super("ifnz var1 goto label", label);

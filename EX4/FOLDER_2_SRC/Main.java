@@ -1,4 +1,7 @@
+import asm.Mips;
 import ast.AST_PROGRAM;
+import ir.analysis.IRBlock;
+import ir.analysis.IRBlockGenerator;
 import ir.analysis.liveness.LimitedRegisterAllocator;
 import ir.commands.IRCommand;
 import ir.commands.arithmetic.IRBinOpCommand;
@@ -7,9 +10,6 @@ import ir.commands.flow.IRGotoCommand;
 import ir.commands.flow.IRIfNotZeroCommand;
 import ir.commands.flow.IRLabel;
 import ir.commands.functions.IRCallCommand;
-import ir.analysis.IRBlock;
-import ir.analysis.IRBlockGenerator;
-import ir.analysis.liveness.LivenessAnalysis;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
 import ir.registers.TempRegister;
@@ -23,8 +23,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] argv) {
@@ -43,15 +41,16 @@ public class Main {
 
                 IRContext context = new IRContext();
                 AST.irMe(context);
-                System.out.println(context.toString());
-                List<IRBlock> blocks = context.getBlocks();
-                List<IRBlock> startingBlocks = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
-                List<Set<IRBlock>> programParts = startingBlocks.stream().filter(IRBlock::isStartingBlock).map(IRBlock::scanGraph).collect(Collectors.toList());
-                for (Set<IRBlock> programPart : programParts) {
-                    Map<Register, Integer> coloring = new LimitedRegisterAllocator(7).allocateRealRegister(programPart);
-                    System.out.println("--------------------");
-                    coloring.forEach((reg, value) -> System.out.println(reg + " -> "+ value));
-                }
+//                System.out.println(context.toString());
+                new Mips().process(context.getCommands(), context.getVirtualTables(), context.getConstantStrings(), context.getGlobals());
+//                List<IRBlock> blocks = context.getBlocks();
+//                List<IRBlock> startingBlocks = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
+//                List<Set<IRBlock>> programParts = startingBlocks.stream().filter(IRBlock::isStartingBlock).map(IRBlock::scanGraph).collect(Collectors.toList());
+//                for (Set<IRBlock> programPart : programParts) {
+//                    Map<Register, Integer> coloring = new LimitedRegisterAllocator(7).allocateRealRegister(programPart);
+//                    System.out.println("--------------------");
+//                    coloring.forEach((reg, value) -> System.out.println(reg + " -> "+ value));
+//                }
 
 
 //                LivenessAnalysis analysis = new LivenessAnalysis();

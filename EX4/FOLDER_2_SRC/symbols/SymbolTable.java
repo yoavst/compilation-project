@@ -69,6 +69,10 @@ public class SymbolTable {
     }
 
     public void enter(String name, Type t, boolean isVariableDeclaration, boolean isAddingForNamespace) {
+        enter(name, t, isVariableDeclaration, isAddingForNamespace, false);
+    }
+
+    public void enter(String name, Type t, boolean isVariableDeclaration, boolean isAddingForNamespace, boolean isTypeDeclaration) {
         final Symbol s;
         if (enclosingFunction == null)
             s = new Symbol(name, t, enclosingClass);
@@ -77,11 +81,11 @@ public class SymbolTable {
 
         int hashValue = hash(name);
         SymbolTableEntry next = table[hashValue];
-        SymbolTableEntry e = new SymbolTableEntry(s, isVariableDeclaration, hashValue, next, top, topIndex++, currentScopeMajor);
+        SymbolTableEntry e = new SymbolTableEntry(s, isVariableDeclaration, isTypeDeclaration , hashValue, next, top, topIndex++, currentScopeMajor);
         top = e;
         table[hashValue] = e;
 
-        if (currentScopeMajor == 0 && !isAddingForNamespace) {
+        if (currentScopeMajor == 0 && !isAddingForNamespace && !isTypeDeclaration) {
             globalSymbols.add(s);
         }
 
@@ -414,8 +418,8 @@ public class SymbolTable {
         if (instance == null) {
             instance = new SymbolTable();
 
-            instance.enter("int", TypeInt.instance);
-            instance.enter("string", TypeString.instance);
+            instance.enter("int", TypeInt.instance, false, true, true);
+            instance.enter("string", TypeString.instance, false, true, true);
             instance.enter(
                     "PrintInt",
                     new TypeFunction(

@@ -66,7 +66,7 @@ final class ClassTable {
      */
     void insertField(@NotNull Symbol symbol) {
         assert type.equals(symbol.instance);
-        assert hasField(symbol);
+        assert !hasField(symbol);
         assert symbol.isField();
 
 

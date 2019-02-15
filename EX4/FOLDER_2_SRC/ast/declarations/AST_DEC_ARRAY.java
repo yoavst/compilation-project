@@ -4,6 +4,7 @@ import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.IRSetValueCommand;
 import ir.commands.arithmetic.Operation;
 import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRFunctionInfo;
 import ir.commands.functions.IRReturnCommand;
 import ir.commands.memory.IRStoreCommand;
 import ir.registers.NonExistsRegister;
@@ -20,7 +21,7 @@ import utils.errors.SemanticException;
 import java.util.Collections;
 
 public class AST_DEC_ARRAY extends AST_DEC {
-    TypeArray array;
+    private TypeArray array;
 
     public AST_DEC_ARRAY(@NotNull String type, @NotNull String name) {
         super(type, name);
@@ -63,9 +64,11 @@ public class AST_DEC_ARRAY extends AST_DEC {
         context.openScope(constructorLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
         // getting size as first parameter
         context.label(constructorLabel);
+        context.command(new IRFunctionInfo(constructorLabel.toString() , 1, 0));
         // calculate the right size to allocate
         Register allocationSize = context.newRegister();
-        context.command(new IRBinOpRightConstCommand(allocationSize, IRContext.FIRST_FUNCTION_PARAMETER, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET));
+        context.command(new IRBinOpRightConstCommand(allocationSize, IRContext.FIRST_FUNCTION_PARAMETER, Operation.Times, IRContext.PRIMITIVE_DATA_SIZE));
+        context.command(new IRBinOpRightConstCommand(allocationSize, allocationSize, Operation.Plus, IRContext.ARRAY_DATA_INITIAL_OFFSET));
         // call malloc
         Register mallocResult = context.malloc(allocationSize);
         // save length
@@ -74,6 +77,7 @@ public class AST_DEC_ARRAY extends AST_DEC {
         context.command(new IRStoreCommand(temp, IRContext.FIRST_FUNCTION_PARAMETER));
         // return
         context.command(new IRSetValueCommand(ReturnRegister.instance, mallocResult));
+        context.label(context.returnLabelForConstructor(array));
         context.command(new IRReturnCommand());
         context.closeScope();
 

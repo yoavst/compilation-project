@@ -1,11 +1,10 @@
 package ast.declarations;
 
 import ast.statements.AST_STMT;
-import ir.commands.arithmetic.IRSetValueCommand;
+import ir.commands.functions.IRFunctionInfo;
 import ir.commands.functions.IRReturnCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
-import ir.registers.ThisRegister;
 import ir.utils.IRContext;
 import symbols.Symbol;
 import symbols.SymbolTable;
@@ -31,7 +30,6 @@ public class AST_DEC_FUNC extends AST_DEC {
     @NotNull
     private final AST_STMT[] statements;
 
-    private TypeFunction representingType;
     private Symbol symbol;
     private List<Symbol> locals;
 
@@ -80,7 +78,7 @@ public class AST_DEC_FUNC extends AST_DEC {
             throwSemantic("Trying to declare a function with unknown return type: " + type);
         }
 
-        representingType = new TypeFunction(name, returnType, new ArrayList<>(), symbolTable.getEnclosingClass());
+        TypeFunction representingType = new TypeFunction(name, returnType, new ArrayList<>(), symbolTable.getEnclosingClass());
 
         SemanticException deferredException = null;
         symbolTable.beginScope(Function, null, null, "funcParams " + name);
@@ -146,15 +144,15 @@ public class AST_DEC_FUNC extends AST_DEC {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
+        IRFunctionInfo functionInfo = new IRFunctionInfo(name, parameters.size() + (symbol.isBounded() ? 1 : 0), 0);
         // open scope
         context.openScope(symbol.toString(), parameters.stream().map(id -> new Symbol(id.name, id.getType())).collect(Collectors.toList()), IRContext.ScopeType.Function, true, symbol.isBounded());
+
+        context.resetLoadedFieldsCounter();
         context.openScope(symbol.toString() + "_locals", locals, IRContext.ScopeType.Inner, false, false);
 
         context.label(context.functionLabelFor(symbol));
-
-        if (symbol.isBounded()) {
-            context.command(new IRSetValueCommand(ThisRegister.instance, IRContext.FIRST_FUNCTION_PARAMETER));
-        }
+        context.command(functionInfo);
         // function body
         for (AST_STMT statement : statements) {
             statement.irMe(context);
@@ -166,6 +164,7 @@ public class AST_DEC_FUNC extends AST_DEC {
         context.label(context.returnLabelFor(symbol));
         context.command(new IRReturnCommand());
 
+        functionInfo.numberOfLocals = context.getLoadedFieldsCount();
         return NonExistsRegister.instance;
     }
 }

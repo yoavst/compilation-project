@@ -12,8 +12,7 @@ import utils.Nullable;
 import java.util.function.Supplier;
 
 public abstract class AST_VAR extends AST_Node {
-    @Nullable
-    public Symbol symbol;
+    protected Type type;
 
     @NotNull
     @Override
@@ -30,10 +29,10 @@ public abstract class AST_VAR extends AST_Node {
     @NotNull
     @Override
     public Type getType() {
-        if (symbol == null) {
+        if (type == null) {
             throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
         }
-        return symbol.type;
+        return type;
     }
 
     public abstract void irAssignTo(IRContext context, Supplier<Register> data);

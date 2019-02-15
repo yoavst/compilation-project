@@ -6,7 +6,7 @@ import utils.NotNull;
 
 public class IRCallCommand extends IRCommand {
     @NotNull
-    private final IRLabel label;
+    public final IRLabel label;
 
     public IRCallCommand(@NotNull IRLabel label) {
         super("call label");

@@ -10,7 +10,7 @@ import static utils.Utils.setOf;
 
 public class IRPushCommand extends IRCommand {
     @NotNull
-    private final Register source;
+    public final Register source;
 
     public IRPushCommand(@NotNull Register source) {
         super("push var");

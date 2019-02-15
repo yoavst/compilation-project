@@ -9,7 +9,7 @@ import java.util.Set;
 import static utils.Utils.setOf;
 
 public class IRConstCommand extends IRAssignmentCommand {
-    private final int value;
+    public final int value;
 
     public IRConstCommand(@NotNull Register dest, int value) {
         super("var := const", dest);

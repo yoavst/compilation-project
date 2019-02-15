@@ -1,15 +1,14 @@
 package ast.variables;
 
 import ast.expressions.AST_EXP;
-import ir.commands.memory.IRStoreCommand;
-import ir.utils.IRContext;
 import ir.commands.arithmetic.IRBinOpCommand;
 import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.Operation;
 import ir.commands.memory.IRLoadCommand;
+import ir.commands.memory.IRStoreCommand;
 import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
-import types.Type;
 import types.builtins.TypeArray;
 import types.builtins.TypeInt;
 import utils.NotNull;
@@ -52,16 +51,7 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
             throwSemantic("Trying to do var[...] with non-integral index: " + subscript.getType());
         }
 
-        symbol = var.symbol;
-    }
-
-    @NotNull
-    @Override
-    public Type getType() {
-        if (symbol == null) {
-            throw new IllegalStateException("Type info is unavailable. Possible solution: run semantMe().");
-        }
-        return ((TypeArray) symbol.type).arrayType;
+        type = ((TypeArray) var.getType()).arrayType;
     }
 
     @Override

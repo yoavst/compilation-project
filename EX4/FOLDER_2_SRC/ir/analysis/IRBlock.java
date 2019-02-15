@@ -18,7 +18,7 @@ public class IRBlock {
     private static int counter = 0;
 
     @NotNull
-    final List<@NotNull IRCommand> commands;
+    public final List<@NotNull IRCommand> commands;
     @NotNull
     final Set<@NotNull IRBlock> next;
     @NotNull
@@ -27,9 +27,9 @@ public class IRBlock {
      * The block that comes after this block, even if there is no way to go on to it.
      */
     @Nullable
-    IRBlock realNextBlock;
+    public IRBlock realNextBlock;
     @Nullable
-    IRLabel label;
+    public IRLabel label;
 
     private final int id;
 

@@ -1,6 +1,6 @@
 package ast.expressions;
 
-import ir.commands.memory.IRLoadFromLabelCommand;
+import ir.commands.memory.IRLoadAddressFromLabelCommand;
 import ir.registers.Register;
 import ir.utils.IRContext;
 import types.builtins.TypeString;
@@ -26,7 +26,7 @@ public class AST_EXP_STRING extends AST_EXP_CONSTANT {
     @Override
     public @NotNull Register irMe(IRContext context) {
         Register temp = context.newRegister();
-        context.command(new IRLoadFromLabelCommand(temp, context.labelForConstantString(value)));
+        context.command(new IRLoadAddressFromLabelCommand(temp, context.labelForConstantString(value)));
         return temp;
     }
 }

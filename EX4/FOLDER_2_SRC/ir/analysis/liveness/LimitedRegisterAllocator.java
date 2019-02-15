@@ -30,7 +30,7 @@ public class LimitedRegisterAllocator {
     }
 
     @NotNull
-    private static <K> Map<Node<K>, Integer> color(@NotNull List<Node<K>> graph, int colorsCount) {
+    private static <K> Map<@NotNull Node<K>, @NotNull Integer> color(@NotNull List<@NotNull Node<K>> graph, int colorsCount) {
         assert colorsCount > 0;
         List<Node<K>> left = new ArrayList<>(graph);
         Stack<Node<K>> stack = new Stack<>();

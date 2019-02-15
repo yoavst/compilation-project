@@ -8,6 +8,7 @@ import ir.commands.arithmetic.Operation;
 import ir.commands.memory.IRLoadCommand;
 import ir.registers.Register;
 import ir.registers.ThisRegister;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import utils.NotNull;
 import utils.errors.SemanticException;
@@ -17,6 +18,7 @@ import java.util.function.Supplier;
 public class AST_VAR_SIMPLE extends AST_VAR {
     @NotNull
     public String name;
+    private Symbol symbol;
 
     public AST_VAR_SIMPLE(@NotNull String name) {
         this.name = name;
@@ -34,6 +36,7 @@ public class AST_VAR_SIMPLE extends AST_VAR {
         if (symbol == null) {
             throwSemantic("Trying to access non-existent field: \"" + name + "\"");
         }
+        type = symbol.type;
     }
 
     @Override

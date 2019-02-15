@@ -3,10 +3,7 @@ package ast.declarations;
 import ir.commands.arithmetic.IRConstCommand;
 import ir.commands.arithmetic.IRSetValueCommand;
 import ir.commands.flow.IRLabel;
-import ir.commands.functions.IRCallCommand;
-import ir.commands.functions.IRPopCommand;
-import ir.commands.functions.IRPushCommand;
-import ir.commands.functions.IRReturnCommand;
+import ir.commands.functions.*;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
@@ -99,7 +96,7 @@ public class AST_DEC_CLASS extends AST_DEC {
             throwSemantic("Trying to declare a class but the name \"" + name + "\" is already in use");
         }
 
-        symbolTable.enter(name, representingType, false,true);
+        symbolTable.enter(name, representingType, false,true, true);
     }
 
     @Override
@@ -111,6 +108,7 @@ public class AST_DEC_CLASS extends AST_DEC {
         context.openScope(constructorLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
 
         context.label(constructorLabel);
+        context.command(new IRFunctionInfo(constructorLabel.toString(),0, 0));
         Register allocationSize = context.newRegister();
         context.command(new IRConstCommand(allocationSize, size));
         Register thisReg = context.malloc(allocationSize);
@@ -131,6 +129,7 @@ public class AST_DEC_CLASS extends AST_DEC {
 
         // return instance
         context.command(new IRSetValueCommand(ReturnRegister.instance, thisReg));
+        context.label(context.returnLabelForConstructor(representingType));
         context.command(new IRReturnCommand());
 
         context.closeScope();
@@ -140,6 +139,7 @@ public class AST_DEC_CLASS extends AST_DEC {
         // now, internal constructor
         IRLabel internalLabel = context.internalConstructorOf(representingType);
         context.label(internalLabel);
+        context.command(new IRFunctionInfo(internalLabel.toString(), 1, 0));
         context.openScope(internalLabel.toString(), Collections.emptyList(), IRContext.ScopeType.Function, false, false);
 
         for (AST_DEC field : fields) {
@@ -147,6 +147,7 @@ public class AST_DEC_CLASS extends AST_DEC {
                 field.irMe(context);
             }
         }
+        context.label(context.returnLabelForInternalConstructor(representingType));
         context.command(new IRReturnCommand());
         context.closeScope();
 

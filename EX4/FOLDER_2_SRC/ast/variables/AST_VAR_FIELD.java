@@ -6,6 +6,7 @@ import ir.commands.memory.IRLoadCommand;
 import ir.commands.memory.IRStoreCommand;
 import ir.registers.Register;
 import ir.utils.IRContext;
+import symbols.Symbol;
 import symbols.SymbolTable;
 import types.TypeClass;
 import utils.NotNull;
@@ -18,6 +19,7 @@ public class AST_VAR_FIELD extends AST_VAR {
     public AST_VAR var;
     @NotNull
     public String fieldName;
+    private Symbol symbol;
 
     public AST_VAR_FIELD(@NotNull AST_VAR var, @NotNull String fieldName) {
         this.var = var;
@@ -47,6 +49,7 @@ public class AST_VAR_FIELD extends AST_VAR {
         if (symbol == null) {
             throwSemantic("Trying to access the non-existent field \"" + fieldName + "\" on type: " + var.getType());
         }
+        type = symbol.type;
     }
 
     @Override

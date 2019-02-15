@@ -3,6 +3,7 @@ package ast;
 import ast.declarations.AST_DEC;
 import ir.commands.flow.IRLabel;
 import ir.commands.functions.IRCallCommand;
+import ir.commands.functions.IRFunctionInfo;
 import ir.commands.functions.IRPopCommand;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
@@ -56,6 +57,7 @@ public class AST_PROGRAM extends AST_Node {
         // generate main
         IRLabel label = IRContext.STDLIB_FUNCTION_MAIN;
         context.label(label);
+        context.command(new IRFunctionInfo("compiler_main",0, 0));
         Register temp = context.newRegister();
         for (IRLabel preMainFunction : context.getPreMainFunctions()) {
             context.command(new IRCallCommand(preMainFunction));

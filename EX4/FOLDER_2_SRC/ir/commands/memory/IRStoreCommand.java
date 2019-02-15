@@ -10,7 +10,7 @@ import static utils.Utils.setOf;
 
 public class IRStoreCommand extends IRAssignmentCommand {
     @NotNull
-    private final Register source;
+    public final Register source;
     public IRStoreCommand(@NotNull Register dest, @NotNull Register source) {
         super("*var1 := var2", dest);
         this.source = source;

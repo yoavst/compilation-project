@@ -12,11 +12,9 @@ import ir.commands.flow.IRLabel;
 import ir.commands.functions.IRCallCommand;
 import ir.commands.functions.IRPopCommand;
 import ir.commands.functions.IRPushCommand;
+import ir.commands.memory.IRLoadAddressFromLabelCommand;
 import ir.commands.memory.IRLoadCommand;
-import ir.commands.memory.IRLoadFromLabelCommand;
 import ir.commands.memory.IRStoreCommand;
-import ir.analysis.IRBlock;
-import ir.analysis.IRBlockGenerator;
 import ir.registers.GlobalRegister;
 import ir.registers.LocalRegister;
 import ir.registers.ParameterRegister;
@@ -25,6 +23,9 @@ import symbols.Symbol;
 import types.TypeClass;
 import types.TypeFunction;
 import types.builtins.TypeArray;
+import types.builtins.TypeInt;
+import types.builtins.TypeString;
+import types.builtins.TypeVoid;
 import utils.NotNull;
 import utils.Nullable;
 import utils.Utils;
@@ -51,21 +52,23 @@ public class IRContext {
     private static final int MIN_INT = -32768;
 
     public static final IRLabel STDLIB_FUNCTION_MAIN = new IRLabel("main").startingLabel();
-
-    private static final IRLabel STDLIB_FUNCTION_THROW_NULL = new IRLabel("___throwNull___").startingLabel();
-    private static final IRLabel STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO = new IRLabel("___throwDivisionByZero___").startingLabel();
-    private static final IRLabel STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS = new IRLabel("___throwOutOfBounds___").startingLabel();
-    private static final IRLabel STDLIB_FUNCTION_MALLOC = new IRLabel("___malloc___").startingLabel();
-    private static final IRLabel STDLIB_FUNCTION_EXIT = new IRLabel("___exit___").startingLabel();
-
+    public static final IRLabel STDLIB_FUNCTION_PRINT_INT = generateFunctionLabelFor(new Symbol("PrintInt", new TypeFunction("PrintInt", TypeVoid.instance, Utils.mutableListOf(TypeInt.instance))));
+    public static final IRLabel STDLIB_FUNCTION_PRINT_STRING = generateFunctionLabelFor(new Symbol("PrintString", new TypeFunction("PrintString", TypeVoid.instance, Utils.mutableListOf(TypeString.instance))));
+    public static final IRLabel STDLIB_FUNCTION_THROW_NULL = new IRLabel("___throwNull___").startingLabel();
+    public static final IRLabel STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO = new IRLabel("___throwDivisionByZero___").startingLabel();
+    public static final IRLabel STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS = new IRLabel("___throwOutOfBounds___").startingLabel();
+    public static final IRLabel STDLIB_FUNCTION_MALLOC = new IRLabel("___malloc___").startingLabel();
+    public static final IRLabel STDLIB_FUNCTION_EXIT = new IRLabel("___exit___").startingLabel();
     public static final Symbol MAIN_SYMBOL = new Symbol("main", new TypeFunction("main"));
-    public static final Register FIRST_FUNCTION_PARAMETER = new ParameterRegister(1);
+    public static final Register FIRST_FUNCTION_PARAMETER = new ParameterRegister(0);
 
     private final List<@NotNull LocalContext> localsStack = new ArrayList<>();
     private final List<@NotNull IRCommand> commands = new ArrayList<>();
     private final Map<@NotNull String, @NotNull IRLabel> strings = new HashMap<>();
     private final Map<@NotNull TypeClass, @NotNull ClassTable> classTables = new HashMap<>();
     private final List<@NotNull IRLabel> preMainFunctions = new ArrayList<>();
+
+    private int loadedFields = 0;
 
     //region Constant String labels
     private int labelCounter = 0;
@@ -122,6 +125,20 @@ public class IRContext {
     //region Scope
 
     /**
+     * Returns the number of fields loaded since the last reset. Used to let functions report how many locals they need.
+     */
+    public int getLoadedFieldsCount() {
+        return loadedFields;
+    }
+
+    /**
+     * Resets loaded fields counter. Usually done on starting a function.
+     */
+    public void resetLoadedFieldsCounter() {
+        loadedFields = 0;
+    }
+
+    /**
      * Returns the current local context, assuming there is one
      */
     @NotNull
@@ -161,7 +178,7 @@ public class IRContext {
         LocalContext context = new LocalContext(name, allocator, new SimpleLabelGenerator(), type);
 
         // we assumes no inner function, so parameters are once per function
-        int counter = 1;
+        int counter = 0;
         // In case of function parameters for a bounded function, the first parameter will be [this], so the first register should be skipped.
         if (type == ScopeType.Function && isBounded && isParameters) {
             counter++;
@@ -177,6 +194,7 @@ public class IRContext {
                 context.addLocal(symbol, new GlobalRegister(counter++));
             } else {
                 context.addLocal(symbol, new LocalRegister(counter++));
+                loadedFields++;
             }
         }
 
@@ -255,7 +273,7 @@ public class IRContext {
         IRLabel notNull = newLabel("notnull");
 
         command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, NIL_VALUE)); // temp = register == Nil
-        command(new IRIfNotZeroCommand(temp, notNull));                                     // if temp jump notnull
+        command(new IRIfZeroCommand(temp, notNull));                                     // if not temp jump notnull
         command(new IRCallCommand(STDLIB_FUNCTION_THROW_NULL));                             // call __throw_null
         label(notNull);                                                                     // notnull:
     }
@@ -268,7 +286,7 @@ public class IRContext {
         IRLabel notZero = newLabel("notZero");
 
         command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, 0)); // temp = register == 0
-        command(new IRIfNotZeroCommand(temp, notZero));                                     // if temp jump notnull
+        command(new IRIfZeroCommand(temp, notZero));                                     // if not temp jump notnull
         command(new IRCallCommand(STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));                 // call __throw_division_by_0
         label(notZero);                                                                     // notZero:
     }
@@ -361,7 +379,7 @@ public class IRContext {
         Register offseted = newRegister(), temp = newRegister();
 
         command(new IRBinOpRightConstCommand(offseted, thisReg, Operation.Plus, VIRTUAL_TABLE_OFFSET_IN_OBJECT));   // offseted = this + vtable_field_offset
-        command(new IRLoadFromLabelCommand(temp, generateVirtualTableLabelFor(clazz)));                             // temp = [vtable_of_class]
+        command(new IRLoadAddressFromLabelCommand(temp, generateVirtualTableLabelFor(clazz)));                             // temp = [vtable_of_class]
         command(new IRStoreCommand(offseted, temp));                                                                // *offseted = temp
         command(new IRBinOpRightConstCommand(offseted, thisReg, Operation.Plus, ID_OFFSET_IN_OBJECT));              // offseted = this + id_field_offset
         command(new IRConstCommand(temp, classTables.get(clazz).id));                                               // temp = class_unique_id
@@ -440,10 +458,38 @@ public class IRContext {
     }
 
     /**
+     * Return label for constructor of array.
+     */
+    @NotNull
+    public IRLabel returnLabelForConstructor(@NotNull TypeArray array) {
+        return new IRLabel("_return_ctor_array_" + array.arrayType.name);
+    }
+
+    /**
+     * Return label for constructor of class.
+     */
+    @NotNull
+    public IRLabel returnLabelForConstructor(@NotNull TypeClass clazz) {
+        return new IRLabel("_return_ctor_" + clazz.name);
+    }
+
+    /**
+     * Return label for constructor of class.
+     */
+    @NotNull
+    public IRLabel returnLabelForInternalConstructor(@NotNull TypeClass clazz) {
+        return new IRLabel("_return_internal_ctor_" + clazz.name);
+    }
+
+    public static boolean isReturnLabel(@Nullable IRLabel label) {
+        return label != null && label.toString().startsWith("_return_");
+    }
+
+    /**
      * Generates label for a symbol function
      */
     @NotNull
-    private IRLabel generateFunctionLabelFor(@NotNull Symbol symbol) {
+    private static IRLabel generateFunctionLabelFor(@NotNull Symbol symbol) {
         if (symbol.isBounded() && symbol.instance != null) {
             return new IRLabel("_f_" + symbol.instance.name + "_" + symbol.getName()).startingLabel();
         } else
@@ -552,13 +598,11 @@ public class IRContext {
     //region Output
 
     /**
-     * Returns the IR blocks of the IR file.
+     * Returns the commands that were loaded to the file
      */
     @NotNull
-    public List<IRBlock> getBlocks() {
-        IRBlockGenerator generator = new IRBlockGenerator();
-        commands.forEach(generator::handle);
-        return generator.finish();
+    public List<IRCommand> getCommands() {
+        return commands;
     }
 
     /**
@@ -568,7 +612,7 @@ public class IRContext {
     public Map<IRLabel, List<IRLabel>> getVirtualTables() {
         Map<IRLabel, List<IRLabel>> labels = new HashMap<>();
         classTables.forEach((clazz, classTable) -> {
-            List<IRLabel> vtable = classTable.getFullVtable().stream().map(this::generateFunctionLabelFor).collect(Collectors.toList());
+            List<IRLabel> vtable = classTable.getFullVtable().stream().map(IRContext::generateFunctionLabelFor).collect(Collectors.toList());
             labels.put(generateVirtualTableLabelFor(clazz), vtable);
         });
         return labels;
@@ -580,6 +624,22 @@ public class IRContext {
     @NotNull
     public Map<String, IRLabel> getConstantStrings() {
         return strings;
+    }
+
+    /**
+     * Return all the globals with their corresponding registers that were loaded to the IR file
+     */
+    @NotNull
+    public Map<Symbol, Register> getGlobals() {
+        Map<Symbol, Register> globals = new HashMap<>();
+        LocalContext context = localsStack.get(0);
+        for (Symbol symbol : context.locals.keySet()) {
+            if (symbol.isField()) {
+                Register r = context.locals.get(symbol);
+                globals.put(symbol, r);
+            }
+        }
+        return globals;
     }
     //endregion
 
