@@ -15,9 +15,9 @@ public class AST_EXP_BINOP extends AST_EXP {
     @NotNull
     public Op op;
     @NotNull
-    public AST_EXP left;
+    private AST_EXP left;
     @NotNull
-    public AST_EXP right;
+    private AST_EXP right;
 
 
     public AST_EXP_BINOP(@NotNull AST_EXP left, @NotNull AST_EXP right, @NotNull Op op) {
@@ -101,7 +101,7 @@ public class AST_EXP_BINOP extends AST_EXP {
     public Register irMe(IRContext context) {
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
-        if (TypeString.instance.equals(type)) {
+        if (TypeString.instance.equals(left.getType()) && TypeString.instance.equals(right.getType())) {
             Register temp = context.newRegister();
             if (op == Op.Plus)
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.Concat, rightRegister));

@@ -481,6 +481,14 @@ public class IRContext {
         return new IRLabel("_return_internal_ctor_" + clazz.name);
     }
 
+    /**
+     * Return label for pre main hook
+     */
+    @NotNull
+    public IRLabel returnLabelForPreMainFunction(@NotNull String fieldName) {
+        return new IRLabel("_return_pre_main_hook_" + fieldName);
+    }
+
     public static boolean isReturnLabel(@Nullable IRLabel label) {
         return label != null && label.toString().startsWith("_return_");
     }
@@ -550,10 +558,6 @@ public class IRContext {
             this.scopeType = scopeType;
         }
 
-        LocalContext(@NotNull String name, ScopeType scopeType) {
-            this(name, new SimpleRegisterAllocator(), new SimpleLabelGenerator(), scopeType);
-        }
-
         void addLocal(@NotNull Symbol symbol, @NotNull Register register) {
             locals.put(symbol, register);
         }
@@ -572,10 +576,6 @@ public class IRContext {
 
         boolean isClassScope() {
             return scopeType == ScopeType.Class;
-        }
-
-        boolean isFunctionScope() {
-            return scopeType == ScopeType.Function;
         }
 
         @NotNull

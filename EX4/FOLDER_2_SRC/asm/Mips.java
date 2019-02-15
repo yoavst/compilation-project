@@ -36,17 +36,23 @@ public class Mips {
     private static final int $0 = 0;
     private static final int $v0 = 2;
     private static final int $a0 = 4;
+    private static final int $t0 = 8;
+    private static final int $t1 = 9;
+    private static final int $t2 = 10;
     private static final int $t8 = 24;
     private static final int $t9 = 25;
     private static final int $sp = 29;
     private static final int $fp = 30;
     private static final int $ra = 31;
     private static final Map<Integer, String> registerNames = new HashMap<>();
+    private static final IRLabel STRING_EQUALS_LABEL = new IRLabel("__string_equality__");
+    private static final IRLabel STRING_CONCAT_LABEL = new IRLabel("__string_concat__");
 
     private StringBuilder dataSection = new StringBuilder();
     private StringBuilder codeSection = new StringBuilder();
     private Map<Register, IRLabel> globals = new HashMap<>();
-
+    private Map<String, Integer> functionIds = new HashMap<>();
+    private int functionIdCounter = 0x100;
     private Map<Register, Integer> localRegisters;
     private int parametersCount;
     private int localsCount;
@@ -56,6 +62,9 @@ public class Mips {
         registerNames.put($0, "$0");
         registerNames.put($a0, "$a0");
         registerNames.put($v0, "$v0");
+        registerNames.put($t0, "$t0");
+        registerNames.put($t1, "$t1");
+        registerNames.put($t2, "$t2");
         registerNames.put($t8, "$t8");
         registerNames.put($t9, "$t9");
         registerNames.put($sp, "$sp");
@@ -72,13 +81,15 @@ public class Mips {
         loadVirtualTables(virtualTables);
         dataSection.append(NEWLINE);
         loadGlobals(globals);
+        dataSection.append(NEWLINE);
         jump(new IRLabel("main"));
+        codeSection.append(NEWLINE);
         loadStdlib();
+        codeSection.append(NEWLINE);
         loadCode(commands);
         try (PrintWriter out = new PrintWriter("mips.s")) {
             out.println(".data");
             out.println(dataSection);
-            out.println();
             out.println();
             out.println(".text");
             out.println(codeSection);
@@ -132,8 +143,7 @@ public class Mips {
         // update offset of coloring
         localRegisters.entrySet().forEach(e -> e.setValue(e.getValue() + COLORING_OFFSET));
         // generate function header
-        //TODO set function id
-        generateFunctionHeader(functionStartingBlock.label, functionInfo.numberOfParameters, functionInfo.numberOfLocals, 1);
+        generateFunctionHeader(functionStartingBlock.label, functionInfo.numberOfParameters, functionInfo.numberOfLocals, functionIds.computeIfAbsent(functionInfo.name, n -> functionIdCounter++));
         // generate function body
         IRBlock currentBlock = functionStartingBlock;
         do {
@@ -254,64 +264,255 @@ public class Mips {
     }
 
     private void loadStdlib() {
-        // division by zero
+        generateDivisionByZeroHandler();
+        generateNullPointerHandler();
+        generateOutOfBoundsHandler();
+        generateExit();
+        generatePrintInt();
+        generatePrintString();
+        generateMalloc();
+        generateStringEquality();
+        generateStringConcat();
+    }
+    //endregion
+
+    //region Builtins
+    private void generateDivisionByZeroHandler() {
         dataSection.append("DIVISION_BY_ZERO: .asciiz \"Division By Zero\"").append(NEWLINE);
+
         label(IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO);
-        loadAddress($a0, new IRLabel("DIVISION_BY_ZERO"));
-        constant($v0, 4);
-        syscall();
-        constant($v0, 10);
-        syscall();
-        // null
+        comment("Stdlib builtin intrinsic");
+        syscallPrintString(new IRLabel("DIVISION_BY_ZERO"));
+        syscallExit();
+    }
+
+    private void generateNullPointerHandler() {
         dataSection.append("NULL_POINTER: .asciiz \"Invalid Pointer Dereference\"").append(NEWLINE);
+
         label(IRContext.STDLIB_FUNCTION_THROW_NULL);
-        loadAddress($a0, new IRLabel("NULL_POINTER"));
-        constant($v0, 4);
-        syscall();
-        constant($v0, 10);
-        syscall();
-        // out of bounds
+        comment("Stdlib builtin intrinsic");
+        syscallPrintString(new IRLabel("NULL_POINTER"));
+        syscallExit();
+    }
+
+    private void generateOutOfBoundsHandler() {
         dataSection.append("OUT_OF_BOUNDS: .asciiz \"Access Violation\"").append(NEWLINE);
+
         label(IRContext.STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS);
-        loadAddress($a0, new IRLabel("OUT_OF_BOUNDS"));
-        constant($v0, 4);
-        syscall();
-        constant($v0, 10);
-        syscall();
-        // exit
+        comment("Stdlib builtin intrinsic");
+        syscallPrintString(new IRLabel("OUT_OF_BOUNDS"));
+        syscallExit();
+    }
+
+    private void generateExit() {
         label(IRContext.STDLIB_FUNCTION_EXIT);
-        constant($v0, 10);
-        syscall();
-        // malloc
-        // TODO add zeroing code
-        label(IRContext.STDLIB_FUNCTION_MALLOC);
-        pop($a0);
-        push($ra);
-        constant($v0, 9);
-        syscall();
-        pop($ra);
-        jumpRegister($ra);
-        // PrintInt
+        comment("Stdlib builtin intrinsic");
+        syscallExit();
+    }
+
+    private void generatePrintInt() {
         label(IRContext.STDLIB_FUNCTION_PRINT_INT);
+        comment("Stdlib function");
+
         pop($a0);
-        push($ra);
         constant($v0, 1);
         syscall();
-        constant($a0, 32);
-        constant($v0, 11);
-        syscall();
-        pop($ra);
+
+        syscallPrintChar(' ');
+
         jumpRegister($ra);
-        // PrintString
+    }
+
+    private void generatePrintString() {
         label(IRContext.STDLIB_FUNCTION_PRINT_STRING);
+        comment("Stdlib function");
+
         pop($a0);
-        push($ra);
         constant($v0, 4);
         syscall();
-        constant($a0, 32);
-        constant($v0, 11);
+
+        syscallPrintChar(' ');
+
+        jumpRegister($ra);
+    }
+
+    private void generateMalloc() {
+        label(IRContext.STDLIB_FUNCTION_MALLOC);
+        comment("Stdlib builtin intrinsic");
+
+        pop($t8); // backup length
+
+        move($a0, $t8);
+        constant($v0, 9);
         syscall();
+
+        // now need to zero space
+        IRLabel cond = new IRLabel("__malloc_zero_condition__");
+        IRLabel after = new IRLabel("__malloc_zero_after__");
+
+        selfAddConst($v0, -SIZE);
+        binOp($t8,$v0,Operation.Plus, $t8);
+
+        label(cond);
+        branchEqual($v0, $t8, after);
+
+        storeToMemory($t8, $0);
+
+        selfAddConst($t8, -SIZE);
+        jump(cond);
+        label(after);
+
+        selfAddConst($v0, SIZE);
+        jumpRegister($ra);
+    }
+
+    private void generateStringEquality() {
+        label(STRING_EQUALS_LABEL);
+        comment("Stdlib builtin intrinsic");
+        IRLabel loopLabel = new IRLabel("__str_cmp_loop__"),
+                equalLabel = new IRLabel("__str_cmp_equal__"),
+                notEqualLabel = new IRLabel("__str_cmp_not_equal__"),
+                afterLabel = new IRLabel("__str_cmp_after__");
+        // https://stackoverflow.com/a/36296825/4874829
+        //        # string compare loop (just like strcmp)
+        //        cmploop:
+        //        lb      $t2,($s2)                   # get next char from str1
+        //        lb      $t3,($s3)                   # get next char from str2
+        //        bne     $t2,$t3,cmpne               # are they different? if yes, fly
+        //        beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)
+        //        addi    $s2,$s2,1                   # point to next char
+        //        addi    $s3,$s3,1                   # point to next char
+        //        j       cmploop
+
+        int firstString = $t8;
+        int secondString = $t9;
+        // get two loaded strings
+        pop(secondString);
+        pop(firstString);
+        // need two more registers, backup $t0, $t1 so they could be used
+        push($t0);
+        push($t1);
+        // start code
+        label(loopLabel);
+        loadByteFromMemory($t0, firstString);
+        loadByteFromMemory($t1, secondString);
+        branchNotEqual($t0, $t1, notEqualLabel);
+        branchEqual($t0, $0, equalLabel);
+        selfAddConst(firstString, 1);
+        selfAddConst(secondString, 1);
+        jump(loopLabel);
+        // equal case
+        label(equalLabel);
+        constant($v0, 1);
+        jump(afterLabel);
+        // not equal case
+        label(notEqualLabel);
+        move($v0, $0);
+        jump(afterLabel);
+        // restore original registers
+        label(afterLabel);
+        pop($t1);
+        pop($t0);
+        jumpRegister($ra);
+
+
+
+    }
+    private void generateStringConcat() {
+        label(STRING_CONCAT_LABEL);
+        comment("Stdlib builtin intrinsic");
+
+        int firstString = $t8;
+        int secondString = $t9;
+        int lengthField = $t0;
+
+        // get two loaded strings
+        pop(secondString);
+        pop(firstString);
+        // need more registers, backup so they could be used
+        push($t0);
+        push($t1);
+        push($t2);
+
+        IRLabel firstStringLengthLoop = new IRLabel("__str_concat_first_length__"),
+                afterFirstStringLengthLoop = new IRLabel("__str_concat_first_length_after__"),
+                secondStringLengthLoop = new IRLabel("__str_concat_second_length__"),
+                afterSecondStringLengthLoop = new IRLabel("__str_concat_second_length_after__");
+
+        comment("calculate length of first string");
+        move(lengthField, $0);
+        move($t1, firstString);
+
+        label(firstStringLengthLoop);
+        loadByteFromMemory($t2, $t1);
+        branchEqual($t2, $0, afterFirstStringLengthLoop);
+        selfAddConst(lengthField, 1);
+        selfAddConst($t1, 1);
+        jump(firstStringLengthLoop);
+
+        label(afterFirstStringLengthLoop);
+        comment("calculate length of second string");
+        move($t1, secondString);
+        label(secondStringLengthLoop);
+        loadByteFromMemory($t2, $t1);
+        branchEqual($t2, $0, afterSecondStringLengthLoop);
+        selfAddConst(lengthField, 1);
+        selfAddConst($t1, 1);
+        jump(secondStringLengthLoop);
+
+        label(afterSecondStringLengthLoop);
+
+        comment("allocate needed space for concatenation - round of to multiplication of 4");
+        selfAddConst(lengthField, 5);
+        andConst(lengthField, lengthField, "0xFFFC");
+        push($ra);
+        push(firstString);
+        push(secondString);
+        push(lengthField);
+
+        push(lengthField);
+        jumpAndLink(IRContext.STDLIB_FUNCTION_MALLOC);
+
+        pop(lengthField);
+        pop(secondString);
+        pop(firstString);
         pop($ra);
+
+        comment("write to allocation");
+        IRLabel writeFirst = new IRLabel("__str_concat_first_write__"),
+                afterFirst = new IRLabel("__str_concat_first_after_write__"),
+                writeSecond = new IRLabel("__str_concat_second_write__"),
+                afterSecond = new IRLabel("__str_concat_second_after_write__");
+
+        int currentPointer = $t2; // can reuse length field since not used anymore
+
+        move(currentPointer, $v0);
+        label(writeFirst);
+        loadByteFromMemory($t1, firstString);
+        branchEqual($t1, $0, afterFirst);
+
+        storeByteToMemory(currentPointer, $t1);
+        selfAddConst(currentPointer, 1);
+        selfAddConst(firstString, 1);
+        jump(writeFirst);
+        label(afterFirst);
+
+        label(writeSecond);
+        loadByteFromMemory($t1, secondString);
+        branchEqual($t1, $0, afterSecond);
+
+        storeByteToMemory(currentPointer, $t1);
+        selfAddConst(currentPointer, 1);
+        selfAddConst(secondString, 1);
+        jump(writeSecond);
+        label(afterSecond);
+        // append zero
+        storeByteToMemory(currentPointer, $0);
+
+        comment("restore original registers");
+        pop($t2);
+        pop($t1);
+        pop($t0);
         jumpRegister($ra);
     }
     //endregion
@@ -562,10 +763,16 @@ public class Mips {
                 codeSection.append(INDENTATION).append("slt ").append(name(dest)).append(",").append(name(leftReg)).append(",").append(name(rightReg)).append(NEWLINE);
                 break;
             case Concat:
-                //FIXME implement string concat
+                push(leftReg);
+                push(rightReg);
+                jumpAndLink(STRING_CONCAT_LABEL);
+                move(dest, $v0);
                 break;
             case StrEquals:
-                // FIXME implement string equality
+                push(leftReg);
+                push(rightReg);
+                jumpAndLink(STRING_EQUALS_LABEL);
+                move(dest, $v0);
                 break;
         }
     }
@@ -585,10 +792,21 @@ public class Mips {
         storeToMemory($sp, $t8);
     }
 
-
     private void pop(int register) {
         loadFromMemory(register, $sp);
         selfAddConst($sp, SIZE);
+    }
+
+    private void andConst(int dest, int reg, String integerConstant) {
+        codeSection.append(INDENTATION).append("ANDI ").append(name(dest)).append(",").append(name(reg)).append(",").append(integerConstant).append(NEWLINE);
+    }
+
+    private void loadByteFromMemory(int dest, int memRegister) {
+        codeSection.append(INDENTATION).append("lb ").append(name(dest)).append(",(").append(name(memRegister)).append(")").append(NEWLINE);
+    }
+
+    private void storeByteToMemory(int memoryDest, int register) {
+        codeSection.append(INDENTATION).append("sb ").append(name(register)).append(",(").append(name(memoryDest)).append(")").append(NEWLINE);
     }
 
     private void loadFromMemory(int dest, int memRegister) {
@@ -608,7 +826,7 @@ public class Mips {
     }
 
     private void storeToMemory(int memoryDest, IRLabel label) {
-        codeSection.append(INDENTATION).append("lw ").append(name(memoryDest)).append(",").append(label).append(NEWLINE);
+        codeSection.append(INDENTATION).append("sw ").append(name(memoryDest)).append(",").append(label).append(NEWLINE);
     }
 
     private void move(int to, int from) {
@@ -653,6 +871,23 @@ public class Mips {
 
     private void comment(String s) {
         codeSection.append(INDENTATION).append("# ").append(s).append(NEWLINE);
+    }
+
+    private void syscallPrintString(IRLabel label) {
+        loadAddress($a0, label);
+        constant($v0, 4);
+        syscall();
+    }
+
+    private void syscallExit() {
+        constant($v0, 10);
+        syscall();
+    }
+
+    private void syscallPrintChar(char c) {
+        constant($a0, (int) c);
+        constant($v0, 11);
+        syscall();
     }
     //endregion
 }

@@ -6,6 +6,7 @@ import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.IRSetValueCommand;
 import ir.commands.arithmetic.Operation;
 import ir.commands.flow.IRLabel;
+import ir.commands.functions.IRFunctionInfo;
 import ir.commands.functions.IRReturnCommand;
 import ir.commands.memory.IRStoreCommand;
 import ir.registers.NonExistsRegister;
@@ -22,7 +23,7 @@ import utils.errors.SemanticException;
 
 public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
     @Nullable
-    public AST_EXP exp;
+    private AST_EXP exp;
 
     private Type representingType;
     private Symbol symbol;
@@ -118,13 +119,15 @@ public class AST_DEC_VAR_EXP extends AST_DEC_VAR {
             }
         } else if (exp != null){
             // need to add pre-main hook.
-            IRLabel label = context.newLabel("hook_init_" + symbol.getName());
+            IRLabel label = context.newLabel("hook_init_" + symbol.getName()).startingLabel();
             context.addPreMainFunction(label);
 
             context.label(label);
+            context.command(new IRFunctionInfo("init_" + symbol.getName(), 0, 0));
             Register variable = context.registerFor(symbol);
             Register content = exp.irMe(context);
             context.command(new IRSetValueCommand(variable, content));
+            context.label(context.returnLabelForPreMainFunction(symbol.getName()));
             context.command(new IRReturnCommand());
         }
         return NonExistsRegister.instance;

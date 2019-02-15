@@ -21,7 +21,6 @@ public class AST_STMT_WHILE extends AST_STMT {
     public AST_EXP cond;
     @NotNull
     public AST_STMT[] body;
-    private Symbol enclosingFunction;
     private List<Symbol> locals;
 
     public AST_STMT_WHILE(@NotNull AST_EXP cond, @NotNull AST_STMT[] body) {
@@ -54,8 +53,6 @@ public class AST_STMT_WHILE extends AST_STMT {
             statement.semant(symbolTable);
         }
         locals = symbolTable.endScope();
-
-        enclosingFunction = symbolTable.getEnclosingFunction();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package ast;
 
 
-import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
@@ -64,7 +63,7 @@ public abstract class AST_Node implements Printable {
     /**
      * Whether or not an error can be reported directly on this node.
      * <br><br>
-     * For example:                    <br>
+     * For example:                 <br>
      * 1 string s = "helloworld"';  <br>
      * 2 int x = s.                 <br>
      * 3           test();          <br>
@@ -88,10 +87,7 @@ public abstract class AST_Node implements Printable {
      * Convert this node and its children to IR form.
      */
     @NotNull
-    public Register irMe(IRContext context) {
-        /* FIXME make this abstract */
-        return NonExistsRegister.instance;
-    }
+    public abstract Register irMe(IRContext context);
 
     @Override
     public String toString() {
@@ -157,6 +153,11 @@ public abstract class AST_Node implements Printable {
             @Override
             public void semantMe(SymbolTable symbolTable) {
                 // just for printing, not a real node.
+            }
+
+            @Override
+            public @NotNull Register irMe(IRContext context) {
+                throw new IllegalStateException("should not be called");
             }
         });
     }
