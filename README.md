@@ -9,7 +9,7 @@ This is the source of our compilation project. WORK IN PROGRESS!
 ## Running
 
 ```
-$ cd EX3
+$ cd EX4
 $ make
 $ make test
 $ java -jar COMPILER ${input_file} ${output_file}
