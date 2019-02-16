@@ -629,9 +629,11 @@ public class Mips {
 
     //region Memory commands
     private void loadCommand(IRLoadCommand command) {
-        int source = MR_prepareRegister(command.source);
-        loadFromMemory($t8, source);
-        MRR_setRegister(command.dest, $t8);
+        if (isUsedRegister(command.dest)) {
+            int source = MR_prepareRegister(command.source);
+            loadFromMemory($t8, source);
+            MRR_setRegister(command.dest, $t8);
+        }
     }
 
     private void loadAddressFromLabelCommand(IRLoadAddressFromLabelCommand command) {
@@ -652,52 +654,88 @@ public class Mips {
 
     //region Arithmetic commands
     private void binOpCommand(IRBinOpCommand command) {
-        int left = MR_prepareRegister(command.first);
-        if (!isSafeRegister(command.second)) {
-            move($t9, left);
-            left = $t9;
+        if (isUsedRegister(command.dest)) {
+            int left = MR_prepareRegister(command.first);
+
+            if (isSafeRegister(command.second)) {
+                if (isSafeRegister(command.dest)) {
+                    // dest and right are safe, can perform operation directly.
+                    binOp(MR_prepareRegister(command.dest), left, command.op, MR_prepareRegister(command.second));
+                } else {
+                    // dest is not safe, need to save to temp
+                    binOp($t9, left, command.op, MR_prepareRegister(command.second));
+                    MRR_setRegister(command.dest, $t9);
+                }
+            } else {
+                // right is not safe, need to make sure left is not getting override
+                int right;
+                if (left == $t8) {
+                    right = prepareRegister(command.second, $t9);
+                } else {
+                    right = prepareRegister(command.second, $t9);
+                }
+
+                if (isSafeRegister(command.dest)) {
+                    binOp(MR_prepareRegister(command.dest), left, command.op, right);
+                } else {
+                    binOp($t9, left, command.op, right);
+                    MRR_setRegister(command.dest, $t9);
+                }
+            }
         }
-        int right = MR_prepareRegister(command.second);
-        binOp($t9, left, command.op, right);
-        MRR_setRegister(command.dest, $t9);
     }
 
     private void binOpRightConstCommand(IRBinOpRightConstCommand command) {
-        int left = MR_prepareRegister(command.first);
-        switch (command.op) {
-            case Plus:
-                addConst($t9, left, command.second);
-                break;
-            case Minus:
-                addConst($t9, left, -command.second);
-                break;
-            case LessThan:
-                setOnLessThanConst($t9, left, command.second);
-                break;
-            case Times:
-                multiplyByConst($t9, left, command.second, $t9);
-                break;
-            case Equals:
-                equalToConst($t9, left, command.second);
-                break;
-            case Divide:
-            case GreaterThan:
-            case Concat:
-            case StrEquals:
-                constant($t9, command.second);
-                binOp($t9, left, command.op, $t9);
+        if (isUsedRegister(command.dest)) {
+            int left = MR_prepareRegister(command.first);
+            switch (command.op) {
+                case Plus:
+                    addConst($t9, left, command.second);
+                    break;
+                case Minus:
+                    addConst($t9, left, -command.second);
+                    break;
+                case LessThan:
+                    setOnLessThanConst($t9, left, command.second);
+                    break;
+                case Times:
+                    multiplyByConst($t9, left, command.second, $t9);
+                    break;
+                case Equals:
+                    equalToConst($t9, left, command.second);
+                    break;
+                case Divide:
+                case GreaterThan:
+                case Concat:
+                case StrEquals:
+                    constant($t9, command.second);
+                    binOp($t9, left, command.op, $t9);
+            }
+            MRR_setRegister(command.dest, $t9);
         }
-        MRR_setRegister(command.dest, $t9);
     }
 
     private void constCommand(IRConstCommand command) {
-        constant($t8, command.value);
-        MRR_setRegister(command.dest, $t8);
+        if (isUsedRegister(command.dest)) {
+            if (isSafeRegister(command.dest)) {
+                constant(MR_prepareRegister(command.dest), command.value);
+            } else {
+                constant($t8, command.value);
+                MRR_setRegister(command.dest, $t8);
+            }
+        }
     }
 
     private void setValueCommand(IRSetValueCommand command) {
-        int source = MR_prepareRegister(command.source);
-        MRR_setRegister(command.dest, source);
+        if (isUsedRegister(command.dest)) {
+            if (isSafeRegister(command.dest)) {
+                // directly load it dest
+                prepareRegister(command.source, MR_prepareRegister(command.dest));
+            } else {
+                int source = MR_prepareRegister(command.source);
+                MRR_setRegister(command.dest, source);
+            }
+        }
     }
     //endregion
 
@@ -712,7 +750,11 @@ public class Mips {
     }
 
     private void popCommand(IRPopCommand command) {
-        MRR_setRegister(command.dest, $v0);
+        // if the dest is temporary and was not allocated a register, then it is an assignment to a register which will never be alive.
+        // therefore, we will not have to generate a call.
+        if (!command.dest.isTemporary() || isSafeRegister(command.dest)) {
+            MRR_setRegister(command.dest, $v0);
+        }
     }
 
     private void pushCommand(IRPushCommand command) {
@@ -724,62 +766,71 @@ public class Mips {
     //region Codegen
 
     /**
-     * Can use the register without overriding $t8
+     * Can use the register without overriding $t8 - calling {@link #MR_prepareRegister(Register)} will immediately return a real register
      */
     private boolean isSafeRegister(Register register) {
         return localRegisters.containsKey(register);
+    }
+
+    private boolean isUsedRegister(Register register) {
+        return isSafeRegister(register) || !register.isTemporary();
     }
 
     /**
      * Returns the real register the data is stored on, or load it to $t8.
      */
     private int MR_prepareRegister(Register register) {
+        return prepareRegister(register, $t8);
+    }
+
+    /**
+     * Returns the real register the data is stored on, or load it to temp.
+     */
+    private int prepareRegister(Register register, int temp) {
         // all those loads modify $t8, but then in the end store to it, so it's ok.
         if (isSafeRegister(register)) {
             return localRegisters.get(register);
         } else if (register instanceof TempRegister) {
             // register is not actually used, otherwise it'll be safe
-            return $t8;
+            return temp;
         } else if (register instanceof ParameterRegister) {
-            MR_loadParam($t8, register.getId(), parametersCount);
+            loadParam(temp, register.getId(), parametersCount);
         } else if (register instanceof LocalRegister) {
-            MR_loadLocal($t8, register.getId());
+            loadLocal(temp, register.getId());
         } else if (register instanceof ThisRegister) {
-            MR_loadThis($t8, parametersCount);
+            loadThis(temp, parametersCount);
         } else if (register instanceof ReturnRegister) {
-            MR_loadLocal($t8, localsCount);
+            loadLocal(temp, localsCount);
         } else if (register instanceof GlobalRegister) {
-            loadGlobalVariable($t8, register);
+            loadGlobalVariable(temp, register);
         } else {
             throw new IllegalArgumentException("cannot handle this type of register: " + register.getClass().getSimpleName());
         }
-        return $t8;
+        return temp;
     }
 
     private void MRR_setRegister(Register dest, int src) {
-        if (isSafeRegister(dest)) {
-            int realRegister = localRegisters.get(dest);
-            if (realRegister != src)
-                move(realRegister, src);
-        } else {
-            if (src != $t9)
-                move($t9, src);
-            if (dest instanceof TempRegister) {
-                // if temporary register is not safe, then it is not actually used in the program
-                // moving to $t8 so generated code make sense
-                move($t8, $t9);
-            } else if (dest instanceof ParameterRegister) {
-                MR_storeParam($t9, dest.getId(), parametersCount);
-            } else if (dest instanceof LocalRegister) {
-                MR_storeLocal($t9, dest.getId());
-            } else if (dest instanceof ThisRegister) {
-                MR_storeThis($t9, parametersCount);
-            } else if (dest instanceof ReturnRegister) {
-                MR_storeLocal($t9, localsCount);
-            } else if (dest instanceof GlobalRegister) {
-                storeGlobalVariable($t9, dest);
+        if (isUsedRegister(dest)) {
+            if (isSafeRegister(dest)) {
+                int realRegister = localRegisters.get(dest);
+                if (realRegister != src)
+                    move(realRegister, src);
             } else {
-                throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
+                if (src != $t9)
+                    move($t9, src);
+                 if (dest instanceof ParameterRegister) {
+                    MR_storeParam($t9, dest.getId(), parametersCount);
+                } else if (dest instanceof LocalRegister) {
+                    MR_storeLocal($t9, dest.getId());
+                } else if (dest instanceof ThisRegister) {
+                    MR_storeThis($t9, parametersCount);
+                } else if (dest instanceof ReturnRegister) {
+                    MR_storeLocal($t9, localsCount);
+                } else if (dest instanceof GlobalRegister) {
+                    storeGlobalVariable($t9, dest);
+                } else {
+                    throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
+                }
             }
         }
     }
@@ -805,16 +856,16 @@ public class Mips {
         storeToMemory(src, globals.get(register));
     }
 
-    private void MR_loadLocal(int dest, int id) {
-        MR_loadOffsetedVariable(dest, localOffset(id));
+    private void loadLocal(int dest, int id) {
+        loadOffsetedVariable(dest, localOffset(id));
     }
 
-    private void MR_loadParam(int dest, int id, int parametersCount) {
-        MR_loadOffsetedVariable(dest, parameterOffset(id, parametersCount));
+    private void loadParam(int dest, int id, int parametersCount) {
+        loadOffsetedVariable(dest, parameterOffset(id, parametersCount));
     }
 
-    private void MR_loadThis(int dest, int parametersCount) {
-        MR_loadOffsetedVariable(dest, parameterOffset(0, parametersCount));
+    private void loadThis(int dest, int parametersCount) {
+        loadOffsetedVariable(dest, parameterOffset(0, parametersCount));
     }
 
     private void MR_storeLocal(int srcReg, int id) {
@@ -829,7 +880,7 @@ public class Mips {
         MR_storeOffsetedVariable(srcReg, parameterOffset(0, parametersCount));
     }
 
-    private void MR_loadOffsetedVariable(int dest, int offset) {
+    private void loadOffsetedVariable(int dest, int offset) {
         addConst(dest, $fp, offset);
         loadFromMemory(dest, dest);
     }
