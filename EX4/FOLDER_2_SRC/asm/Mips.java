@@ -801,22 +801,24 @@ public class Mips {
                 if (realRegister != src)
                     move(realRegister, src);
             } else {
-                if (src != $t9)
+                if (src == $t8) {
                     move($t9, src);
+                    src = $t9;
+                }
                 //noinspection StatementWithEmptyBody
                 if (dest instanceof TempRegister) {
                     // not colored => not alive
                     // ignored
                 } else if (dest instanceof ParameterRegister) {
-                    MR_storeParam($t9, dest.getId(), parametersCount);
+                    MR_storeParam(src, dest.getId(), parametersCount);
                 } else if (dest instanceof LocalRegister) {
-                    MR_storeLocal($t9, dest.getId());
+                    MR_storeLocal(src, dest.getId());
                 } else if (dest instanceof ThisRegister) {
-                    MR_storeThis($t9, parametersCount);
+                    MR_storeThis(src, parametersCount);
                 } else if (dest instanceof ReturnRegister) {
-                    MR_storeLocal($t9, localsCount);
+                    MR_storeLocal(src, localsCount);
                 } else if (dest instanceof GlobalRegister) {
-                    storeGlobalVariable($t9, dest);
+                    storeGlobalVariable(src, dest);
                 } else {
                     throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
                 }
