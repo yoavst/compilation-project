@@ -35,4 +35,8 @@ public class AST_EXP_INT extends AST_EXP_CONSTANT {
         context.command(new IRConstCommand(temp, value));
         return temp;
     }
+
+    Object getConstValue() {
+        return value;
+    }
 }

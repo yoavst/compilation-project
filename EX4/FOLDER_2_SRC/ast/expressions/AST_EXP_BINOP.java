@@ -1,9 +1,12 @@
 package ast.expressions;
 
-import ir.utils.IRContext;
 import ir.commands.arithmetic.IRBinOpCommand;
+import ir.commands.arithmetic.IRBinOpRightConstCommand;
+import ir.commands.arithmetic.IRConstCommand;
 import ir.commands.arithmetic.Operation;
+import ir.commands.memory.IRLoadAddressFromLabelCommand;
 import ir.registers.Register;
+import ir.utils.IRContext;
 import symbols.SymbolTable;
 import types.TypeError;
 import types.builtins.TypeInt;
@@ -18,12 +21,18 @@ public class AST_EXP_BINOP extends AST_EXP {
     private AST_EXP left;
     @NotNull
     private AST_EXP right;
+    private boolean isConst = false;
 
 
     public AST_EXP_BINOP(@NotNull AST_EXP left, @NotNull AST_EXP right, @NotNull Op op) {
         this.left = left;
         this.right = right;
         this.op = op;
+    }
+
+    @Override
+    boolean isConst() {
+        return isConst;
     }
 
     @NotNull
@@ -40,12 +49,16 @@ public class AST_EXP_BINOP extends AST_EXP {
     }
 
     public enum Op {
-        Plus("+"), Minus("-"), Times("*"), Divide("/"), LT("<"), GT(">"), EQ("=");
+        Plus("+", true), Minus("-", false),
+        Times("*", true), Divide("/", false), LT("<", false),
+        GT(">", false), EQ("=", true);
         @NotNull
         String text;
+        boolean isSymmetric;
 
-        Op(@NotNull String text) {
+        Op(@NotNull String text, boolean isSymmetric) {
             this.text = text;
+            this.isSymmetric = isSymmetric;
         }
     }
 
@@ -53,6 +66,9 @@ public class AST_EXP_BINOP extends AST_EXP {
     protected void semantMe(SymbolTable symbolTable) throws SemanticException {
         left.semant(symbolTable);
         right.semant(symbolTable);
+
+        if (left.isConst() && right.isConst())
+            isConst = true;
 
         if (op == Op.EQ) {
             /* Section 3.5 in manual
@@ -96,9 +112,76 @@ public class AST_EXP_BINOP extends AST_EXP {
         }
     }
 
+    @Override
+    Object getConstValue() {
+        assert left.isConst() && right.isConst();
+        if (left.getType() == TypeString.instance) {
+            String leftString = (String) left.getConstValue(), rightString = (String) right.getConstValue();
+            if (op == Op.Plus) {
+                return leftString + rightString;
+            } else {
+                // equality
+                return leftString.equals(rightString) ? 1 : 0;
+            }
+        } else {
+            // integers
+            int l = (int) left.getConstValue(), r = (int) right.getConstValue();
+            switch (op) {
+                case Plus:
+                    return l + r;
+                case Minus:
+                    return l - r;
+                case Times:
+                    return l * r;
+                case Divide:
+                    return l / r;
+                case LT:
+                    return l < r ? 1 : 0;
+                case GT:
+                    return l > r ? 1 : 0;
+                case EQ:
+                    return l == r ? 1 : 0;
+            }
+            return -1; // cannot reach here
+        }
+    }
+
     @NotNull
     @Override
     public Register irMe(IRContext context) {
+        // constant expression, can evaluate it
+        if (left.isConst() && right.isConst()) {
+            Register temp = context.newRegister();
+            if (left.getType() == TypeString.instance) {
+                if (op == Op.Plus) {
+                    context.command(new IRLoadAddressFromLabelCommand(temp, context.labelForConstantString((String) getConstValue())));
+                    return temp;
+                } else {
+                    // equality
+                    context.command(new IRConstCommand(temp, (Integer) getConstValue()));
+                }
+            } else {
+                context.command(new IRConstCommand(temp, (Integer) getConstValue()));
+            }
+            return temp;
+        }
+
+        if (left.isConst() && op.isSymmetric) {
+                // switch between them
+                AST_EXP temp = left;
+                left = right;
+                right = temp;
+        }
+
+        if (right.isConst() && !TypeString.instance.equals(left.getType())) {
+            // only support inline integral operations
+            Register leftRegister = left.irMe(context);
+            Register temp = context.newRegister();
+            context.command(new IRBinOpRightConstCommand(temp, leftRegister, Operation.fromAstOp(op), ((Integer) right.getConstValue())));
+            return temp;
+        }
+
+
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
         if (TypeString.instance.equals(left.getType()) && TypeString.instance.equals(right.getType())) {
@@ -113,6 +196,16 @@ public class AST_EXP_BINOP extends AST_EXP {
             return temp;
         } else {
             return context.binaryOpRestricted(leftRegister, Operation.fromAstOp(op), rightRegister);
+        }
+    }
+
+    private int coerce(int value) {
+        if (value > IRContext.MAX_INT)
+            return IRContext.MAX_INT;
+        else if (value < IRContext.MIN_INT) {
+            return IRContext.MIN_INT;
+        } else {
+            return value;
         }
     }
 }

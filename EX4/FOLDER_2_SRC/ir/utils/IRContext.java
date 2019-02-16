@@ -44,12 +44,12 @@ public class IRContext {
     public static final int ARRAY_LENGTH_OFFSET = 0;
     public static final int PRIMITIVE_DATA_SIZE = 4; // pointer or int
     public static final int NIL_VALUE = 0;
+    public static final int MAX_INT = 32767;
+    public static final int MIN_INT = -32768;
 
     private static final int OBJECT_FIELDS_INITIAL_OFFSET = 8;
     private static final int VIRTUAL_TABLE_INITIAL_OFFSET = 0;
     private static final int ID_OFFSET_IN_OBJECT = 0;
-    private static final int MAX_INT = 32767;
-    private static final int MIN_INT = -32768;
 
     public static final IRLabel STDLIB_FUNCTION_MAIN = new IRLabel("main").startingLabel();
     public static final IRLabel STDLIB_FUNCTION_PRINT_INT = generateFunctionLabelFor(new Symbol("PrintInt", new TypeFunction("PrintInt", TypeVoid.instance, Utils.mutableListOf(TypeInt.instance))));

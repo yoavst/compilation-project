@@ -24,4 +24,9 @@ public class AST_EXP_NIL extends AST_EXP_CONSTANT {
         context.command(new IRConstCommand(temp, IRContext.NIL_VALUE));
         return temp;
     }
+
+    boolean isConst() {
+        // Do not fold null
+        return false;
+    }
 }

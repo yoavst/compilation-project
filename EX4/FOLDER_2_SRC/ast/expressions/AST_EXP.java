@@ -31,5 +31,11 @@ public abstract class AST_EXP extends AST_Node {
         return type;
     }
 
+    boolean isConst() {
+        return false;
+    }
 
+    Object getConstValue() {
+        return null;
+    }
 }

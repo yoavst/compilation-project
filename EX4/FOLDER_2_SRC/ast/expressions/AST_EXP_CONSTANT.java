@@ -12,4 +12,8 @@ public abstract class AST_EXP_CONSTANT extends AST_EXP {
     public void semantMe(SymbolTable symbolTable) {
         // NO-OP since type info is already available
     }
+
+    boolean isConst() {
+        return true;
+    }
 }

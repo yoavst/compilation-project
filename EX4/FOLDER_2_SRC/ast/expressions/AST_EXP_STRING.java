@@ -29,4 +29,8 @@ public class AST_EXP_STRING extends AST_EXP_CONSTANT {
         context.command(new IRLoadAddressFromLabelCommand(temp, context.labelForConstantString(value)));
         return temp;
     }
+
+    Object getConstValue() {
+        return value;
+    }
 }
