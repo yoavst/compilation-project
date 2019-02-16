@@ -629,11 +629,9 @@ public class Mips {
 
     //region Memory commands
     private void loadCommand(IRLoadCommand command) {
-        if (isUsedRegister(command.dest)) {
-            int source = MR_prepareRegister(command.source);
-            loadFromMemory($t8, source);
-            MRR_setRegister(command.dest, $t8);
-        }
+        int source = MR_prepareRegister(command.source);
+        loadFromMemory($t8, source);
+        MRR_setRegister(command.dest, $t8);
     }
 
     private void loadAddressFromLabelCommand(IRLoadAddressFromLabelCommand command) {
@@ -654,7 +652,6 @@ public class Mips {
 
     //region Arithmetic commands
     private void binOpCommand(IRBinOpCommand command) {
-        if (isUsedRegister(command.dest)) {
             int left = MR_prepareRegister(command.first);
 
             if (isSafeRegister(command.second)) {
@@ -682,52 +679,46 @@ public class Mips {
                     MRR_setRegister(command.dest, $t9);
                 }
             }
-        }
     }
 
     private void binOpRightConstCommand(IRBinOpRightConstCommand command) {
-        if (isUsedRegister(command.dest)) {
-            int left = MR_prepareRegister(command.first);
-            switch (command.op) {
-                case Plus:
-                    addConst($t9, left, command.second);
-                    break;
-                case Minus:
-                    addConst($t9, left, -command.second);
-                    break;
-                case LessThan:
-                    setOnLessThanConst($t9, left, command.second);
-                    break;
-                case Times:
-                    multiplyByConst($t9, left, command.second, $t9);
-                    break;
-                case Equals:
-                    equalToConst($t9, left, command.second);
-                    break;
-                case Divide:
-                case GreaterThan:
-                case Concat:
-                case StrEquals:
-                    constant($t9, command.second);
-                    binOp($t9, left, command.op, $t9);
-            }
-            MRR_setRegister(command.dest, $t9);
+        int left = MR_prepareRegister(command.first);
+        switch (command.op) {
+            case Plus:
+                addConst($t9, left, command.second);
+                break;
+            case Minus:
+                addConst($t9, left, -command.second);
+                break;
+            case LessThan:
+                setOnLessThanConst($t9, left, command.second);
+                break;
+            case Times:
+                multiplyByConst($t9, left, command.second, $t9);
+                break;
+            case Equals:
+                equalToConst($t9, left, command.second);
+                break;
+            case Divide:
+            case GreaterThan:
+            case Concat:
+            case StrEquals:
+                constant($t9, command.second);
+                binOp($t9, left, command.op, $t9);
         }
+        MRR_setRegister(command.dest, $t9);
     }
 
     private void constCommand(IRConstCommand command) {
-        if (isUsedRegister(command.dest)) {
-            if (isSafeRegister(command.dest)) {
-                constant(MR_prepareRegister(command.dest), command.value);
-            } else {
-                constant($t8, command.value);
-                MRR_setRegister(command.dest, $t8);
-            }
+        if (isSafeRegister(command.dest)) {
+            constant(MR_prepareRegister(command.dest), command.value);
+        } else {
+            constant($t8, command.value);
+            MRR_setRegister(command.dest, $t8);
         }
     }
 
     private void setValueCommand(IRSetValueCommand command) {
-        if (isUsedRegister(command.dest)) {
             if (isSafeRegister(command.dest)) {
                 // directly load it dest
                 prepareRegister(command.source, MR_prepareRegister(command.dest));
@@ -735,7 +726,6 @@ public class Mips {
                 int source = MR_prepareRegister(command.source);
                 MRR_setRegister(command.dest, source);
             }
-        }
     }
     //endregion
 
@@ -772,10 +762,6 @@ public class Mips {
         return localRegisters.containsKey(register);
     }
 
-    private boolean isUsedRegister(Register register) {
-        return isSafeRegister(register) || !register.isTemporary();
-    }
-
     /**
      * Returns the real register the data is stored on, or load it to $t8.
      */
@@ -810,7 +796,6 @@ public class Mips {
     }
 
     private void MRR_setRegister(Register dest, int src) {
-        if (isUsedRegister(dest)) {
             if (isSafeRegister(dest)) {
                 int realRegister = localRegisters.get(dest);
                 if (realRegister != src)
@@ -818,7 +803,11 @@ public class Mips {
             } else {
                 if (src != $t9)
                     move($t9, src);
-                 if (dest instanceof ParameterRegister) {
+                //noinspection StatementWithEmptyBody
+                if (dest instanceof TempRegister) {
+                    // not colored => not alive
+                    // ignored
+                } else if (dest instanceof ParameterRegister) {
                     MR_storeParam($t9, dest.getId(), parametersCount);
                 } else if (dest instanceof LocalRegister) {
                     MR_storeLocal($t9, dest.getId());
@@ -832,7 +821,6 @@ public class Mips {
                     throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
                 }
             }
-        }
     }
 
     private int localOffset(int id) {
