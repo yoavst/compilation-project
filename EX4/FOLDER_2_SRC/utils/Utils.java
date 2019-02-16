@@ -27,7 +27,12 @@ public class Utils {
         return list.get(list.size() - 1);
     }
 
+    @SafeVarargs
     public static <K> Set<K> setOf(K... items) {
         return new HashSet<>(Arrays.asList(items));
+    }
+
+    public static boolean isPowerOfTwo(int number) {
+        return number > 0 && ((number & (number - 1)) == 0);
     }
 }

@@ -20,6 +20,9 @@ import symbols.Symbol;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static utils.Utils.isPowerOfTwo;
+
+@SuppressWarnings("SameParameterValue")
 public class Mips {
     private static final String INDENTATION = "\t";
     private static final String NEWLINE = "\n";
@@ -28,6 +31,7 @@ public class Mips {
     private static final int COLORING_OFFSET = 8;
     private static final int REGISTERS_BACKUP_SIZE = REGISTERS_COUNT * SIZE;
     private static final int SKIP_SIZE = 2 * SIZE;
+    // registers
     private static final int $0 = 0;
     private static final int $v0 = 2;
     private static final int $a0 = 4;
@@ -39,6 +43,12 @@ public class Mips {
     private static final int $sp = 29;
     private static final int $fp = 30;
     private static final int $ra = 31;
+    // syscalls
+    private static final int SYSCALL_PRINT_INT = 1;
+    private static final int SYSCALL_PRINT_STRING = 4;
+    private static final int SYSCALL_SBRK = 9;
+    private static final int SYSCALL_EXIT = 10;
+    private static final int SYSCALL_PRINT_CHAR = 11;
     private static final Map<Integer, String> registerNames = new HashMap<>();
     private static final IRLabel STRING_EQUALS_LABEL = new IRLabel("__string_equality__");
     private static final IRLabel STRING_CONCAT_LABEL = new IRLabel("__string_concat__");
@@ -329,7 +339,7 @@ public class Mips {
         comment("Stdlib function");
 
         pop($a0);
-        constant($v0, 1);
+        constant($v0, SYSCALL_PRINT_INT);
         syscall();
 
         syscallPrintChar(' ');
@@ -342,7 +352,7 @@ public class Mips {
         comment("Stdlib function");
 
         pop($a0);
-        constant($v0, 4);
+        constant($v0, SYSCALL_PRINT_STRING);
         syscall();
 
         syscallPrintChar(' ');
@@ -359,7 +369,7 @@ public class Mips {
         push($t2);
         int backupOldSp = $t9;
         move(backupOldSp, $sp);
-        selfAddConst($sp, 3*SIZE);
+        selfAddConst($sp, 3 * SIZE);
         // generate loop code
         IRLabel stackUpLoop = new IRLabel("__printTrace_stack_loop__"),
                 endLoop = new IRLabel("__printTrace_end_loop__");
@@ -371,21 +381,22 @@ public class Mips {
         pop(functionIdRegister);
         comment("Print function name");
         // get offset in $t0
-        constant($t0, SIZE);
-        binOp($t0, functionIdRegister, Operation.Times, $t0);
+        multiplyByConst($t0, functionIdRegister, SIZE, $t0);
         // get address in $t1
         loadAddress($t1, FUNCTION_NAMES);
         binOp($t1, $t1, Operation.Plus, $t0);
         // load pointer to $a0
         loadFromMemory($a0, $t1);
         // call print inlined
-        constant($v0, 4);
+        constant($v0, SYSCALL_PRINT_STRING);
         syscall();
         syscallPrintChar(' ');
+
         comment("Check halting case");
         int mainId = functionIds.get(MAIN_LABEL);
         constant($t0, mainId);
         branchEqual(functionIdRegister, $t0, endLoop);
+
         comment("Jump to next function");
         selfAddConst(headerSizeRegister, -2 * SIZE);
         binOp($sp, $sp, Operation.Plus, headerSizeRegister);
@@ -407,7 +418,7 @@ public class Mips {
         pop($t8); // backup length
 
         move($a0, $t8);
-        constant($v0, 9);
+        constant($v0, SYSCALL_SBRK);
         syscall();
 
         // now need to zero space
@@ -653,8 +664,29 @@ public class Mips {
 
     private void binOpRightConstCommand(IRBinOpRightConstCommand command) {
         int left = MR_prepareRegister(command.first);
-        constant($t9, command.second);
-        binOp($t9, left, command.op, $t9);
+        switch (command.op) {
+            case Plus:
+                addConst($t9, left, command.second);
+                break;
+            case Minus:
+                addConst($t9, left, -command.second);
+                break;
+            case LessThan:
+                setOnLessThanConst($t9, left, command.second);
+                break;
+            case Times:
+                multiplyByConst($t9, left, command.second, $t9);
+                break;
+            case Equals:
+                equalToConst($t9, left, command.second);
+                break;
+            case Divide:
+            case GreaterThan:
+            case Concat:
+            case StrEquals:
+                constant($t9, command.second);
+                binOp($t9, left, command.op, $t9);
+        }
         MRR_setRegister(command.dest, $t9);
     }
 
@@ -727,9 +759,11 @@ public class Mips {
     private void MRR_setRegister(Register dest, int src) {
         if (isSafeRegister(dest)) {
             int realRegister = localRegisters.get(dest);
-            move(realRegister, src);
+            if (realRegister != src)
+                move(realRegister, src);
         } else {
-            move($t9, src);
+            if (src != $t9)
+                move($t9, src);
             if (dest instanceof TempRegister) {
                 // if temporary register is not safe, then it is not actually used in the program
                 // moving to $t8 so generated code make sense
@@ -783,12 +817,6 @@ public class Mips {
         MR_loadOffsetedVariable(dest, parameterOffset(0, parametersCount));
     }
 
-    private void MR_loadOffsetedVariable(int dest, int offset) {
-        constant($t8, offset);
-        selfAddReg($t8, $fp);
-        loadFromMemory(dest, $t8);
-    }
-
     private void MR_storeLocal(int srcReg, int id) {
         MR_storeOffsetedVariable(srcReg, localOffset(id));
     }
@@ -801,16 +829,26 @@ public class Mips {
         MR_storeOffsetedVariable(srcReg, parameterOffset(0, parametersCount));
     }
 
+    private void MR_loadOffsetedVariable(int dest, int offset) {
+        addConst(dest, $fp, offset);
+        loadFromMemory(dest, dest);
+    }
+
     private void MR_storeOffsetedVariable(int srcReg, int offset) {
-        constant($t8, offset);
-        selfAddReg($t8, $fp);
+        addConst($t8, $fp, offset);
         storeToMemory($t8, srcReg);
     }
 
-    private void syscall() {
-        codeSection.append(INDENTATION).append("syscall").append(NEWLINE);
+    private void move(int to, int from) {
+        codeSection.append(INDENTATION).append("move ").append(name(to)).append(",").append(name(from)).append(NEWLINE);
     }
 
+    private void comment(String s) {
+        codeSection.append(INDENTATION).append("# ").append(s).append(NEWLINE);
+    }
+    //endregion
+
+    //region Codegen arithmetic
     private void binOp(int dest, int leftReg, Operation op, int rightReg) {
         switch (op) {
             case Plus:
@@ -860,28 +898,57 @@ public class Mips {
         }
     }
 
-    private void label(IRLabel label) {
-        codeSection.append(label).append(':').append(NEWLINE);
+    private void equalToConst(int dest, int reg, int constant) {
+        // see binOp(...) for explanation
+        // https://stackoverflow.com/a/36274750/4874829
+        // Despite its name, add immediate unsigned (addiu) is used to add constants to signed integers when we don't care about overflow.
+        // MIPS has no subtract immediate instruction, and negative numbers need sign extension, so the MIPS architects decided to sign-extend the immediate field.
+        codeSection.append(INDENTATION).append("addiu  ").append(name(dest)).append(",").append(name(reg)).append(",").append(-constant).append(NEWLINE);
+        codeSection.append(INDENTATION).append("sltu ").append(name(dest)).append(",").append(name($0)).append(",").append(name(dest)).append(NEWLINE);
+        codeSection.append(INDENTATION).append("xori ").append(name(dest)).append(",").append(name(dest)).append(",1").append(NEWLINE);
     }
 
-    private void push(int register) {
-        selfAddConst($sp, -SIZE);
-        storeToMemory($sp, register);
+    private void multiplyByConst(int dest, int reg, int constant, int fallbackRegister) {
+        // Arithmetic left shifts are equivalent to multiplication by a (positive, integral) power of the radix (e.g., a multiplication by a power of 2 for binary numbers)
+        if (constant != 1) {
+            if (constant == 0) {
+                move(dest, $0);
+            } else if (isPowerOfTwo(constant)) {
+                // implemented as shift left
+                codeSection.append(INDENTATION).append("sll ").append(name(dest)).append(",").append(name(reg)).append(",").append(Integer.numberOfTrailingZeros(constant)).append(NEWLINE);
+            } else {
+                // fallback to normal approach
+                constant(fallbackRegister, constant);
+                binOp(dest, reg, Operation.Times, fallbackRegister);
+            }
+        }
     }
 
-    private void pushConst(int constant) {
-        selfAddConst($sp, -SIZE);
-        constant($t8, constant);
-        storeToMemory($sp, $t8);
+    private void setOnLessThanConst(int dest, int reg, int constant) {
+        codeSection.append(INDENTATION).append("slti ").append(name(dest)).append(",").append(name(reg)).append(",").append(constant).append(NEWLINE);
     }
 
-    private void pop(int register) {
-        loadFromMemory(register, $sp);
-        selfAddConst($sp, SIZE);
+    private void addConst(int dest, int reg, int constant) {
+        codeSection.append(INDENTATION).append("addi ").append(name(dest)).append(",").append(name(reg)).append(",").append(constant).append(NEWLINE);
     }
 
     private void andConst(int dest, int reg, String integerConstant) {
         codeSection.append(INDENTATION).append("andi ").append(name(dest)).append(",").append(name(reg)).append(",").append(integerConstant).append(NEWLINE);
+    }
+
+    private void constant(int reg, int constant) {
+        codeSection.append(INDENTATION).append("addi ").append(name(reg)).append(",").append(name($0)).append(",").append(constant).append(NEWLINE);
+    }
+
+
+    private void selfAddConst(int reg, int constant) {
+        addConst(reg, reg, constant);
+    }
+    //endregion
+
+    //region Codegen memory access
+    private void loadAddress(int dest, IRLabel label) {
+        codeSection.append(INDENTATION).append("la ").append(name(dest)).append(",").append(label).append(NEWLINE);
     }
 
     private void loadByteFromMemory(int dest, int memRegister) {
@@ -900,10 +967,6 @@ public class Mips {
         codeSection.append(INDENTATION).append("lw ").append(name(dest)).append(",").append(label).append(NEWLINE);
     }
 
-    private void loadAddress(int dest, IRLabel label) {
-        codeSection.append(INDENTATION).append("la ").append(name(dest)).append(",").append(label).append(NEWLINE);
-    }
-
     private void storeToMemory(int memoryDest, int register) {
         codeSection.append(INDENTATION).append("sw ").append(name(register)).append(",(").append(name(memoryDest)).append(")").append(NEWLINE);
     }
@@ -911,21 +974,29 @@ public class Mips {
     private void storeToMemory(int memoryDest, IRLabel label) {
         codeSection.append(INDENTATION).append("sw ").append(name(memoryDest)).append(",").append(label).append(NEWLINE);
     }
+    //endregion
 
-    private void move(int to, int from) {
-        codeSection.append(INDENTATION).append("move ").append(name(to)).append(",").append(name(from)).append(NEWLINE);
+    //region Codegen stack
+    private void push(int register) {
+        selfAddConst($sp, -SIZE);
+        storeToMemory($sp, register);
     }
 
-    private void constant(int reg, int constant) {
-        codeSection.append(INDENTATION).append("addi ").append(name(reg)).append(",").append(name($0)).append(",").append(constant).append(NEWLINE);
+    private void pushConst(int constant) {
+        selfAddConst($sp, -SIZE);
+        constant($t8, constant);
+        storeToMemory($sp, $t8);
     }
 
-    private void selfAddConst(int reg, int constant) {
-        codeSection.append(INDENTATION).append("addi ").append(name(reg)).append(",").append(name(reg)).append(",").append(constant).append(NEWLINE);
+    private void pop(int register) {
+        loadFromMemory(register, $sp);
+        selfAddConst($sp, SIZE);
     }
+    //endregion
 
-    private void selfAddReg(int reg, int registerToAdd) {
-        codeSection.append(INDENTATION).append("add ").append(name(reg)).append(",").append(name(reg)).append(",").append(name(registerToAdd)).append(NEWLINE);
+    //region Codegen flow
+    private void label(IRLabel label) {
+        codeSection.append(label).append(':').append(NEWLINE);
     }
 
     private void jumpRegister(int reg) {
@@ -951,25 +1022,27 @@ public class Mips {
     private void branchEqual(int reg1, int reg2, IRLabel label) {
         codeSection.append(INDENTATION).append("beq ").append(name(reg1)).append(",").append(name(reg2)).append(",").append(label).append(NEWLINE);
     }
+    //endregion
 
-    private void comment(String s) {
-        codeSection.append(INDENTATION).append("# ").append(s).append(NEWLINE);
+    //region Codegen syscall
+    private void syscall() {
+        codeSection.append(INDENTATION).append("syscall").append(NEWLINE);
     }
 
     private void syscallPrintString(IRLabel label) {
         loadAddress($a0, label);
-        constant($v0, 4);
+        constant($v0, SYSCALL_PRINT_STRING);
         syscall();
     }
 
     private void syscallExit() {
-        constant($v0, 10);
+        constant($v0, SYSCALL_EXIT);
         syscall();
     }
 
     private void syscallPrintChar(char c) {
         constant($a0, (int) c);
-        constant($v0, 11);
+        constant($v0, SYSCALL_PRINT_CHAR);
         syscall();
     }
     //endregion
