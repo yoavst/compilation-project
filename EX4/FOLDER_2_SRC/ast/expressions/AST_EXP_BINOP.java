@@ -103,10 +103,13 @@ public class AST_EXP_BINOP extends AST_EXP {
         Register rightRegister = right.irMe(context);
         if (TypeString.instance.equals(left.getType()) && TypeString.instance.equals(right.getType())) {
             Register temp = context.newRegister();
-            if (op == Op.Plus)
+            if (op == Op.Plus) {
+                context.checkNotNull(leftRegister);
+                context.checkNotNull(rightRegister);
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.Concat, rightRegister));
-            else
+            } else {
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.StrEquals, rightRegister));
+            }
             return temp;
         } else {
             return context.binaryOpRestricted(leftRegister, Operation.fromAstOp(op), rightRegister);

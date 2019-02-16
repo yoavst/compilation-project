@@ -144,6 +144,7 @@ public class AST_DEC_FUNC extends AST_DEC {
 
     @Override
     public @NotNull Register irMe(IRContext context) {
+        // TODO check if name is the required parameter
         IRFunctionInfo functionInfo = new IRFunctionInfo(name, parameters.size() + (symbol.isBounded() ? 1 : 0), 0);
         // open scope
         context.openScope(symbol.toString(), parameters.stream().map(id -> new Symbol(id.name, id.getType())).collect(Collectors.toList()), IRContext.ScopeType.Function, true, symbol.isBounded());

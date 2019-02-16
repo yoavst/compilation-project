@@ -17,10 +17,7 @@ import ir.registers.*;
 import ir.utils.IRContext;
 import symbols.Symbol;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Mips {
@@ -45,12 +42,15 @@ public class Mips {
     private static final Map<Integer, String> registerNames = new HashMap<>();
     private static final IRLabel STRING_EQUALS_LABEL = new IRLabel("__string_equality__");
     private static final IRLabel STRING_CONCAT_LABEL = new IRLabel("__string_concat__");
+    private static final IRLabel FUNCTION_NAMES = new IRLabel("FUNCTION_NAMES");
+    private static final String FUNCTION_NAME_PREFIX = "FUNCTION_NAME_";
+    private static final String MAIN_LABEL = "main";
 
     private StringBuilder dataSection = new StringBuilder();
     private StringBuilder codeSection = new StringBuilder();
     private Map<Register, IRLabel> globals = new HashMap<>();
     private Map<String, Integer> functionIds = new HashMap<>();
-    private int functionIdCounter = 0x100;
+    private int functionIdCounter = 0;
     private Map<Register, Integer> localRegisters;
     private int parametersCount;
     private int localsCount;
@@ -77,9 +77,11 @@ public class Mips {
         loadConstants(constantStrings);
         loadVirtualTables(virtualTables);
         loadGlobals(globals);
-        jump(new IRLabel("main")); // for simulator that does not support main
+        jump(new IRLabel(MAIN_LABEL)); // for simulator that does not support main
+        functionIds.put(MAIN_LABEL, functionIdCounter++);
         loadStdlib();
         loadCode(commands);
+        loadReflectionsInfo();
     }
 
     public String export() {
@@ -265,9 +267,26 @@ public class Mips {
         generateExit();
         generatePrintInt();
         generatePrintString();
+        generatePrintTrace();
         generateMalloc();
         generateStringEquality();
         generateStringConcat();
+    }
+
+    private void loadReflectionsInfo() {
+        List<String> names = functionIds.entrySet().stream().sorted(Map.Entry.comparingByValue()).map(Map.Entry::getKey).collect(Collectors.toList());
+        List<String> labels = new ArrayList<>(names.size());
+        int i = 0;
+        for (String name : names) {
+            String label = FUNCTION_NAME_PREFIX + i;
+            dataSection.append(label).append(": .asciiz \"").append(name).append("\"").append(NEWLINE);
+            labels.add(label);
+            i++;
+        }
+        dataSection.append(FUNCTION_NAMES)
+                .append(": .word ")
+                .append(String.join(",", labels))
+                .append(NEWLINE);
     }
     //endregion
 
@@ -331,6 +350,56 @@ public class Mips {
         jumpRegister($ra);
     }
 
+    private void generatePrintTrace() {
+        label(IRContext.STDLIB_FUNCTION_PRINT_TRACE);
+        comment("Stdlib function");
+        // backup registers
+        push($t0);
+        push($t1);
+        push($t2);
+        int backupOldSp = $t9;
+        move(backupOldSp, $sp);
+        selfAddConst($sp, 3*SIZE);
+        // generate loop code
+        IRLabel stackUpLoop = new IRLabel("__printTrace_stack_loop__"),
+                endLoop = new IRLabel("__printTrace_end_loop__");
+        int headerSizeRegister = $t8, functionIdRegister = $t2;
+
+        label(stackUpLoop);
+        comment("Read header size and function id");
+        pop(headerSizeRegister);
+        pop(functionIdRegister);
+        comment("Print function name");
+        // get offset in $t0
+        constant($t0, SIZE);
+        binOp($t0, functionIdRegister, Operation.Times, $t0);
+        // get address in $t1
+        loadAddress($t1, FUNCTION_NAMES);
+        binOp($t1, $t1, Operation.Plus, $t0);
+        // load pointer to $a0
+        loadFromMemory($a0, $t1);
+        // call print inlined
+        constant($v0, 4);
+        syscall();
+        syscallPrintChar(' ');
+        comment("Check halting case");
+        int mainId = functionIds.get(MAIN_LABEL);
+        constant($t0, mainId);
+        branchEqual(functionIdRegister, $t0, endLoop);
+        comment("Jump to next function");
+        selfAddConst(headerSizeRegister, -2 * SIZE);
+        binOp($sp, $sp, Operation.Plus, headerSizeRegister);
+        jump(stackUpLoop);
+
+        label(endLoop);
+        // restore registers
+        move($sp, backupOldSp);
+        pop($t2);
+        pop($t1);
+        pop($t0);
+        jumpRegister($ra);
+    }
+
     private void generateMalloc() {
         label(IRContext.STDLIB_FUNCTION_MALLOC);
         comment("Stdlib builtin intrinsic");
@@ -387,7 +456,26 @@ public class Mips {
         // need two more registers, backup $t0, $t1 so they could be used
         push($t0);
         push($t1);
-        // start code
+
+        comment("check nullability");
+        IRLabel firstNotNull = new IRLabel("__str_cmp_first_null__"),
+                secondNotNull = new IRLabel("__str_cmp_second_not_null__");
+
+        constant($t0, IRContext.NIL_VALUE);
+        branchNotEqual(firstString, $t0, firstNotNull);
+        // first string is null, return whether the second is also null.
+        binOp($v0, secondString, Operation.Equals, $t0);
+        jump(afterLabel);
+
+        label(firstNotNull);
+        // first is not null, check about the second
+        branchNotEqual(secondString, $t0, secondNotNull);
+        // second string is null, return false
+        move($v0, $0);
+        jump(afterLabel);
+        label(secondNotNull);
+
+        comment("check equality");
         label(loopLabel);
         loadByteFromMemory($t0, firstString);
         loadByteFromMemory($t1, secondString);

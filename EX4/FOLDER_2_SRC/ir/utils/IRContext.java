@@ -54,6 +54,8 @@ public class IRContext {
     public static final IRLabel STDLIB_FUNCTION_MAIN = new IRLabel("main").startingLabel();
     public static final IRLabel STDLIB_FUNCTION_PRINT_INT = generateFunctionLabelFor(new Symbol("PrintInt", new TypeFunction("PrintInt", TypeVoid.instance, Utils.mutableListOf(TypeInt.instance))));
     public static final IRLabel STDLIB_FUNCTION_PRINT_STRING = generateFunctionLabelFor(new Symbol("PrintString", new TypeFunction("PrintString", TypeVoid.instance, Utils.mutableListOf(TypeString.instance))));
+    public static final IRLabel STDLIB_FUNCTION_PRINT_TRACE = generateFunctionLabelFor(new Symbol("PrintTrace", new TypeFunction("PrintTrace", TypeVoid.instance)));
+
     public static final IRLabel STDLIB_FUNCTION_THROW_NULL = new IRLabel("___throwNull___").startingLabel();
     public static final IRLabel STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO = new IRLabel("___throwDivisionByZero___").startingLabel();
     public static final IRLabel STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS = new IRLabel("___throwOutOfBounds___").startingLabel();
