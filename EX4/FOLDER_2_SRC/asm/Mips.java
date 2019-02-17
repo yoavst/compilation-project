@@ -424,7 +424,6 @@ public class Mips {
         // call print inlined
         constant($v0, SYSCALL_PRINT_STRING);
         syscall();
-        syscallPrintChar(' ');
 
         comment("Check halting case");
         int mainId = functionIds.get(MAIN_LABEL);
