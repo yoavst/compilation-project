@@ -4,6 +4,7 @@ import ir.commands.arithmetic.IRBinOpCommand;
 import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.IRConstCommand;
 import ir.commands.arithmetic.Operation;
+import ir.commands.functions.IRCallCommand;
 import ir.commands.memory.IRLoadAddressFromLabelCommand;
 import ir.registers.Register;
 import ir.utils.IRContext;
@@ -114,35 +115,44 @@ public class AST_EXP_BINOP extends AST_EXP {
 
     @Override
     Object getConstValue() {
-        assert left.isConst() && right.isConst();
-        if (left.getType() == TypeString.instance) {
-            String leftString = (String) left.getConstValue(), rightString = (String) right.getConstValue();
-            if (op == Op.Plus) {
-                return leftString + rightString;
+        try {
+            assert left.isConst() && right.isConst();
+            if (left.getType() == TypeString.instance) {
+                String leftString = (String) left.getConstValue(), rightString = (String) right.getConstValue();
+                if (op == Op.Plus) {
+                    return leftString + rightString;
+                } else {
+                    // equality
+                    return leftString.equals(rightString) ? 1 : 0;
+                }
             } else {
-                // equality
-                return leftString.equals(rightString) ? 1 : 0;
+                // integers
+                Integer l = (Integer) left.getConstValue(), r = (Integer) right.getConstValue();
+                if (l == null || r == null) {
+                    return null;
+                }
+
+                switch (op) {
+                    case Plus:
+                        return coerce(l + r);
+                    case Minus:
+                        return coerce(l - r);
+                    case Times:
+                        return coerce(l * r);
+                    case Divide:
+                        return coerce(l / r);
+                    case LT:
+                        return l < r ? 1 : 0;
+                    case GT:
+                        return l > r ? 1 : 0;
+                    case EQ:
+                        return l == r ? 1 : 0;
+                }
+                return -1; // cannot reach here
             }
-        } else {
-            // integers
-            int l = (int) left.getConstValue(), r = (int) right.getConstValue();
-            switch (op) {
-                case Plus:
-                    return coerce(l + r);
-                case Minus:
-                    return coerce(l - r);
-                case Times:
-                    return coerce(l * r);
-                case Divide:
-                    return coerce(l / r);
-                case LT:
-                    return l < r ? 1 : 0;
-                case GT:
-                    return l > r ? 1 : 0;
-                case EQ:
-                    return l == r ? 1 : 0;
-            }
-            return -1; // cannot reach here
+        } catch (ArithmeticException e) {
+            // division by zero;
+            return null;
         }
     }
 
@@ -161,16 +171,22 @@ public class AST_EXP_BINOP extends AST_EXP {
                     context.command(new IRConstCommand(temp, (Integer) getConstValue()));
                 }
             } else {
-                context.command(new IRConstCommand(temp, (Integer) getConstValue()));
+                Integer constValue = (Integer) getConstValue();
+                if (constValue == null) {
+                    // division by zero error
+                    context.command(new IRCallCommand(IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));
+                } else {
+                    context.command(new IRConstCommand(temp, (Integer) getConstValue()));
+                }
             }
             return temp;
         }
 
         if (left.isConst() && op.isSymmetric) {
-                // switch between them
-                AST_EXP temp = left;
-                left = right;
-                right = temp;
+            // switch between them
+            AST_EXP temp = left;
+            left = right;
+            right = temp;
         }
 
         if (right.isConst() && !TypeString.instance.equals(left.getType())) {
