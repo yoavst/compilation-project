@@ -61,7 +61,8 @@ public class Mips {
     private Map<Register, IRLabel> globals = new HashMap<>();
     private Map<String, Integer> functionIds = new HashMap<>();
     private int functionIdCounter = 0;
-    private Map<Register, Integer> localRegisters;
+    private Map<Register, Integer> realRegMapsRegisters;
+    private Map<LocalRegister, Integer> localsAsReal;
     private int parametersCount;
     private int localsCount;
 
@@ -144,11 +145,13 @@ public class Mips {
         IRFunctionInfo functionInfo = (IRFunctionInfo) functionStartingBlock.commands.get(0);
         // get register coloring
         Set<IRBlock> wholeFunction = functionStartingBlock.scanGraph();
-        localRegisters = new LimitedRegisterAllocator(REGISTERS_COUNT).allocateRealRegister(wholeFunction);
+        realRegMapsRegisters = new LimitedRegisterAllocator(REGISTERS_COUNT).allocateRealRegister(wholeFunction);
         parametersCount = functionInfo.numberOfParameters;
         localsCount = functionInfo.numberOfLocals;
+        saveLocalsAsRealRegisters();
         // update offset of coloring
-        localRegisters.entrySet().forEach(e -> e.setValue(e.getValue() + COLORING_OFFSET));
+        realRegMapsRegisters.entrySet().forEach(e -> e.setValue(e.getValue() + COLORING_OFFSET));
+        localsAsReal.entrySet().forEach(e -> e.setValue(e.getValue() + COLORING_OFFSET));
         // generate function header
         generateFunctionHeader(functionStartingBlock.label, functionInfo.numberOfParameters, functionInfo.numberOfLocals, functionIds.computeIfAbsent(functionInfo.name, n -> functionIdCounter++));
         // generate function body
@@ -168,6 +171,22 @@ public class Mips {
             }
             currentBlock = currentBlock.realNextBlock;
         } while (currentBlock != null && !currentBlock.isStartingBlock());
+    }
+
+    private void saveLocalsAsRealRegisters() {
+        localsAsReal = new HashMap<>();
+
+        int max = realRegMapsRegisters.isEmpty() ? -1 : Collections.max(realRegMapsRegisters.values());
+        if (max == (REGISTERS_COUNT - 1) || localsCount == 0)
+            return;
+
+        // save the first locals as real register
+        int loopEnd = Math.min(REGISTERS_COUNT, max + 1 + localsCount);
+        for (int i = max + 1; i < loopEnd; i++) {
+            LocalRegister reg = new LocalRegister(i - max - 1);
+            realRegMapsRegisters.put(reg, i);
+            localsAsReal.put(reg, i);
+        }
     }
 
     /**
@@ -202,13 +221,25 @@ public class Mips {
 
         // update FP
         move($fp, $sp);
-        // set default value to all locals and return value
-        for (int i = 0; i <= locals; i++) {
-            pushConst(0);
+        // set default value to all locals on stack and return value
+        if (locals - localsAsReal.size() > 0) {
+            comment("Allocating " + (locals - localsAsReal.size()) + " slots for local variables that could not be stored as registers");
+            for (int i = 0; i < locals - localsAsReal.size(); i++) {
+                pushConst(0);
+            }
         }
+        comment("Allocating a slot for return value");
+        pushConst(0);
+
+        // set default value for all locals on real registers
+        comment("Setting initial value to local variables stored as registers");
+        comment(localsAsReal.entrySet().stream().map(e -> e.getKey() + " => " + name(e.getValue())).collect(Collectors.joining(", ")));
+        localsAsReal.forEach((local, realReg) -> constant(realReg, 0));
+
         // push function id and header size
+        comment("Saving function id and header size");
         pushConst(functionId);
-        pushConst((parameters + 2 + locals + 3) * SIZE + REGISTERS_BACKUP_SIZE);
+        pushConst((parameters + 2 + locals + 3 - localsAsReal.size()) * SIZE + REGISTERS_BACKUP_SIZE);
         comment("[END] function header");
 
     }
@@ -223,7 +254,7 @@ public class Mips {
         // save return value
         pop($v0);
         // go back to return address and pop it
-        selfAddConst($sp, (locals * SIZE));
+        selfAddConst($sp, (locals - localsAsReal.size()) * SIZE);
         pop($ra);
         // pop old frame pointer
         pop($fp);
@@ -641,7 +672,7 @@ public class Mips {
 
     private void storeCommand(IRStoreCommand command) {
         int source = MR_prepareRegister(command.source);
-        if (!isSafeRegister(command.dest)) {
+        if (!isSafeRegister(command.dest) && source == $t8) {
             move($t9, source);
             source = $t9;
         }
@@ -652,61 +683,63 @@ public class Mips {
 
     //region Arithmetic commands
     private void binOpCommand(IRBinOpCommand command) {
-            int left = MR_prepareRegister(command.first);
+        int left = MR_prepareRegister(command.first);
 
-            if (isSafeRegister(command.second)) {
-                if (isSafeRegister(command.dest)) {
-                    // dest and right are safe, can perform operation directly.
-                    binOp(MR_prepareRegister(command.dest), left, command.op, MR_prepareRegister(command.second));
-                } else {
-                    // dest is not safe, need to save to temp
-                    binOp($t9, left, command.op, MR_prepareRegister(command.second));
-                    MRR_setRegister(command.dest, $t9);
-                }
+        if (isSafeRegister(command.second)) {
+            if (isSafeRegister(command.dest)) {
+                // dest and right are safe, can perform operation directly.
+                binOp(MR_prepareRegister(command.dest), left, command.op, MR_prepareRegister(command.second));
             } else {
-                // right is not safe, need to make sure left is not getting override
-                int right;
-                if (left == $t8) {
-                    right = prepareRegister(command.second, $t9);
-                } else {
-                    right = prepareRegister(command.second, $t9);
-                }
-
-                if (isSafeRegister(command.dest)) {
-                    binOp(MR_prepareRegister(command.dest), left, command.op, right);
-                } else {
-                    binOp($t9, left, command.op, right);
-                    MRR_setRegister(command.dest, $t9);
-                }
+                // dest is not safe, need to save to temp
+                binOp($t9, left, command.op, MR_prepareRegister(command.second));
+                MRR_setRegister(command.dest, $t9);
             }
+        } else {
+            // right is not safe, need to make sure left is not getting override
+            int right;
+            if (left == $t8) {
+                right = prepareRegister(command.second, $t9);
+            } else {
+                right = prepareRegister(command.second, $t9);
+            }
+
+            if (isSafeRegister(command.dest)) {
+                binOp(MR_prepareRegister(command.dest), left, command.op, right);
+            } else {
+                binOp($t9, left, command.op, right);
+                MRR_setRegister(command.dest, $t9);
+            }
+        }
     }
 
     private void binOpRightConstCommand(IRBinOpRightConstCommand command) {
         int left = MR_prepareRegister(command.first);
+        int dest = isSafeRegister(command.dest) ? MR_prepareRegister(command.dest) : $t9;
         switch (command.op) {
             case Plus:
-                addConst($t9, left, command.second);
+                addConst(dest, left, command.second);
                 break;
             case Minus:
-                addConst($t9, left, -command.second);
+                addConst(dest, left, -command.second);
                 break;
             case LessThan:
-                setOnLessThanConst($t9, left, command.second);
+                setOnLessThanConst(dest, left, command.second);
                 break;
             case Times:
-                multiplyByConst($t9, left, command.second, $t9);
+                multiplyByConst(dest, left, command.second, $t9);
                 break;
             case Equals:
-                equalToConst($t9, left, command.second);
+                equalToConst(dest, left, command.second);
                 break;
             case Divide:
             case GreaterThan:
             case Concat:
             case StrEquals:
                 constant($t9, command.second);
-                binOp($t9, left, command.op, $t9);
+                binOp(dest, left, command.op, $t9);
         }
-        MRR_setRegister(command.dest, $t9);
+        if (!isSafeRegister(command.dest))
+            MRR_setRegister(command.dest, dest);
     }
 
     private void constCommand(IRConstCommand command) {
@@ -719,13 +752,17 @@ public class Mips {
     }
 
     private void setValueCommand(IRSetValueCommand command) {
-            if (isSafeRegister(command.dest)) {
+        if (isSafeRegister(command.dest)) {
+            if (isSafeRegister(command.source)) {
+                move(MR_prepareRegister(command.dest), MR_prepareRegister(command.source));
+            } else {
                 // directly load it dest
                 prepareRegister(command.source, MR_prepareRegister(command.dest));
-            } else {
-                int source = MR_prepareRegister(command.source);
-                MRR_setRegister(command.dest, source);
             }
+        } else {
+            int source = MR_prepareRegister(command.source);
+            MRR_setRegister(command.dest, source);
+        }
     }
     //endregion
 
@@ -759,7 +796,7 @@ public class Mips {
      * Can use the register without overriding $t8 - calling {@link #MR_prepareRegister(Register)} will immediately return a real register
      */
     private boolean isSafeRegister(Register register) {
-        return localRegisters.containsKey(register);
+        return realRegMapsRegisters.containsKey(register);
     }
 
     /**
@@ -775,7 +812,7 @@ public class Mips {
     private int prepareRegister(Register register, int temp) {
         // all those loads modify $t8, but then in the end store to it, so it's ok.
         if (isSafeRegister(register)) {
-            return localRegisters.get(register);
+            return realRegMapsRegisters.get(register);
         } else if (register instanceof TempRegister) {
             // register is not actually used, otherwise it'll be safe
             return temp;
@@ -796,37 +833,37 @@ public class Mips {
     }
 
     private void MRR_setRegister(Register dest, int src) {
-            if (isSafeRegister(dest)) {
-                int realRegister = localRegisters.get(dest);
-                if (realRegister != src)
-                    move(realRegister, src);
-            } else {
-                if (src == $t8) {
-                    move($t9, src);
-                    src = $t9;
-                }
-                //noinspection StatementWithEmptyBody
-                if (dest instanceof TempRegister) {
-                    // not colored => not alive
-                    // ignored
-                } else if (dest instanceof ParameterRegister) {
-                    MR_storeParam(src, dest.getId(), parametersCount);
-                } else if (dest instanceof LocalRegister) {
-                    MR_storeLocal(src, dest.getId());
-                } else if (dest instanceof ThisRegister) {
-                    MR_storeThis(src, parametersCount);
-                } else if (dest instanceof ReturnRegister) {
-                    MR_storeLocal(src, localsCount);
-                } else if (dest instanceof GlobalRegister) {
-                    storeGlobalVariable(src, dest);
-                } else {
-                    throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
-                }
+        if (isSafeRegister(dest)) {
+            int realRegister = realRegMapsRegisters.get(dest);
+            if (realRegister != src)
+                move(realRegister, src);
+        } else {
+            if (src == $t8) {
+                move($t9, src);
+                src = $t9;
             }
+            //noinspection StatementWithEmptyBody
+            if (dest instanceof TempRegister) {
+                // not colored => not alive
+                // ignored
+            } else if (dest instanceof ParameterRegister) {
+                MR_storeParam(src, dest.getId(), parametersCount);
+            } else if (dest instanceof LocalRegister) {
+                MR_storeLocal(src, dest.getId());
+            } else if (dest instanceof ThisRegister) {
+                MR_storeThis(src, parametersCount);
+            } else if (dest instanceof ReturnRegister) {
+                MR_storeLocal(src, localsCount);
+            } else if (dest instanceof GlobalRegister) {
+                storeGlobalVariable(src, dest);
+            } else {
+                throw new IllegalArgumentException("cannot handle this type of register: " + dest.getClass().getSimpleName());
+            }
+        }
     }
 
     private int localOffset(int id) {
-        return -(id * SIZE) - SIZE;
+        return -(id * SIZE) - SIZE + (localsAsReal.size() * SIZE);
     }
 
     private int parameterOffset(int id, int parametersCount) {
@@ -970,7 +1007,11 @@ public class Mips {
     }
 
     private void addConst(int dest, int reg, int constant) {
-        codeSection.append(INDENTATION).append("addi ").append(name(dest)).append(",").append(name(reg)).append(",").append(constant).append(NEWLINE);
+        if (constant != 0)
+            codeSection.append(INDENTATION).append("addi ").append(name(dest)).append(",").append(name(reg)).append(",").append(constant).append(NEWLINE);
+        else if (dest != reg)
+            move(dest, reg);
+
     }
 
     private void andConst(int dest, int reg, String integerConstant) {
@@ -978,7 +1019,11 @@ public class Mips {
     }
 
     private void constant(int reg, int constant) {
-        codeSection.append(INDENTATION).append("addi ").append(name(reg)).append(",").append(name($0)).append(",").append(constant).append(NEWLINE);
+        if (constant == 0) {
+            move(reg, $0);
+        } else {
+            codeSection.append(INDENTATION).append("addi ").append(name(reg)).append(",").append(name($0)).append(",").append(constant).append(NEWLINE);
+        }
     }
 
 
