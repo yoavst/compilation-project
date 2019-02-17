@@ -35,4 +35,21 @@ public class Utils {
     public static boolean isPowerOfTwo(int number) {
         return number > 0 && ((number & (number - 1)) == 0);
     }
+
+    public static void println(String s, Object... args) {
+        if (Flags.DEBUG)
+            System.out.println(String.format(s, args));
+    }
+
+    private static long startingTick = 0;
+    private static long lastTick = 0;
+
+    public static void tick(String name) {
+        long now = System.currentTimeMillis();
+        println("[time: %dms, diff: %dms] %s", startingTick != 0 ? (now - startingTick) : 0, startingTick != 0 ? (now - lastTick) : 0, name);
+
+        lastTick = now;
+        if (startingTick == 0)
+            startingTick = now;
+    }
 }

@@ -340,7 +340,7 @@ public class SymbolTable {
     public static int n = 0;
 
     public void PrintMe() {
-        if (Flags.DEBUG) {
+        if (Flags.VERBOSE) {
             int i = 0;
             int j = 0;
             String dirname = "./FOLDER_5_OUTPUT/";

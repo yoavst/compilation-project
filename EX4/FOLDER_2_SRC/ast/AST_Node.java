@@ -35,7 +35,6 @@ public abstract class AST_Node implements Printable {
      * @throws SemanticException on error
      */
     public final void semant(SymbolTable symbolTable) throws SemanticException {
-        println("Semanting " + this);
         try {
             semantMe(symbolTable);
         } catch (SemanticException exception) {
@@ -173,8 +172,7 @@ public abstract class AST_Node implements Printable {
     }
 
     private static void println(@NotNull String text) {
-        if (Flags.DEBUG)
-            System.out.println(text);
+        System.out.println(text);
     }
     //endregion
 
