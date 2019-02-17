@@ -4,29 +4,27 @@ import ir.commands.IRCommand;
 import utils.NotNull;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 
 /**
  * Represents an analysis using the analysis framework from class.
  */
-public class Analysis<@NotNull K> {
+public abstract class Analysis<@NotNull K> {
     private boolean isForward;
-    @NotNull
-    private final BinaryOperator<K> joiner;
-    @NotNull
-    private final BiFunction<IRCommand, K, K> transfer;
     @NotNull
     private final K initialValue;
     @NotNull
     private final K zero;
 
+    @NotNull
+    protected abstract K transfer(@NotNull IRCommand command, @NotNull K old);
+
+    @NotNull
+    protected abstract K join(@NotNull K v1, @NotNull K v2);
+
     protected AnalysisRunner runner;
 
-    public Analysis(boolean isForward, @NotNull BinaryOperator<K> joiner, @NotNull List<BiFunction<IRCommand, K, K>> transfers, @NotNull K defaultValue, @NotNull K zero) {
+    public Analysis(boolean isForward, @NotNull K defaultValue, @NotNull K zero) {
         this.isForward = isForward;
-        this.joiner = joiner;
-        this.transfer = transfers.stream().reduce((command, value) -> value, (f1, f2) -> (command, value) -> f1.apply(command, f2.apply(command, value)));
         this.initialValue = defaultValue;
         this.zero = zero;
     }
@@ -51,11 +49,11 @@ public class Analysis<@NotNull K> {
         private AnalysisRunner(Collection<IRBlock> blocks) {
             this.blocks = blocks;
             /* initiate the analysis.
-            *  for every statement:
-            *   out[s] = zero
-            *
-            *  out[entry] = initialValue
-            */
+             *  for every statement:
+             *   out[s] = zero
+             *
+             *  out[entry] = initialValue
+             */
             for (IRBlock block : blocks) {
                 List<K> inList = new ArrayList<>(block.commands.size());
                 List<K> outList = new ArrayList<>(block.commands.size());
@@ -93,7 +91,7 @@ public class Analysis<@NotNull K> {
                     if (prev.isEmpty()) {
                         newIn = initialValue;
                     } else {
-                        newIn = prev.stream().map(this::blockOut).reduce(zero, joiner);
+                        newIn = prev.stream().map(this::blockOut).reduce(zero, Analysis.this::join);
                     }
                     set(blockIn, 0, newIn);
 
@@ -102,13 +100,13 @@ public class Analysis<@NotNull K> {
                     } else {
                         // run transfer
                         for (int i = 0; i < blockIn.size() - 1; i++) {
-                            K transferResult = transfer.apply(get(block.commands, i), get(blockIn, i));
+                            K transferResult = transfer(get(block.commands, i), get(blockIn, i));
                             set(blockOut, i, transferResult);
                             set(blockIn, i + 1, transferResult);
                         }
                         // handle last - need only out.
                         int i = blockIn.size() - 1;
-                        K transferResult = transfer.apply(get(block.commands, i), get(blockIn, i));
+                        K transferResult = transfer(get(block.commands, i), get(blockIn, i));
                         set(blockOut, i, transferResult);
                     }
                 }

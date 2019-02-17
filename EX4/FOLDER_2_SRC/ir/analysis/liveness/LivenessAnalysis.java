@@ -2,6 +2,7 @@ package ir.analysis.liveness;
 
 import ir.analysis.Analysis;
 import ir.analysis.IRBlock;
+import ir.commands.IRCommand;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
 import utils.NotNull;
@@ -14,20 +15,44 @@ import java.util.*;
 public class LivenessAnalysis extends Analysis<Set<Register>> {
     private static final Set<Register> DEFAULT_VALUE = Collections.singleton(ReturnRegister.instance);
 
-    public LivenessAnalysis() {
-        super(false,
-                LivenessAnalysis::union,
-                Collections.singletonList(((command, old) -> update(old, command.getDependencies(), command.getInvalidates()))),
-                DEFAULT_VALUE,
-                Collections.emptySet()
-        );
+    LivenessAnalysis() {
+        super(false, DEFAULT_VALUE, Collections.emptySet());
+    }
+
+    @NotNull
+    @Override
+    protected Set<Register> transfer(@NotNull IRCommand command, @NotNull Set<Register> old) {
+        if (old.isEmpty())
+            return command.getDependencies();
+
+        /* first removes, then insert, to support expressions like:
+         * t1 = t1 + 3
+         * insert: t1
+         * remove: t1
+         */
+        Set<Register> result = new HashSet<>(old);
+        result.removeAll(command.getInvalidates());
+        result.addAll(command.getDependencies());
+        return result;
+    }
+
+    @NotNull
+    @Override
+    protected Set<Register> join(@NotNull Set<Register> v1, @NotNull Set<Register> v2) {
+        if (v2.isEmpty())
+            return v1;
+        else if (v1.isEmpty())
+            return v2;
+
+        Set<Register> result = new HashSet<>(v1);
+        result.addAll(v2);
+        return result;
     }
 
     /**
      * Generate inference graph for the given analysis.
      */
-    @NotNull
-    public List<Node<Register>> inferenceGraph() {
+    @NotNull List<Node<Register>> inferenceGraph() {
         assert runner != null;
 
         Map<Register, Node<Register>> nodes = new HashMap<>();
@@ -51,25 +76,5 @@ public class LivenessAnalysis extends Analysis<Set<Register>> {
             }
         }
         return new ArrayList<>(nodes.values());
-    }
-
-    @NotNull
-    private static <K> Set<K> union(@NotNull Set<K> a, @NotNull Set<K> b) {
-        Set<K> result = new HashSet<>(a);
-        result.addAll(b);
-        return result;
-    }
-
-    @NotNull
-    private static <K> Set<K> update(@NotNull Set<K> set, @NotNull Set<K> insert, @NotNull Set<K> remove) {
-        /* first removes, then insert, to support expressions like:
-         * t1 = t1 + 3
-         * insert: t1
-         * remove: t1
-         */
-        Set<K> result = new HashSet<>(set);
-        result.removeAll(remove);
-        result.addAll(insert);
-        return result;
     }
 }
