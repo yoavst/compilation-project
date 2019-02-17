@@ -1,0 +1,29 @@
+void y(int t, int a, int b, int c, int d, int e, int f, int g) {
+    string a1 := "hello";
+    string a2 := "world";
+    int b1 := 44;
+    int b2 := 52;
+    int b3 := b1+b2;
+
+    if (t > 0) {
+        PrintInt(t);
+        y(t-1,a,b,c,d,e,f,g);
+        return;
+    }
+    PrintTrace();
+    return;
+}
+
+void x() {
+    y(10,1,2,3,4,5,6,7);
+}
+
+int a() {
+    x();
+    return 3;
+}
+
+void main()
+{
+	a();
+}

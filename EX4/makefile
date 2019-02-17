@@ -57,8 +57,9 @@ CUP_FLAGS =                                \
 #########################
 # DEFINITIONS :: PARSER #
 #########################
-INPUT    = ${INPUT_DIR}/Input.txt
-OUTPUT   = ${OUTPUT_DIR}/Output.s
+INPUT    	= ${INPUT_DIR}/Input.txt
+OUTPUT   	= ${OUTPUT_DIR}/Output.s
+OUTPUT_IR   = ${OUTPUT_DIR}/Output.ir
 
 ##########
 # TARGET #
@@ -124,7 +125,7 @@ compile:
 		
 run: clear
 	@echo "Run compiler on input"
-	java -jar COMPILER ${INPUT} ${OUTPUT}
+	java -jar COMPILER ${INPUT} ${OUTPUT} ${OUTPUT_IR}
 	spim -f ${OUTPUT}
 
 clear:
