@@ -314,41 +314,6 @@ public class IRContext {
     }
 
     /**
-     * Generate code of binary operation, keeping result in [-2^15,2^15-1]
-     */
-    public Register binaryOpRestricted(Register left, Operation op, Register right) {
-        Register result = newRegister();
-        switch (op) {
-            case Divide:
-                checkNotZero(right);
-            case Plus:
-            case Times:
-            case Minus:
-                command(new IRBinOpCommand(result, left, op, right));
-
-                Register temp = newRegister();
-                IRLabel coerceDown = newLabel("coerce_down"), coerceUp = newLabel("coerce_up"), ok = newLabel("op_good");
-                command(new IRBinOpRightConstCommand(temp, result, Operation.GreaterThan, MAX_INT));    // temp = result > MAX_INT
-                command(new IRIfNotZeroCommand(temp, coerceDown));                                      // if temp != 0 goto coerceDown
-                command(new IRBinOpRightConstCommand(temp, result, Operation.LessThan, MIN_INT));       // tmp = result < MIN_INT
-                command(new IRIfNotZeroCommand(temp, coerceUp));                                        // if temp != 0 goto coerceUp
-                command(new IRGotoCommand(ok));                                                         // goto ok
-                label(coerceDown);                                                                      // coerceDown:
-                command(new IRConstCommand(result, MAX_INT));                                           // result = MAX_INT
-                command(new IRGotoCommand(ok));                                                         // goto ok
-                label(coerceUp);                                                                        // coerceUp:
-                command(new IRConstCommand(result, MIN_INT));                                           // result = MIN_INT
-                command(new IRGotoCommand(ok));                                                         // goto ok
-                label(ok);                                                                              // ok:
-                break;
-            default:
-                command(new IRBinOpCommand(result, left, op, right));
-                break;
-        }
-        return result;
-    }
-
-    /**
      * Generates code of calling malloc.
      *
      * @param size Register holding the size to allocate

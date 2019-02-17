@@ -35,6 +35,7 @@ public class Mips {
     private static final int $0 = 0;
     private static final int $v0 = 2;
     private static final int $a0 = 4;
+    private static final int $a3 = 7;
     private static final int $t0 = 8;
     private static final int $t1 = 9;
     private static final int $t2 = 10;
@@ -65,11 +66,13 @@ public class Mips {
     private Map<LocalRegister, Integer> localsAsReal;
     private int parametersCount;
     private int localsCount;
+    private int boundedLabelCounter = 0;
 
 
     static {
         registerNames.put($0, "$0");
         registerNames.put($a0, "$a0");
+        registerNames.put($a3, "$a3");
         registerNames.put($v0, "$v0");
         registerNames.put($t0, "$t0");
         registerNames.put($t1, "$t1");
@@ -731,12 +734,26 @@ public class Mips {
             case Equals:
                 equalToConst(dest, left, command.second);
                 break;
+            case BoundedPlus:
+                addConst(dest, left, command.second);
+                coerce(dest);
+                break;
+            case BoundedMinus:
+                addConst(dest, left, -command.second);
+                coerce(dest);
+                break;
+            case BoundedTimes:
+                multiplyByConst(dest, left, command.second, $t9);
+                coerce(dest);
+                break;
+            case BoundedDivide:
             case Divide:
             case GreaterThan:
             case Concat:
             case StrEquals:
                 constant($t9, command.second);
                 binOp(dest, left, command.op, $t9);
+                break;
         }
         if (!isSafeRegister(command.dest))
             MRR_setRegister(command.dest, dest);
@@ -973,7 +990,47 @@ public class Mips {
                 jumpAndLink(STRING_EQUALS_LABEL);
                 move(dest, $v0);
                 break;
+            case BoundedPlus:
+                binOp(dest, leftReg, Operation.Plus, rightReg);
+                coerce(dest);
+                break;
+            case BoundedMinus:
+                binOp(dest, leftReg, Operation.Minus, rightReg);
+                coerce(dest);
+                break;
+            case BoundedTimes:
+                binOp(dest, leftReg, Operation.Times, rightReg);
+                coerce(dest);
+                break;
+            case BoundedDivide:
+                binOp(dest, leftReg, Operation.Divide, rightReg);
+                coerce(dest);
+                break;
         }
+    }
+
+    private void coerce(int dest) {
+        IRLabel coerceDown = new IRLabel("__arithmetic_coerce_down_" + boundedLabelCounter++ + "__"),
+                coerceUp = new IRLabel("__arithmetic_coerce_up_" + boundedLabelCounter++ + "__"),
+                ok = new IRLabel("__arithmetic_continue_" + boundedLabelCounter++ + "__");
+
+        comment("[Start] Poseidon arithmetic handling");
+        setOnLessThanConst($a3, dest, IRContext.MIN_INT);                                       // temp = result < MIN_INT
+        branchNotEqual($a3, $0, coerceUp);                                                      // if temp != 0 goto coerceUp
+        binOp($a3, $0, Operation.Minus, dest);                                                  // temp = -result
+        setOnLessThanConst($a3, $a3, -IRContext.MAX_INT);                                       // temp = (-result) < (-MAX_INT)
+        branchNotEqual($a3, $0, coerceDown);                                                    // if temp != 0 goto coerceDown
+
+        jump(ok);                                                                               // goto ok
+
+        label(coerceDown);
+        constant(dest, IRContext.MAX_INT);
+        jump(ok);
+
+        label(coerceUp);
+        constant(dest, IRContext.MIN_INT);
+        label(ok);
+        comment("[End] Poseidon arithmetic handling");
     }
 
     private void equalToConst(int dest, int reg, int constant) {

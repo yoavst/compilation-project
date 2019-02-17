@@ -128,13 +128,13 @@ public class AST_EXP_BINOP extends AST_EXP {
             int l = (int) left.getConstValue(), r = (int) right.getConstValue();
             switch (op) {
                 case Plus:
-                    return l + r;
+                    return coerce(l + r);
                 case Minus:
-                    return l - r;
+                    return coerce(l - r);
                 case Times:
-                    return l * r;
+                    return coerce(l * r);
                 case Divide:
-                    return l / r;
+                    return coerce(l / r);
                 case LT:
                     return l < r ? 1 : 0;
                 case GT:
@@ -177,15 +177,16 @@ public class AST_EXP_BINOP extends AST_EXP {
             // only support inline integral operations
             Register leftRegister = left.irMe(context);
             Register temp = context.newRegister();
-            context.command(new IRBinOpRightConstCommand(temp, leftRegister, Operation.fromAstOp(op), ((Integer) right.getConstValue())));
+            context.command(new IRBinOpRightConstCommand(temp, leftRegister, Operation.fromAstOpBounded(op), ((Integer) right.getConstValue())));
             return temp;
         }
 
 
         Register leftRegister = left.irMe(context);
         Register rightRegister = right.irMe(context);
+        Register temp = context.newRegister();
+
         if (TypeString.instance.equals(left.getType()) && TypeString.instance.equals(right.getType())) {
-            Register temp = context.newRegister();
             if (op == Op.Plus) {
                 context.checkNotNull(leftRegister);
                 context.checkNotNull(rightRegister);
@@ -193,10 +194,10 @@ public class AST_EXP_BINOP extends AST_EXP {
             } else {
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.StrEquals, rightRegister));
             }
-            return temp;
         } else {
-            return context.binaryOpRestricted(leftRegister, Operation.fromAstOp(op), rightRegister);
+            context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOpBounded(op), rightRegister));
         }
+        return temp;
     }
 
     private int coerce(int value) {
