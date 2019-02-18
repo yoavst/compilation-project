@@ -20,7 +20,11 @@ for file in $(ls "$INPUT_FOLDER/"); do
         fi
         java -jar COMPILER "$INPUT_FOLDER/$file" "$OUTPUT_FOLDER/$file" &> /dev/null
         spim -f "$OUTPUT_FOLDER/$file" > "$OUTPUT_FOLDER/${file}_output.txt"
-        if diff --strip-trailing-cr --ignore-all-space "$OUTPUT_FOLDER/${file}_output.txt" "$EXPECTED_OUTPUT_FOLDER/$file"; then
+        # add new line on end of both files
+        sed -i -e '$a\' "$OUTPUT_FOLDER/${file}_output.txt"
+#        sed -i -e '$a\' "$EXPECTED_OUTPUT_FOLDER/$file"
+
+        if diff "$OUTPUT_FOLDER/${file}_output.txt" "$EXPECTED_OUTPUT_FOLDER/$file"; then
             if [ "$HIDE" = false ] ; then
                 echo -e "Result: ${GREEN}PASS${NC}"
             fi

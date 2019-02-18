@@ -389,8 +389,6 @@ public class Mips {
         constant($v0, SYSCALL_PRINT_STRING);
         syscall();
 
-        syscallPrintChar(' ');
-
         jumpRegister($ra);
     }
 
