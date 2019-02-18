@@ -20,21 +20,18 @@ public class IRBinOpCommand extends IRAssignmentCommand {
         this.first = first;
         this.op = op;
         this.second = second;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(first, second);
-    }
-
-    @Override
-    public Set<Register> getInvalidates() {
-        return setOf(dest);
+        this.dependencies = setOf(first, second);
+        this.invalidates = setOf(dest);
     }
 
     @Override
     public String toString() {
         return String.format("%s := %s %s %s", dest, first, op.text, second);
+    }
+
+    @Override
+    public boolean canBeOptimized() {
+        return !dest.isGlobal();
     }
 
 }

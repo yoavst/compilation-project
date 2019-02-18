@@ -16,15 +16,16 @@ public class IRLoadAddressFromLabelCommand extends IRAssignmentCommand {
     public IRLoadAddressFromLabelCommand(@NotNull Register dest, @NotNull IRLabel label) {
         super("var1 := addr [variable]", dest);
         this.label = label;
-    }
-
-    @Override
-    public Set<Register> getInvalidates() {
-        return setOf(dest);
+        this.invalidates = setOf(dest);
     }
 
     @Override
     public String toString() {
         return String.format("%s := addr [%s]", dest, label);
+    }
+
+    @Override
+    public boolean canBeOptimized() {
+        return true;
     }
 }

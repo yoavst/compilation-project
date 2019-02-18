@@ -295,7 +295,9 @@ public class Mips {
             popCommand(((IRPopCommand) command));
         } else if (command instanceof IRPushCommand) {
             pushCommand(((IRPushCommand) command));
-        } else if (command instanceof IRLoadCommand) {
+        } else if (command instanceof IRPushConstCommand) {
+            pushConstCommand(((IRPushConstCommand) command));
+        }else if (command instanceof IRLoadCommand) {
             loadCommand(((IRLoadCommand) command));
         } else if (command instanceof IRLoadAddressFromLabelCommand) {
             loadAddressFromLabelCommand(((IRLoadAddressFromLabelCommand) command));
@@ -801,6 +803,10 @@ public class Mips {
     private void pushCommand(IRPushCommand command) {
         int reg = MR_prepareRegister(command.source);
         push(reg);
+    }
+
+    private void pushConstCommand(IRPushConstCommand command) {
+        pushConst(command.constant);
     }
     //endregion
 

@@ -1,12 +1,14 @@
 import asm.Mips;
 import ast.AST_PROGRAM;
+import ir.commands.IRCommand;
+import ir.analysis.Optimizations;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
-import utils.Utils;
 import utils.errors.SemanticException;
 
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.List;
 
 import static utils.Utils.tick;
 
@@ -18,6 +20,7 @@ public class Main {
 
         try (FileReader fileReader = new FileReader(inputFilename);
              PrintWriter irFileWriter = new PrintWriter(irOutputFilename);
+             PrintWriter irOptimizedFileWriter = new PrintWriter(irOutputFilename + ".opt");
              PrintWriter fileWriter = new PrintWriter(outputFilename)) {
             tick("Compiler has started.");
             Lexer lexer = new Lexer(fileReader);
@@ -37,6 +40,12 @@ public class Main {
                 irFileWriter.write(context.toString());
                 tick("IR Generation");
 
+                // optimize
+                List<IRCommand> commandList = new Optimizations().optimize(context.getCommands());
+                context.setCommands(commandList);
+                irOptimizedFileWriter.write(context.toString());
+                tick("IR optimizations");
+
                 // generate assembly
                 Mips mips = new Mips();
                 mips.process(context.getCommands(), context.getVirtualTables(), context.getConstantStrings(), context.getGlobals());
@@ -45,7 +54,6 @@ public class Main {
                 // write result
                 fileWriter.write(assembly);
                 tick("[Done] Output file was updated.");
-
             } catch (IllegalStateException e) {
                 e.printStackTrace();
                 // Invalid syntax

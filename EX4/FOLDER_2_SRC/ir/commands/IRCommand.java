@@ -12,6 +12,9 @@ import java.util.Set;
 public abstract class IRCommand {
     @NotNull
     private final String description;
+    protected Set<Register> dependencies = Collections.emptySet();
+    protected Set<Register> invalidates = Collections.emptySet();
+
 
     public IRCommand(@NotNull String description) {
         this.description = description;
@@ -22,7 +25,7 @@ public abstract class IRCommand {
      * e.g. for binary operations, the operands are dependencies.
      */
     public Set<Register> getDependencies() {
-        return Collections.emptySet();
+        return dependencies;
     }
 
     /**
@@ -30,7 +33,7 @@ public abstract class IRCommand {
      * e.g. registers it changes their value
      */
     public Set<Register> getInvalidates() {
-        return Collections.emptySet();
+        return invalidates;
     }
 
     /**
@@ -47,5 +50,12 @@ public abstract class IRCommand {
     @NotNull
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Can the IR command get optimized (and possibly removed)
+     */
+    public boolean canBeOptimized() {
+        return false;
     }
 }

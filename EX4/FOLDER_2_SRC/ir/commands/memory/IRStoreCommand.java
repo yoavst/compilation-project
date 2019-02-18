@@ -14,11 +14,7 @@ public class IRStoreCommand extends IRAssignmentCommand {
     public IRStoreCommand(@NotNull Register dest, @NotNull Register source) {
         super("*var1 := var2", dest);
         this.source = source;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(source, dest);
+        this.dependencies = setOf(source, dest);
     }
 
     @Override

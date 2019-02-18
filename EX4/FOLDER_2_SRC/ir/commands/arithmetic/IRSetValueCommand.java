@@ -15,20 +15,17 @@ public class IRSetValueCommand extends IRAssignmentCommand {
     public IRSetValueCommand(@NotNull Register dest, @NotNull Register source) {
         super("var1 := var2", dest);
         this.source = source;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(source);
-    }
-
-    @Override
-    public Set<Register> getInvalidates() {
-        return setOf(dest);
+        this.dependencies = setOf(source);
+        this.invalidates = setOf(dest);
     }
 
     @Override
     public String toString() {
         return String.format("%s := %s", dest, source);
+    }
+
+    @Override
+    public boolean canBeOptimized() {
+        return !dest.isGlobal();
     }
 }

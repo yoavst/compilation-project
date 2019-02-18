@@ -14,11 +14,7 @@ public class IRIfNotZeroCommand extends IRFlowCommand {
     public IRIfNotZeroCommand(@NotNull Register condition, @NotNull IRLabel label) {
         super("ifnz var1 goto label", label);
         this.condition = condition;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(condition);
+        this.dependencies = setOf(condition);
     }
 
     @Override

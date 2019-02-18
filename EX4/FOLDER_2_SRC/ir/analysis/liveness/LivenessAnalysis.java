@@ -3,6 +3,7 @@ package ir.analysis.liveness;
 import ir.analysis.Analysis;
 import ir.analysis.IRBlock;
 import ir.commands.IRCommand;
+import ir.commands.arithmetic.IRSetValueCommand;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
 import utils.NotNull;
@@ -15,7 +16,7 @@ import java.util.*;
 public class LivenessAnalysis extends Analysis<Set<Register>> {
     private static final Set<Register> DEFAULT_VALUE = Collections.singleton(ReturnRegister.instance);
 
-    LivenessAnalysis() {
+    public LivenessAnalysis() {
         super(false, DEFAULT_VALUE, Collections.emptySet());
     }
 
@@ -76,5 +77,32 @@ public class LivenessAnalysis extends Analysis<Set<Register>> {
             }
         }
         return new ArrayList<>(nodes.values());
+    }
+
+    public boolean deadCodeElimination() {
+        final boolean[] hasEliminated = {false};
+        runner.out().forEach((block, info) -> {
+            ListIterator<IRCommand> iterator = block.commands.listIterator();
+            for (int i = 0; iterator.hasNext(); i++) {
+                IRCommand command = iterator.next();
+                if (command.canBeOptimized()) {
+                    // Check if one of the invalidated registers is a life after the command
+                    Set<Register> shared = new HashSet<>(command.getInvalidates());
+                    shared.retainAll(iterator.hasNext() ? info.get(i + 1) : runner.in().get(block).get(i));
+                    if (shared.isEmpty()) {
+                        // remove command
+                        hasEliminated[0] = true;
+                        iterator.remove();
+                        continue;
+                    }
+                }
+
+                if (command instanceof IRSetValueCommand && ((IRSetValueCommand) command).dest.equals(((IRSetValueCommand) command).source)) {
+                    hasEliminated[0] = true;
+                    iterator.remove();
+                }
+            }
+        });
+        return hasEliminated[0];
     }
 }

@@ -6,7 +6,6 @@ import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.IRConstCommand;
 import ir.commands.arithmetic.Operation;
 import ir.commands.flow.IRGotoCommand;
-import ir.commands.flow.IRIfNotZeroCommand;
 import ir.commands.flow.IRIfZeroCommand;
 import ir.commands.flow.IRLabel;
 import ir.commands.functions.IRCallCommand;
@@ -65,10 +64,10 @@ public class IRContext {
     public static final Register FIRST_FUNCTION_PARAMETER = new ParameterRegister(0);
 
     private final List<@NotNull LocalContext> localsStack = new ArrayList<>();
-    private final List<@NotNull IRCommand> commands = new ArrayList<>();
     private final Map<@NotNull String, @NotNull IRLabel> strings = new HashMap<>();
     private final Map<@NotNull TypeClass, @NotNull ClassTable> classTables = new HashMap<>();
     private final List<@NotNull IRLabel> preMainFunctions = new ArrayList<>();
+    private List<@NotNull IRCommand> commands = new ArrayList<>();
 
     private int loadedFields = 0;
 
@@ -570,6 +569,10 @@ public class IRContext {
     @NotNull
     public List<IRCommand> getCommands() {
         return commands;
+    }
+
+    public void setCommands(List<IRCommand> commands) {
+        this.commands = commands;
     }
 
     /**

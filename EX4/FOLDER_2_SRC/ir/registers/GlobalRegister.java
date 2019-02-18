@@ -12,4 +12,9 @@ public class GlobalRegister extends Register {
     public String toString() {
         return "g" + getId();
     }
+
+    @Override
+    public boolean isGlobal() {
+        return true;
+    }
 }

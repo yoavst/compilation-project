@@ -57,9 +57,13 @@ public class IRBlock {
         return commands.isEmpty();
     }
 
+    public boolean isBefore(IRBlock block) {
+        return block.id >= id;
+    }
+
     @Override
     public String toString() {
-        return commands.stream().map(IRCommand::toString).collect(Collectors.joining(" :: "));
+        return ((label != null) ? label.toString() + ": " : "") + commands.stream().map(IRCommand::toString).collect(Collectors.joining(" :: "));
     }
 
     @Override

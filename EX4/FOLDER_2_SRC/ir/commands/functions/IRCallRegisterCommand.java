@@ -15,11 +15,7 @@ public class IRCallRegisterCommand extends IRCommand {
     public IRCallRegisterCommand(@NotNull Register function) {
         super("call *var1");
         this.function = function;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(function);
+        this.dependencies = setOf(function);
     }
 
     @Override

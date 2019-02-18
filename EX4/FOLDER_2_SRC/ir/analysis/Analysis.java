@@ -79,6 +79,7 @@ public abstract class Analysis<@NotNull K> {
         }
 
         private void run() {
+            boolean isFirstRound = true;
             while (!isFixed) {
                 isFixed = true;
                 for (IRBlock block : blocks) {
@@ -91,36 +92,45 @@ public abstract class Analysis<@NotNull K> {
                     if (prev.isEmpty()) {
                         newIn = initialValue;
                     } else {
-                        newIn = prev.stream().map(this::blockOut).reduce(zero, Analysis.this::join);
+                        K joinedValue = zero;
+                        for (IRBlock irBlock : prev) {
+                            K k = blockOut(irBlock);
+                            joinedValue = join(joinedValue, k);
+                        }
+                        newIn = joinedValue;
                     }
-                    set(blockIn, 0, newIn);
-
-                    if (block.isEmpty()) {
-                        set(blockOut, 0, blockIn.get(0));
-                    } else {
-                        // run transfer
-                        for (int i = 0; i < blockIn.size() - 1; i++) {
+                    if (set(blockIn, 0, newIn) || isFirstRound) {
+                        if (block.isEmpty()) {
+                            set(blockOut, 0, blockIn.get(0));
+                        } else {
+                            // run transfer
+                            for (int i = 0; i < blockIn.size() - 1; i++) {
+                                IRCommand command = get(block.commands, i);
+                                K transferResult = transfer(command, get(blockIn, i));
+                                set(blockOut, i, transferResult);
+                                set(blockIn, i + 1, transferResult);
+                            }
+                            // handle last - need only out.
+                            int i = blockIn.size() - 1;
                             K transferResult = transfer(get(block.commands, i), get(blockIn, i));
                             set(blockOut, i, transferResult);
-                            set(blockIn, i + 1, transferResult);
                         }
-                        // handle last - need only out.
-                        int i = blockIn.size() - 1;
-                        K transferResult = transfer(get(block.commands, i), get(blockIn, i));
-                        set(blockOut, i, transferResult);
                     }
                 }
+                isFirstRound = false;
             }
         }
 
-        private void set(@NotNull List<K> l, int i, K value) {
+        private boolean set(@NotNull List<K> l, int i, K value) {
             int index = index(i, l);
             K old = l.get(index);
 
-            if (!old.equals(value))
+            boolean hasChanged = !old.equals(value);
+            if (hasChanged)
                 isFixed = false;
 
             l.set(index, value);
+            return hasChanged;
         }
 
         @NotNull

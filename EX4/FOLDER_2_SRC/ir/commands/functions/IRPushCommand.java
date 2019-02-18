@@ -15,11 +15,7 @@ public class IRPushCommand extends IRCommand {
     public IRPushCommand(@NotNull Register source) {
         super("push var");
         this.source = source;
-    }
-
-    @Override
-    public Set<Register> getDependencies() {
-        return setOf(source);
+        this.dependencies = setOf(source);
     }
 
     @Override
