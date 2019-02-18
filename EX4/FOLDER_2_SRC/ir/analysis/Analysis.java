@@ -94,8 +94,8 @@ public abstract class Analysis<@NotNull K> {
                     } else {
                         K joinedValue = zero;
                         for (IRBlock irBlock : prev) {
-                            K k = blockOut(irBlock);
-                            joinedValue = join(joinedValue, k);
+                                K k = blockOut(irBlock);
+                                joinedValue = join(joinedValue, k);
                         }
                         newIn = joinedValue;
                     }

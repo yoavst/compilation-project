@@ -30,6 +30,7 @@ public class IRBlock {
     public IRBlock realNextBlock;
     @Nullable
     public IRLabel label;
+    public boolean isIgnored = false;
 
     private final int id;
 

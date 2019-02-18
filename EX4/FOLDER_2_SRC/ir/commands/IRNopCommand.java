@@ -9,4 +9,9 @@ public class IRNopCommand extends IRCommand {
     public String toString() {
         return "nop";
     }
+
+    @Override
+    public boolean canBeOptimized() {
+        return true;
+    }
 }

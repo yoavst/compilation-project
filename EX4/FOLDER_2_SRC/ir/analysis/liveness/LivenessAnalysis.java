@@ -3,6 +3,7 @@ package ir.analysis.liveness;
 import ir.analysis.Analysis;
 import ir.analysis.IRBlock;
 import ir.commands.IRCommand;
+import ir.commands.IRNopCommand;
 import ir.commands.arithmetic.IRSetValueCommand;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
@@ -85,7 +86,11 @@ public class LivenessAnalysis extends Analysis<Set<Register>> {
             ListIterator<IRCommand> iterator = block.commands.listIterator();
             for (int i = 0; iterator.hasNext(); i++) {
                 IRCommand command = iterator.next();
-                if (command.canBeOptimized()) {
+                if (command instanceof IRNopCommand) {
+                    hasEliminated[0] = true;
+                    iterator.remove();
+                    continue;
+                } else if (command.canBeOptimized()) {
                     // Check if one of the invalidated registers is a life after the command
                     Set<Register> shared = new HashSet<>(command.getInvalidates());
                     shared.retainAll(iterator.hasNext() ? info.get(i + 1) : runner.in().get(block).get(i));

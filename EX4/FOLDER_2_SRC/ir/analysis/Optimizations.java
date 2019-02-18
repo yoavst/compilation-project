@@ -4,6 +4,11 @@ import ir.analysis.constant.ConstantPropagationAnalysis;
 import ir.analysis.copy.CopyPropagationAnalysis;
 import ir.analysis.liveness.LivenessAnalysis;
 import ir.commands.IRCommand;
+import ir.commands.IRNopCommand;
+import ir.commands.flow.IRGotoCommand;
+import ir.commands.flow.IRLabel;
+import utils.NotNull;
+import utils.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,45 +17,87 @@ import java.util.stream.Collectors;
 
 public class Optimizations {
     private static final int MAX_OPTIMIZATIONS_ROUND = 3;
+    private @Nullable IRBlock removed;
 
     public List<IRCommand> optimize(List<IRCommand> commands) {
-        IRBlockGenerator generator = new IRBlockGenerator();
-        for (IRCommand command : commands) {
-            generator.handle(command);
-        }
-        List<IRBlock> blocks = generator.finish();
-        // get program functions
-        List<IRBlock> functions = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
-        // handle each function
-        functions.forEach(this::optimize);
+        for (int i = 0; i < MAX_OPTIMIZATIONS_ROUND; i++) {
+            IRBlockGenerator generator = new IRBlockGenerator();
+            for (IRCommand command : commands) {
+                generator.handle(command);
+            }
+            List<IRBlock> blocks = generator.finish();
+            // get program functions
+            List<IRBlock> functions = blocks.stream().filter(IRBlock::isStartingBlock).collect(Collectors.toList());
+            functions.forEach(this::optimize);
+            commands = new ArrayList<>();
+            for (IRBlock block : blocks) {
+                if (!block.isIgnored) {
+                    if (block.label != null)
+                        commands.add(block.label);
 
-        List<IRCommand> results = new ArrayList<>();
-        for (IRBlock block : blocks) {
-            if (block.label != null)
-                results.add(block.label);
+                    commands.addAll(block.commands);
+                }
+            }
 
-            results.addAll(block.commands);
+            immidiateGotoRemoval(commands);
         }
-        return results;
+
+        return commands;
     }
 
-    private void optimize(IRBlock irBlock) {
+
+    private boolean optimize(IRBlock irBlock) {
         Set<IRBlock> blocks = irBlock.scanGraph();
-        for (int i = 0; i < MAX_OPTIMIZATIONS_ROUND; i++) {
-            LivenessAnalysis livenessAnalysis = new LivenessAnalysis();
-            livenessAnalysis.run(blocks);
-            boolean wasOptimized = livenessAnalysis.deadCodeElimination();
+        LivenessAnalysis livenessAnalysis = new LivenessAnalysis();
+        livenessAnalysis.run(blocks);
+        boolean wasOptimized = livenessAnalysis.deadCodeElimination();
 
-            CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
-            copyPropagationAnalysis.run(blocks);
-            wasOptimized |= copyPropagationAnalysis.copyPropagation();
 
-            ConstantPropagationAnalysis constantPropagationAnalysis = new ConstantPropagationAnalysis();
-            constantPropagationAnalysis.run(blocks);
-            wasOptimized |= constantPropagationAnalysis.constantPropagation();
+        CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
+        copyPropagationAnalysis.run(blocks);
+        wasOptimized |= copyPropagationAnalysis.copyPropagation();
 
-            if (!wasOptimized)
-                break;
+        ConstantPropagationAnalysis constantPropagationAnalysis = new ConstantPropagationAnalysis();
+        constantPropagationAnalysis.run(blocks);
+        wasOptimized |= constantPropagationAnalysis.constantPropagation();
+
+        wasOptimized |= deadBlockElimination(irBlock, blocks);
+
+        return wasOptimized;
+    }
+
+    private boolean deadBlockElimination(@NotNull IRBlock first, Set<IRBlock> blocks) {
+        IRBlock current = first;
+        boolean hasChanged = false;
+        while (current.realNextBlock != null && blocks.contains(current.realNextBlock)) {
+            if (current.realNextBlock.prev.isEmpty()) {
+                // dead block - remove it
+                removed = current.realNextBlock;
+                blocks.remove(removed);
+                current.realNextBlock = removed.realNextBlock;
+                removed.isIgnored = true;
+                hasChanged = true;
+                continue;
+            }
+            current = current.realNextBlock;
         }
+        return hasChanged;
+    }
+
+    private boolean immidiateGotoRemoval(List<IRCommand> commands) {
+        boolean hasChanged = false;
+        for (int i = 0; i < commands.size() - 1; i++) {
+            IRCommand command = commands.get(i);
+            if (command instanceof IRGotoCommand) {
+                IRLabel label = ((IRGotoCommand) command).getLabel();
+                IRCommand nextCommand = commands.get(i + 1);
+                if (label.equals(nextCommand)) {
+                    // goto can be removed
+                    commands.set(i, new IRNopCommand());
+                    hasChanged = true;
+                }
+            }
+        }
+        return hasChanged;
     }
 }
