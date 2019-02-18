@@ -1,6 +1,7 @@
 package ir.analysis;
 
 import ir.analysis.constant.ConstantPropagationAnalysis;
+import ir.analysis.copy.CopyPropagationAnalysis;
 import ir.analysis.liveness.LivenessAnalysis;
 import ir.commands.IRCommand;
 
@@ -40,10 +41,9 @@ public class Optimizations {
             livenessAnalysis.run(blocks);
             boolean wasOptimized = livenessAnalysis.deadCodeElimination();
 
-//                System.out.println("copy");
-//                CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
-//                copyPropagationAnalysis.run(blocks);
-//                wasOptimized |= copyPropagationAnalysis.copyPropagation();
+            CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
+            copyPropagationAnalysis.run(blocks);
+            wasOptimized |= copyPropagationAnalysis.copyPropagation();
 
             ConstantPropagationAnalysis constantPropagationAnalysis = new ConstantPropagationAnalysis();
             constantPropagationAnalysis.run(blocks);

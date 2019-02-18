@@ -19,7 +19,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * Liveness analysis for set of blocks.
+ * constant propagation analysis for set of blocks.
  */
 public class ConstantPropagationAnalysis extends Analysis<Map<Register, @Nullable Integer>> {
     private static final Map<Register, @Nullable Integer> DEFAULT_VALUE = Collections.emptyMap();
@@ -118,7 +118,6 @@ public class ConstantPropagationAnalysis extends Analysis<Map<Register, @Nullabl
                 Map<Register, Integer> mappings = info.get(i);
                 if (command.getDependencies().stream().anyMatch(reg -> mappings.get(reg) != null)) {
                     hasChanged[0] = true;
-                    System.out.println("Replaced!");
                     // can do replacement
                     if (command instanceof IRBinOpCommand) {
                         IRBinOpCommand c = (IRBinOpCommand) command;

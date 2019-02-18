@@ -40,7 +40,6 @@ public class LimitedRegisterAllocator {
             // find nodes with minimal number of edges
             int minimal = minimal(left, Node::edgesCount);
             Node<K> simplifiedNode = left.get(minimal);
-            assert simplifiedNode.edgesCount() < colorsCount;
             // remove it from the graph and updated edges
             left.remove(minimal);
             stack.add(simplifiedNode);
@@ -65,6 +64,9 @@ public class LimitedRegisterAllocator {
                     chosenColor = i;
                     break;
                 }
+            }
+            if (chosenColor < 0) {
+                System.out.println("wow");
             }
             assert chosenColor >= 0;
             colors.put(node, chosenColor);

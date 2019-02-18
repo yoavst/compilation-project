@@ -11,6 +11,7 @@ import ir.commands.functions.IRCallRegisterCommand;
 import ir.commands.functions.IRPushCommand;
 import ir.commands.memory.IRLoadCommand;
 import ir.commands.memory.IRStoreCommand;
+import ir.registers.LocalRegister;
 import ir.registers.Register;
 import utils.NotNull;
 import utils.Nullable;
@@ -18,7 +19,8 @@ import utils.Nullable;
 import java.util.*;
 
 /**
- * Liveness analysis for set of blocks.
+ * copy propagation analysis for set of blocks.
+ *
  */
 public class CopyPropagationAnalysis extends Analysis<Map<Register, @Nullable Register>> {
     private static final Map<Register, @Nullable Register> DEFAULT_VALUE = Collections.emptyMap();
@@ -30,22 +32,31 @@ public class CopyPropagationAnalysis extends Analysis<Map<Register, @Nullable Re
     @NotNull
     @Override
     protected Map<Register, @Nullable Register> transfer(@NotNull IRCommand command, @NotNull Map<Register, @Nullable Register> old) {
-        if (!(command instanceof IRSetValueCommand) || !command.canBeOptimized()) {
+        if (!command.canBeOptimized()) {
             return old;
-        }
+        } else if (command instanceof IRSetValueCommand) {
+            IRSetValueCommand c = ((IRSetValueCommand) command);
+            if (c.dest.equals(c.source) || c.dest instanceof LocalRegister) {
+                return old;
+            } else {
+                Map<Register, @Nullable Register> newMap = new HashMap<>(old);
 
-        IRSetValueCommand c = ((IRSetValueCommand) command);
-        if (c.dest.equals(c.source)) {
-            return old;
-        } else {
-            Map<Register, @Nullable Register> newMap = new HashMap<>(old);
-
-            if (old.containsKey(c.dest)) {
-                // need to invalidate
-                newMap.remove(c.dest);
+                if (old.containsKey(c.dest)) {
+                    // need to invalidate
+                    newMap.remove(c.dest);
+                }
+                // add to map
+                newMap.put(c.dest, c.source);
+                return newMap;
             }
-            // add to map
-            newMap.put(c.dest, c.source);
+        } else {
+            // need to invalidate the invalidated
+            Map<Register, @Nullable Register> newMap = new HashMap<>(old);
+            for (Register invalidated : command.getInvalidates()) {
+                newMap.put(invalidated, null);
+                // remove all reference to invalidated
+                newMap.entrySet().removeIf(e -> invalidated.equals(e.getValue()));
+            }
             return newMap;
         }
     }
@@ -70,11 +81,11 @@ public class CopyPropagationAnalysis extends Analysis<Map<Register, @Nullable Re
 
     public boolean copyPropagation() {
         final boolean[] hasChanged = {false};
-        runner.out().forEach((block, info) -> {
+        runner.in().forEach((block, info) -> {
             ListIterator<IRCommand> iterator = block.commands.listIterator();
             for (int i = 0; iterator.hasNext(); i++) {
                 IRCommand command = iterator.next();
-                Map<Register, Register> mappings = iterator.hasNext() ? info.get(i + 1) : runner.in().get(block).get(i);
+                Map<Register, Register> mappings = info.get(i);
                 mappings.entrySet().removeIf(e -> e.getValue() == null);
                 
                 if (command.getDependencies().stream().anyMatch(mappings::containsKey)) {
