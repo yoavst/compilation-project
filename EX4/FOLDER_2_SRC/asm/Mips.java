@@ -530,11 +530,11 @@ public class Mips {
         jump(loopLabel);
         // equal case
         label(equalLabel);
-        constant($v0, 1);
+        move($v0, $0); // oren want to it to be the inverse of logic. Hooray!
         jump(afterLabel);
         // not equal case
         label(notEqualLabel);
-        move($v0, $0);
+        constant($v0, 1);
         jump(afterLabel);
         // restore original registers
         label(afterLabel);
