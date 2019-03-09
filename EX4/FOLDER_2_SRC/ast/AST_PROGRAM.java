@@ -18,7 +18,7 @@ import java.util.List;
 public class AST_PROGRAM extends AST_Node {
     @NotNull
     public AST_DEC[] declarations;
-    public List<Symbol> globals;
+    private List<Symbol> globals;
 
     public AST_PROGRAM(@NotNull AST_DEC[] declarations) {
         this.declarations = declarations;
@@ -62,6 +62,12 @@ public class AST_PROGRAM extends AST_Node {
         for (IRLabel preMainFunction : context.getPreMainFunctions()) {
             context.command(new IRCallCommand(preMainFunction));
             context.command(new IRPopCommand(temp));
+        }
+        try {
+            context.functionLabelFor(IRContext.MAIN_SYMBOL);
+        } catch (IllegalArgumentException e) {
+            System.out.println("[Error] main not found");
+            throw e;
         }
 
         context.command(new IRCallCommand(context.functionLabelFor(IRContext.MAIN_SYMBOL)));

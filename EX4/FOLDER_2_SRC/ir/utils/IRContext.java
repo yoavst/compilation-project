@@ -274,22 +274,22 @@ public class IRContext {
         IRLabel notNull = newLabel("notnull");
 
         command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, NIL_VALUE)); // temp = register == Nil
-        command(new IRIfZeroCommand(temp, notNull));                                     // if not temp jump notnull
+        command(new IRIfZeroCommand(temp, notNull));                                        // if not temp jump notnull
         command(new IRCallCommand(STDLIB_FUNCTION_THROW_NULL));                             // call __throw_null
         label(notNull);                                                                     // notnull:
     }
 
     /**
-     * Generate code of checking if the value in the register is not zero (for division)
+     * Generate code of checking if the value in the register is not null
      */
-    private void checkNotZero(@NotNull Register register) {
+    public void checkNotNullForArray(@NotNull Register register) {
         Register temp = newRegister();
-        IRLabel notZero = newLabel("notZero");
+        IRLabel notNull = newLabel("notnull");
 
-        command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, 0)); // temp = register == 0
-        command(new IRIfZeroCommand(temp, notZero));                                     // if not temp jump notnull
-        command(new IRCallCommand(STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));                 // call __throw_division_by_0
-        label(notZero);                                                                     // notZero:
+        command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, NIL_VALUE));          // temp = register == Nil
+        command(new IRIfZeroCommand(temp, notNull));                                                 // if not temp jump notnull
+        command(new IRCallCommand(STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS));                             // call __throw_array_out_of_bounds
+        label(notNull);                                                                              // notnull:
     }
 
     /**

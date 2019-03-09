@@ -57,7 +57,7 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
     @Override
     public @NotNull Register irMe(IRContext context) {
         Register instance = var.irMe(context);
-        context.checkNotNull(instance);
+        context.checkNotNullForArray(instance);
         Register index = subscript.irMe(context);
         context.checkLength(instance, index);
 
@@ -74,7 +74,7 @@ public class AST_VAR_SUBSCRIPT extends AST_VAR {
     @Override
     public void irAssignTo(IRContext context, Supplier<Register> data) {
         Register instance = var.irMe(context);
-        context.checkNotNull(instance);
+        context.checkNotNullForArray(instance);
         Register index = subscript.irMe(context);
         context.checkLength(instance, index);
 
