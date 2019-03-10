@@ -172,17 +172,19 @@ public class IRContext {
      * @param isBounded    is this a bounded scope.
      * @see ScopeType
      */
+    private static int localCounter = 0;
     public void openScope(@NotNull String name, @NotNull List<Symbol> symbols, ScopeType type, boolean isParameters, boolean isBounded) {
         // use the parent register allocator if exists
         RegisterAllocator allocator = localsStack.isEmpty() ? new SimpleRegisterAllocator() : last(localsStack).registerAllocator;
 
         LocalContext context = new LocalContext(name, allocator, new SimpleLabelGenerator(), type);
 
-        // we assumes no inner function, so parameters are once per function
-        int counter = 0;
+        if (type != ScopeType.Inner) {
+            localCounter = 0;
+        }
         // In case of function parameters for a bounded function, the first parameter will be [this], so the first register should be skipped.
         if (type == ScopeType.Function && isBounded && isParameters) {
-            counter++;
+            localCounter++;
         }
 
         // load symbols
@@ -190,11 +192,11 @@ public class IRContext {
             if (symbol.isFunction()) {
                 context.addFunction(symbol, generateFunctionLabelFor(symbol));
             } else if (isParameters) {
-                context.addLocal(symbol, new ParameterRegister(counter++));
+                context.addLocal(symbol, new ParameterRegister(localCounter++));
             } else if (type == ScopeType.Global) {
-                context.addLocal(symbol, new GlobalRegister(counter++));
+                context.addLocal(symbol, new GlobalRegister(localCounter++));
             } else {
-                context.addLocal(symbol, new LocalRegister(counter++));
+                context.addLocal(symbol, new LocalRegister(localCounter++));
                 loadedFields++;
             }
         }

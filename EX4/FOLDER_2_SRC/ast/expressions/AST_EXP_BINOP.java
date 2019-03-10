@@ -4,6 +4,7 @@ import ir.commands.arithmetic.IRBinOpCommand;
 import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.IRConstCommand;
 import ir.commands.arithmetic.Operation;
+import ir.commands.flow.IRIfZeroCommand;
 import ir.commands.functions.IRCallCommand;
 import ir.commands.memory.IRLoadAddressFromLabelCommand;
 import ir.registers.Register;
@@ -193,7 +194,12 @@ public class AST_EXP_BINOP extends AST_EXP {
             // only support inline integral operations
             Register leftRegister = left.irMe(context);
             Register temp = context.newRegister();
-            context.command(new IRBinOpRightConstCommand(temp, leftRegister, Operation.fromAstOpBounded(op), ((Integer) right.getConstValue())));
+            Object rightConstValue = right.getConstValue();
+            if (op == Op.Divide && rightConstValue != null && (int) rightConstValue == 0) {
+                context.command(new IRCallCommand(IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));
+            } else {
+                context.command(new IRBinOpRightConstCommand(temp, leftRegister, Operation.fromAstOpBounded(op), ((Integer) right.getConstValue())));
+            }
             return temp;
         }
 
@@ -211,6 +217,8 @@ public class AST_EXP_BINOP extends AST_EXP {
                 context.command(new IRBinOpCommand(temp, leftRegister, Operation.StrEquals, rightRegister));
             }
         } else {
+            if (op == Op.Divide)
+                context.command(new IRIfZeroCommand(rightRegister, IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));
             context.command(new IRBinOpCommand(temp, leftRegister, Operation.fromAstOpBounded(op), rightRegister));
         }
         return temp;

@@ -8,6 +8,7 @@ import ir.commands.flow.IRGotoCommand;
 import ir.commands.flow.IRIfNotZeroCommand;
 import ir.commands.flow.IRIfZeroCommand;
 import ir.commands.functions.IRCallCommand;
+import ir.commands.functions.IRPopCommand;
 import ir.commands.functions.IRPushCommand;
 import ir.commands.functions.IRPushConstCommand;
 import ir.registers.Register;
@@ -50,6 +51,9 @@ public class ConstantPropagationAnalysis extends Analysis<Map<Register, @Nullabl
             } else if (command instanceof IRConstCommand) {
                 IRConstCommand c = ((IRConstCommand) command);
                 newOne.put(c.dest, c.value);
+            } else if (command instanceof IRPopCommand) {
+                IRPopCommand c = ((IRPopCommand) command);
+                newOne.put(c.dest, null);
             } else if (command instanceof IRBinOpRightConstCommand) {
                 IRBinOpRightConstCommand c = (IRBinOpRightConstCommand) command;
                 if (c.op == Operation.StrEquals || c.op == Operation.Concat)
