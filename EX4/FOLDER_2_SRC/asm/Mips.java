@@ -747,6 +747,10 @@ public class Mips {
                 break;
             case BoundedDivide:
             case Divide:
+                if (command.second == 0) {
+                    jump(IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO);
+                    break;
+                }
             case GreaterThan:
             case Concat:
             case StrEquals:
@@ -960,6 +964,7 @@ public class Mips {
                         .append(INDENTATION).append("mflo ").append(name(dest)).append(NEWLINE);
                 break;
             case Divide:
+                codeSection.append(INDENTATION).append("beqz ").append(name(rightReg)).append(" ").append(IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO).append(NEWLINE);
                 codeSection.append(INDENTATION).append("div ").append(name(leftReg)).append(",").append(name(rightReg)).append(NEWLINE)
                         .append(INDENTATION).append("mflo ").append(name(dest)).append(NEWLINE);
                 break;

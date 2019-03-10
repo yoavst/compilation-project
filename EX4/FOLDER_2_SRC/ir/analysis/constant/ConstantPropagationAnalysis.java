@@ -7,6 +7,7 @@ import ir.commands.arithmetic.*;
 import ir.commands.flow.IRGotoCommand;
 import ir.commands.flow.IRIfNotZeroCommand;
 import ir.commands.flow.IRIfZeroCommand;
+import ir.commands.functions.IRCallCommand;
 import ir.commands.functions.IRPushCommand;
 import ir.commands.functions.IRPushConstCommand;
 import ir.registers.Register;
@@ -17,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
+
+import static ir.utils.IRContext.STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO;
 
 /**
  * constant propagation analysis for set of blocks.
@@ -123,7 +126,12 @@ public class ConstantPropagationAnalysis extends Analysis<Map<Register, @Nullabl
                         IRBinOpCommand c = (IRBinOpCommand) command;
                         if (mappings.get(c.second) != null) {
                             if (mappings.get(c.first) != null) {
-                                iterator.set(new IRConstCommand(c.dest, Operation.evaluate(mappings.get(c.first), c.op, mappings.get(c.second))));
+                                try {
+                                    iterator.set(new IRConstCommand(c.dest, Operation.evaluate(mappings.get(c.first), c.op, mappings.get(c.second))));
+                                } catch (ArithmeticException e) {
+                                    // division by zero, replace with call to error
+                                    iterator.set(new IRCallCommand(STDLIB_FUNCTION_THROW_DIVISION_BY_ZERO));
+                                }
                             } else {
                                 iterator.set(new IRBinOpRightConstCommand(c.dest, c.first, c.op, mappings.get(c.second)));
                             }

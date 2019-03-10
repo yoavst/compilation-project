@@ -123,7 +123,7 @@ public class AST_EXP_BINOP extends AST_EXP {
                     return leftString + rightString;
                 } else {
                     // equality
-                    return leftString.equals(rightString) ? 1 : 0;
+                    return leftString.equals(rightString) ? 0 : 1;
                 }
             } else {
                 // integers
@@ -146,7 +146,7 @@ public class AST_EXP_BINOP extends AST_EXP {
                     case GT:
                         return l > r ? 1 : 0;
                     case EQ:
-                        return l == r ? 1 : 0;
+                        return l.equals(r) ? 1 : 0;
                 }
                 return -1; // cannot reach here
             }

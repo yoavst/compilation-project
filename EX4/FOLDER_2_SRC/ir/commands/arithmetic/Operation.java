@@ -6,7 +6,7 @@ import utils.NotNull;
 
 public enum Operation {
     Plus("+"), Minus("-"), Times("*"), Divide("/"), Equals("=="), GreaterThan(">"), LessThan("<"), Concat("concat"), StrEquals("~"),
-    BoundedPlus("⊕"),  BoundedMinus("⊖"),  BoundedDivide("⊗"),  BoundedTimes("⊘");
+    BoundedPlus("⊕"),  BoundedMinus("⊖"),  BoundedDivide("⊘"),  BoundedTimes("⊗");
 
     @NotNull
     String text;
