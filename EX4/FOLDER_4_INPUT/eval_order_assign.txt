@@ -1,0 +1,20 @@
+class counter {int i := 1;}
+counter c := new counter;
+array IntArr = int[]
+IntArr arr := new int[5];
+
+int inc(){c.i:=c.i+1;}
+int dec(){c.i:=c.i-1;}
+int foo(){inc();return c.i;}
+int bar(){dec();return c.i;}
+
+void main(){
+arr[0] := 0;
+arr[1] := 1;
+arr[2] := 2;
+arr[3] := 3;
+arr[4] := 4;
+arr[foo()] := bar();
+PrintInt(arr[2]);
+PrintInt(arr[1]);
+}

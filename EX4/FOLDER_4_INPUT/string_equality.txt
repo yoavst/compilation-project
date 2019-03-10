@@ -1,0 +1,11 @@
+string a := "hello";
+string b := "fellow";
+
+void main() {
+	if(a=b) {
+		PrintString(a+b);
+	}
+	if(1-("wat"="wat")){
+		PrintString("watwat");
+	}
+}

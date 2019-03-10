@@ -1,0 +1,57 @@
+class Vehicle {
+	int pos := 0;
+	string color;
+	void init(){color:="";}
+	int getPos() {
+		return pos;
+	}
+	string getColor(){return color;}
+	void move(int dist){pos := pos + 1;}
+}
+class Car extends Vehicle {
+	void init() {
+		color := "red";
+	}
+	void move(int dist) {
+		pos := pos + dist;
+	}
+}
+class SportsCar extends Car {
+	void move(int dist) {
+		pos := pos + 2*dist;
+	}
+	void init() {
+		color := "blue";
+	}
+}
+
+void main() {
+	Vehicle v := new Vehicle;
+	v.init();
+	PrintString(v.getColor());
+	PrintInt(v.getPos());
+	Car c := new Car;
+	c.init();
+	PrintString(c.getColor());
+	PrintInt(c.getPos());
+	c.move(10);
+	PrintInt(c.getPos());
+	SportsCar sc := new SportsCar;
+	sc.init();
+	PrintString(sc.getColor());
+	PrintInt(sc.getPos());
+	sc.move(10);
+	PrintInt(sc.getPos());
+
+	v := c;
+	PrintString(v.getColor());
+	PrintInt(v.getPos());
+	v.move(10);
+	PrintInt(v.getPos());
+
+	v := sc;
+	PrintString(v.getColor());
+	PrintInt(v.getPos());
+	v.move(10);
+	PrintInt(v.getPos());
+}

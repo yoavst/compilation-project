@@ -1,0 +1,11 @@
+void main() {
+	int maxint:=32767;
+	int minint:=-32768;
+	PrintInt(maxint+1);
+	PrintInt(minint+(-1));
+	PrintInt(maxint*2);
+	PrintInt(maxint*(-2));
+	PrintInt(maxint-(-1));
+	PrintInt(minint-1);
+	PrintInt(7/4);
+}

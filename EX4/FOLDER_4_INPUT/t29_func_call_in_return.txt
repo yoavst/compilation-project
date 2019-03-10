@@ -1,0 +1,12 @@
+int foo() {
+    return 2;
+}
+int add(int a, int b) {
+    return a + b + foo();
+}
+
+void main() {
+    int sum := add(1 + 2, 4);
+    PrintInt(sum + sum);
+    return;
+}

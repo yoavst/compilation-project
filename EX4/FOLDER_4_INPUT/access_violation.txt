@@ -1,0 +1,7 @@
+array IntArray = int[] 
+IntArray arr := new int[6]; 
+int i := arr[18];
+
+void main() {
+	return;
+}

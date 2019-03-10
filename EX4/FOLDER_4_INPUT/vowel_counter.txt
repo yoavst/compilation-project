@@ -1,0 +1,111 @@
+int inc(int num) {
+  return num + 1;
+}
+
+array CharArr = string[]
+
+int stringNeq(string a, string b) {
+  if(a=b) {
+	return 1;
+  }
+  return 0;
+}
+
+int strLen(CharArr str) {
+  int i := 0;
+  string c := str[0];
+  while(stringNeq(c, "terminate")) {
+    i := inc(i);
+    c := str[i];
+  }
+  return i;
+}
+
+int stringsEqual(string a, string b) {
+	if (a=b) {return 0;}
+	return 1;
+}
+
+int belongsToCharset(string char, CharArr charset, int size) {
+  string c := charset[0];
+  int i := 0;
+  while(i < size) {
+    if(stringsEqual(c, char)) {
+      return 1;
+    }
+   
+    i := inc(i);
+	c := charset[i];
+  }
+  return 0;
+}
+
+void PrintCharArr(CharArr str) {
+  int len := strLen(str);
+  int i := 0;
+  while(i < len) {
+	string c := str[i];
+	PrintString(c);
+	i := inc(i);
+  }
+}
+
+int getCount(CharArr str) {
+  CharArr vowels := new string[5+1];
+  vowels[0] := "a";
+  vowels[1] := "e";
+  vowels[2] := "i";
+  vowels[3] := "o";
+  vowels[4] := "u";
+  vowels[5] := "terminate";
+  int vowelsCount := 0;
+  int len := strLen(str);
+  int vowelLen := strLen(vowels);
+  int i := 0;
+  while(i < len) {
+    if(belongsToCharset(str[i], vowels, vowelLen)) {
+      vowelsCount := inc(vowelsCount);
+    }
+    i := inc(i);
+  }
+  return vowelsCount;
+}
+
+CharArr str;
+
+void main() {
+  str := new string[12];
+  str[0] := "c";
+  str[1] := "o";
+  str[2] := "m";
+  str[3] := "p";
+  str[4] := "i";
+  str[5] := "l";
+  str[6] := "a";
+  str[7] := "t";
+  str[8] := "i";
+  str[9] := "o";
+  str[10] := "n";
+  str[11] := "terminate";
+  PrintCharArr(str);
+  int vowelsCount := getCount(str);
+  PrintString("NumberOfVowelsFoundIs");
+  PrintInt(vowelsCount);
+
+  str := new string[11];
+  str[0] := "a";
+  str[1] := "e";
+  str[2] := "i";
+  str[3] := "o";
+  str[4] := "u";
+  str[5] := "a";
+  str[6] := "e";
+  str[7] := "i";
+  str[8] := "o";
+  str[9] := "u";
+  str[10] := "terminate";
+  PrintCharArr(str);
+  vowelsCount := getCount(str);
+  PrintString("NumberOfVowelsFoundIs");
+  PrintInt(vowelsCount);
+}

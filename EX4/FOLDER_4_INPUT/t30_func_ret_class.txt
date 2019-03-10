@@ -1,0 +1,24 @@
+class A {
+	int h := 4;
+	A almostcopy() {
+		A a2 := new A;
+		a2.h := h + 1;
+		return a2;
+	}
+}
+
+class B extends A {
+	A almostcopy() {
+		A a2 := new B;
+		a2.h := h + 2;
+		return a2;
+	}
+}
+
+void main() {
+	A a1 := new B;
+	a1.h := a1.h + 10;
+	A a2 := a1.almostcopy();
+	PrintInt(a2.h);
+	return;
+}

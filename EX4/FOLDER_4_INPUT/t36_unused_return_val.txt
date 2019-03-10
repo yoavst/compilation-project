@@ -1,0 +1,11 @@
+int func ()
+{
+	return 7;
+}
+
+void main() {
+	PrintString("Hello");
+	func();
+	PrintString("Bye");
+	return;
+}

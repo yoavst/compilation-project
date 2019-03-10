@@ -1,0 +1,6 @@
+void main() {
+	if(4<5) {
+		PrintInt(4/0);
+	}
+	PrintString("ShouldFail");
+}

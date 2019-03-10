@@ -1,0 +1,12 @@
+int boof(int h) {
+    int b := 10 + (10 + (10 + (10 + (10 + (10 + (10 + 10))))));
+    PrintTrace();
+    return 1;
+}
+
+void main() {
+    int a := 10 + (1 + (1 + (boof(6+4+5) + (1 + (2 + 3)))));
+
+    PrintInt(a);
+    PrintTrace();
+}

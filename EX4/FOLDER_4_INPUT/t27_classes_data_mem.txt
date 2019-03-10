@@ -1,0 +1,26 @@
+class A
+{
+	int h := 5;
+}
+class B extends A
+{
+	int foo()
+	{
+		h := 4;
+		PrintTrace();
+		return 3;
+	}
+}
+int h := 10;
+int foo()
+{
+	return 877;
+}
+void main()
+{
+	B bla := new B;
+	PrintInt(bla.h);
+	PrintInt(bla.foo());
+	PrintInt(bla.h);
+	return;
+}
