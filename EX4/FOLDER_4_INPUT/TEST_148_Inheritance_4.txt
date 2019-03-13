@@ -1,0 +1,48 @@
+int glob := 1;
+
+class A{
+
+	void reset(int y){
+		glob := y;
+	}
+
+	void inc(){
+		glob := glob + 1;
+	}
+}
+
+class B extends A{
+	void inc(){
+		glob := glob - 1;
+	}
+
+	void boom(){
+		glob := 400*400*400;
+	}
+}
+
+void main(){
+	A a := new A;
+	A b := new B;
+	a.reset(1);
+
+	PrintInt(glob);
+	a.inc();
+
+	PrintInt(glob);
+	a.inc();
+
+	PrintInt(glob);
+	a.inc();
+
+	PrintInt(glob);
+
+	b.inc();
+	PrintInt(glob);
+
+	b.inc();
+	PrintInt(glob);
+
+	b.inc();
+	PrintInt(glob);
+}

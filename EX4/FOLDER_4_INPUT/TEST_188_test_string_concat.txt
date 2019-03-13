@@ -1,0 +1,16 @@
+string code(){
+	return "C"+ "o" + "d" + "e";
+}
+string that(string long){
+	return "That" + long;
+}
+string be(){
+	string bes := "Be";
+	return bes;
+}
+void main(){
+	string why := "Why";
+	string mips := "MIPS";
+	string must := "Must";
+	PrintString(why + mips + code() + must + be() + that("Long"));
+}

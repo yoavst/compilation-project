@@ -1,0 +1,29 @@
+class Fibonacci
+{
+	int calcFib(int n)
+	{
+		if(n=0)
+		{
+			return 0;
+		}
+		if(n=1)
+		{
+			return 1;
+		}
+		
+		int prev := calcFib(n-1);
+		int prev2 := calcFib(n-2);
+		int sum := prev + prev2;
+		return sum;
+	}
+
+}
+
+void main()
+{
+
+	Fibonacci f := new Fibonacci;
+		
+	PrintInt(f.calcFib(6));
+}
+

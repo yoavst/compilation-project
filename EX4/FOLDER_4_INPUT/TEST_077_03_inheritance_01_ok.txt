@@ -1,0 +1,4 @@
+class Father { int i := 567; }
+class Son extends Father { int j; }
+void foo(Father f) { PrintInt(f.i); }
+void main(){ Son s := new Son; foo(s); }

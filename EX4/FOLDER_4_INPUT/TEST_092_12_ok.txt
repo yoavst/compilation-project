@@ -1,0 +1,14 @@
+class Shape{
+	int a;
+}
+array IntArray = int[]
+array StrArray = string[]
+array ClassArray = Shape[]
+array ArrArray = IntArray[]
+
+void main(){
+	IntArray tIntA := new int[3];
+	StrArray tStringA := new string[3];
+	ClassArray tClassA := new Shape[3];
+	ArrArray tArrA := new IntArray[3];
+}

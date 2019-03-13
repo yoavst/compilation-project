@@ -1,5 +1,6 @@
 array IntArray = int[]
 
+
 void BubbleSort(IntArray arr, int size)
 {
     int i         := 0;
@@ -42,13 +43,9 @@ void main()
     
     BubbleSort(arr,7);
 
-	int k := 0;
-	while ( k < 7 )
-        {
-			PrintInt(arr[k]);
-			k := k + 1;
-		}
-
-
+    int i := 0;
+    while(i < 7){
+        PrintInt(arr[i]);
+        i := i+1;
+    }
 }
-

@@ -1,0 +1,11 @@
+void rec(int i){
+	PrintInt(i);
+	if (i < 10){
+		rec(i+1);
+	}
+	PrintInt(i);
+}
+
+void main(){
+	rec(1);
+}

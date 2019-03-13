@@ -1,0 +1,28 @@
+class A
+{
+	int j;	
+}
+
+class B
+{
+	A a;
+	void init()
+	{
+		a := new A;
+		a.j := 17;
+
+	}
+	void print()
+	{
+		PrintInt(a.j);
+	}
+}
+
+
+	void main()
+	{
+		
+		B b := new B;
+		b.init();
+		b.print();
+	}

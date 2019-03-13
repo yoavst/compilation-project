@@ -1,0 +1,17 @@
+array argv = string[]
+
+void main(){
+	argv args := new string[5];
+
+	string x;
+	int i;
+	while(i<5){
+		x := args[i];
+		PrintString("Easy");
+		i := i+1;
+	}
+
+	PrintString("Oopsy");
+	args[512*256] := "WhatWhere";
+
+}

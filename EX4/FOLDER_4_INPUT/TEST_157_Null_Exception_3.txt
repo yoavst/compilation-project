@@ -1,0 +1,26 @@
+class List{
+	int v;
+	List next;
+}
+
+void main(){
+	List lst := new List;
+	List r := lst;
+	lst.v := 0;
+	int i := 0;
+	while(i < 6){
+		r.next := new List;
+		r.v := i;
+		r := r.next;
+		i := i + 1;
+	}
+
+	i := 0;
+	r := lst;
+	while(1){
+		PrintInt(r.v);
+		r := r.next;
+	}
+
+}
+

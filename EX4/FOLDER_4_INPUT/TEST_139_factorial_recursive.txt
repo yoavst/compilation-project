@@ -1,0 +1,20 @@
+int factorial(int integer)
+{
+	if(integer < 2){
+		return 1;
+	}
+	if(integer > 1){
+		return(integer*(factorial(integer-1)));
+	}
+}
+
+void main(){
+	PrintInt(factorial(0));
+	PrintInt(factorial(1));
+	PrintInt(factorial(2));
+	PrintInt(factorial(3));
+	PrintInt(factorial(4));
+	PrintInt(factorial(5));
+	PrintInt(factorial(6));
+}
+

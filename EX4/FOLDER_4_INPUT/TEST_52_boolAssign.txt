@@ -1,0 +1,10 @@
+	void main()
+	{
+		
+		int x := 6;
+		int isSix := (x = 6);
+		int isFive := (x = 5);
+		
+		PrintInt(isSix); // should print 1
+		PrintInt(isFive); // should print 0
+	}

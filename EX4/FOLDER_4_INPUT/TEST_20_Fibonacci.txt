@@ -1,0 +1,18 @@
+void main() {
+	int n := 10;
+	if(n < 2) {
+		PrintInt(n);
+		return;
+	}
+	int ans := 0;
+	int n1 := 0;
+	int n2 := 1;
+	n := n - 1;
+	while(n > 0) {
+		ans := n1 + n2;
+		n1 := n2;
+		n2 := ans;
+		n := n - 1;
+	}
+	PrintInt(ans);
+}

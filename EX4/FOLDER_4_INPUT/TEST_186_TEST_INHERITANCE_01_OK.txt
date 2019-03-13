@@ -1,0 +1,27 @@
+class A{
+	int x;
+}
+class B extends A{
+	int y;
+}
+class C extends B{
+	int z;
+}
+class D extends C{
+	int w;
+}
+
+void main(){
+	A a := new D;
+	D d := new D;
+
+	a.x := 1;
+	d.x := 2;
+	d.y := 3;
+	d.z := 4;
+	d.w := 5;
+
+	PrintInt(a.x);
+	PrintInt(d.x + d.y + d.z + d.w);
+}
+

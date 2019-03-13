@@ -1,0 +1,22 @@
+class counter { int i := 5; }
+counter c := new counter;
+
+int mul(){ c.i := c.i * 2; return 0;}
+int inc(){ c.i := c.i + 1; return 9;}
+int foo(int m, int n){ return c.i; }
+int bar(int m, int n, int k, int l){ return c.i; }
+
+void main()
+{
+    PrintInt(foo(mul(),inc()));
+    c := new counter;
+    PrintInt(foo(inc(),mul()));
+    c := new counter;
+    PrintInt(bar(inc(),mul(),inc(),mul()));
+    c := new counter;
+    PrintInt(bar(mul(),inc(),mul(),inc()));
+    c := new counter;
+    PrintInt(bar(inc(),inc(),inc(),mul()));
+    c := new counter;
+    PrintInt(bar(mul(),mul(),mul(),inc()));
+}

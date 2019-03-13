@@ -1,0 +1,6 @@
+void main()
+{
+    PrintInt(-20000 * 2);
+    PrintInt(-32760 * 4);
+    PrintInt(32767 * (-5));
+}

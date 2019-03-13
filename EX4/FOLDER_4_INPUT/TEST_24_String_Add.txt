@@ -1,0 +1,9 @@
+	    string s:="gjgjggjjgjg";
+
+void main()
+{
+
+
+    string s1 := "bbbbb";
+    PrintString(s + s1);
+}

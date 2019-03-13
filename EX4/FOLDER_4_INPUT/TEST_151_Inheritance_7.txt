@@ -1,0 +1,28 @@
+class B{
+	void a(){ PrintInt(1); }
+	void b(){ PrintInt(2); }
+	void c(){ PrintInt(3); }
+}
+
+class C extends B{
+	void c(){ PrintString("V"); }
+	void d(){ PrintInt(4); }
+	void e(){ PrintInt(5); }
+	void b(){ PrintString("U"); }
+	void f(){ PrintInt(6); }	
+}
+
+class D extends C{
+	void e(){ PrintString("T"); }
+}
+
+void main(){
+	D c := new D;
+
+	c.a();
+	c.b();
+	c.c();
+	c.d();
+	c.e();
+	c.f();
+}

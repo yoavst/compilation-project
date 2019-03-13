@@ -1,0 +1,23 @@
+class Grandfather
+{
+    int WALK := 8;
+    int foo(string a){return 1;}
+}
+
+class Father extends Grandfather
+{
+    Father g := nil;
+}
+
+class Son extends Father
+{
+    Son swim;
+    int iii;
+    int foo(string a){return 12;}
+
+        
+}
+
+void main(){
+	return;
+}

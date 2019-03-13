@@ -1,0 +1,17 @@
+class A
+{
+    int i;
+    int j := 5;
+    int sum(int l)
+    {
+        return i + j + l;
+    }
+}
+
+void main()
+{
+    A a := new A;
+    a.i := 1;
+    a.j := 10;
+    PrintInt(a.sum(100));
+}

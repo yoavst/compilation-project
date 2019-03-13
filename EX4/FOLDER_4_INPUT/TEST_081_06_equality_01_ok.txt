@@ -1,0 +1,19 @@
+class Father { int i; int j; }
+int Check(Father f)
+{
+    if (f = nil)
+    {
+        return 800;
+    }
+    return 774;
+}
+
+void main(){
+	Father f1;
+	Father f2;
+
+	f1 := new Father;
+
+	PrintInt(Check(f1));
+	PrintInt(Check(f2));
+}

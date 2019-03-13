@@ -1,0 +1,19 @@
+class ClassWithoutMethods
+{
+	int field1;
+}
+
+	void main()
+	{
+		
+		PrintInt(1);
+		ClassWithoutMethods objWithoutMethods;
+		
+		PrintInt(2);
+		objWithoutMethods := new ClassWithoutMethods;
+		
+		PrintInt(3);
+		ClassWithoutMethods objWithoutMethods2 := new ClassWithoutMethods;
+		
+		PrintInt(4);
+	}

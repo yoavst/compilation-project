@@ -1,0 +1,29 @@
+void main()
+{
+    int p := 2;
+    
+    while (p < 100+1)
+    {
+        int i := 2;
+        int b := 0;
+
+        while (i<p)
+        {
+            int j := 2;
+            while (j<p)
+            {
+                if (i*j = p)
+                {
+                    b := 1;
+                }
+                j := j+1;
+            }
+            i := i+1;
+        }
+        if (b = 0)
+        {
+            PrintInt(p);
+        }
+        p := p + 1;
+    }
+}

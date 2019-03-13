@@ -1,0 +1,23 @@
+class Father
+{
+	int i;
+	string s;
+}
+
+class Son extends Father
+{
+	int j;
+}
+
+array sonArray = Father[]
+
+void main(){
+	sonArray a1;
+	
+	a1 := new Father[5];
+	
+	sonArray a2 := new Father[5];
+	
+	PrintInt(a1 = a2);
+	
+}

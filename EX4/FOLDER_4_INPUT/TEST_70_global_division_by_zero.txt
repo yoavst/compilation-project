@@ -1,0 +1,5 @@
+int i:= 6/0;
+void main()
+{
+    int i;
+}

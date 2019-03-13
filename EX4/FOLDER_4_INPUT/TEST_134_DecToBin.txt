@@ -1,0 +1,36 @@
+array ints = int[]
+
+//modulo
+int mod(int a, int m){
+	int div := a/m;
+	int floor := m*div;
+
+	return a-floor;
+}
+
+void printBinary(int base10Num){
+	ints results := new int[10];
+	int i := 9;
+        
+        while(base10Num > 1){
+		results[i] := mod(base10Num, 2);
+            	base10Num := base10Num / 2;
+		i := i - 1;
+        }
+	results[i] := base10Num;
+	while(i<10){
+		PrintInt(results[i]);
+		i := i + 1;
+	}
+}
+
+void main(){
+	printBinary(0);
+	printBinary(1);
+	printBinary(2);
+	printBinary(3);
+	printBinary(4);
+	printBinary(5);
+	printBinary(6);
+}
+

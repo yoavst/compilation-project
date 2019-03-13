@@ -1,0 +1,18 @@
+class MyClass
+{
+	void methodA()
+	{
+	int x;
+	}
+	
+	int fieldB;
+}
+
+	void main()
+	{
+		MyClass obj := new MyClass;
+		obj.fieldB := 3;
+		obj.methodA();
+		
+		PrintInt(obj.fieldB);
+	}

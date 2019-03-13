@@ -1,0 +1,30 @@
+int minPrimeFactor(int n){
+	int i;
+	int j;
+
+	i:=2;
+	while(i < n){
+		j := i;
+		while(j < n){
+			if(i*j = n){
+				return i;
+			}
+			j := j+1;
+		}
+		i := i+1;
+	}
+
+	return n;
+}
+
+void PrintFactors(int n){
+	while(n > 1){
+		int i := minPrimeFactor(n);
+		PrintInt(i);
+		n := n/i;
+	}
+}
+
+void main(){
+	PrintFactors(30);
+}

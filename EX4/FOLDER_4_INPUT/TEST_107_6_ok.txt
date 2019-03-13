@@ -1,0 +1,9 @@
+array Numbers = int[]
+
+int foo(Numbers arr){ return 0; }
+
+void main(){
+Numbers a := new int[400];
+int x := foo(a);
+
+}

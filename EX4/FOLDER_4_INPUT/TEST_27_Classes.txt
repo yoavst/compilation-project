@@ -1,0 +1,25 @@
+class A
+{
+    int i;
+    int j := 5;
+    A a;
+}
+
+class B extends A
+{
+    int l := 30;
+    string s := "Hello";
+}
+
+void main()
+{
+    int i := 3;
+    int j := 4;
+    int k := 6;
+    int l := 7;
+    A a := new A;
+    B b := new B;
+    b.i := k;
+    PrintString(b.s);
+    PrintInt(a.i + a.j + b.i + b.j + b.l);
+}

@@ -1,0 +1,29 @@
+array nums = int[]
+
+void odds(nums arr, int size){
+	if(size = 0){ return; }
+	int i := 0;
+	if(arr[size-1] = arr[size-1]/2*2){
+		arr[size-1] := 0;
+	}
+
+	odds(arr, size-1);
+
+}
+
+void main(){
+	nums arr := new int[5];
+	arr[0] := 2;
+	arr[1] := 5;
+	arr[2] := 8;
+	arr[3] := 11;
+	arr[4] := 14;
+
+	odds(arr, 5);
+
+	int i := 0;
+	while(i<5){
+		PrintInt(arr[i]);
+		i := i +1;
+	}
+}

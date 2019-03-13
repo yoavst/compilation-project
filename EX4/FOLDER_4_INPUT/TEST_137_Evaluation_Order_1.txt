@@ -1,0 +1,17 @@
+int second(int n){
+	PrintInt(n+1);
+	return n+1;
+}
+int first(int n){
+	PrintInt(n);
+	return n;
+}
+void tester(int n, int m){
+	PrintString("Test");
+}
+
+void main(){
+	int i := 1;
+	tester(first(i), second(i));
+}
+

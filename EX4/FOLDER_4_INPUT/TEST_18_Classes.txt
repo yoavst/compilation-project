@@ -1,0 +1,31 @@
+class Grandfather {
+    int age;
+    int salary;
+    int getAge(int x) {
+        return x;
+    }
+}
+class Father extends Grandfather {
+    int getAge(int y) {
+        return 1000;
+    }
+}
+class Son extends Father {
+    int birthYear;
+    int getAge(int x) {
+        return age;
+    }
+}
+
+Grandfather avraham := new Grandfather;
+Grandfather isaac := new Father;
+Grandfather jacob := new Son;
+
+void main() {
+    avraham.age := 333;
+    isaac.age := 444;
+    jacob.age := 555;
+    PrintInt(avraham.getAge(666));
+    PrintInt(isaac.getAge(666));
+    PrintInt(jacob.getAge(666));
+}

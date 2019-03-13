@@ -1,0 +1,6 @@
+void main(){
+	int x := 6>5;
+	int y := 7;
+	y := (y>7)=(x<4);
+	PrintInt(y=1);
+}

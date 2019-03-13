@@ -1,0 +1,48 @@
+class Tree {
+
+    Tree left := nil;
+
+    Tree right := nil;
+
+    void PrintMe( )
+
+    {
+
+        
+        if (1 - (left = nil))   { left.PrintMe( ); }
+
+        PrintInt( key );
+
+        if (1 - (right = nil)) { right.PrintMe( ); }
+
+    }
+
+    int key := 0;
+
+}
+
+void main(){
+	Tree t1 := new Tree;
+	Tree t2 := new Tree;
+	Tree t3 := new Tree;
+	Tree t4 := new Tree;
+	Tree t5 := new Tree;
+	Tree t6 := new Tree;
+	
+	t1.key := 1;
+	t2.key := 3;
+	t3.key := 2;
+	t4.key := 4;
+	t5.key := 5;
+	t6.key := 6;
+
+	t1.left := t2;
+	t1.right := t4;
+
+	t2.right := t3;
+
+	t4.left := t5;
+	t4.right := t6;
+
+	t1.PrintMe();
+}

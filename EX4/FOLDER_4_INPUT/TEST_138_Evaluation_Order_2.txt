@@ -1,0 +1,8 @@
+int i := 1;
+int j := 2;
+int s := i+j;
+void main(){
+	PrintInt(s);
+	PrintInt(i);
+	PrintInt(j);
+}

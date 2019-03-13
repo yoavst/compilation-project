@@ -1,0 +1,43 @@
+class MyClass
+{
+	int x;
+	
+	void initField()
+	{
+		x := 1;
+	}
+	
+	void printField()
+	{
+		
+		PrintInt(x); 
+	}
+	
+	void updateAndPrintField()
+	{
+		x := 3;
+		printField();
+	}
+	
+	 
+	void printFieldAndArg(int x)
+	{
+		
+		
+		initField();
+		printField(); // should print 1
+	
+		x := 2;
+		PrintInt(x); // should print 2
+		
+		printField(); // should print 1 
+		updateAndPrintField(); // should print 3
+	}
+}
+
+
+	void main()
+	{
+		MyClass obj := new MyClass;
+		obj.printFieldAndArg(7); 
+	}

@@ -1,0 +1,86 @@
+class Father
+{
+	int x;
+}
+
+class Son extends Father
+{	
+	void setField(int fieldValue)
+	{
+		x := fieldValue;
+	}
+	
+	void printField()
+	{
+		PrintInt(x);
+	}
+	
+	void promoteAndPrintArg(int x)
+	{
+		x := x + 1;
+		PrintInt(x);
+	}
+	
+	void printFieldSuccessor()
+	{
+		promoteAndPrintArg(x);
+	}
+	
+	
+	void printX(int x)
+	{
+		PrintInt(x);			
+	
+		setField(1);
+		printField(); 			
+		
+		x := 2;
+		PrintInt(x); 			
+		printField(); 			
+		
+		setField(3);
+		printField(); 			
+		PrintInt(x); 			
+		
+		promoteAndPrintArg(x); 	
+		printField(); 			
+		PrintInt(x); 			
+		
+		printFieldSuccessor();	
+		printField();			
+		
+		if (1 < 3)
+		{
+			int x := 5;
+			PrintInt(x); 		
+			printField();		
+			
+			setField(6);
+			printField();		
+			PrintInt(x);		
+			
+			if (1 < 2)
+			{
+				int x := 7;
+				PrintInt(x); 	
+				
+				setField(8);
+				printField();	
+				PrintInt(x);	
+			}
+			
+			PrintInt(x); 		
+			printField();		
+		}
+		
+		PrintInt(x);			
+		printField();			
+	}
+}
+
+void main()
+{
+	Son obj := new Son;
+	obj.printX(0);
+}
+

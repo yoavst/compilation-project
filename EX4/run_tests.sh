@@ -22,9 +22,11 @@ for file in $(ls "$INPUT_FOLDER/"); do
         spim -f "$OUTPUT_FOLDER/$file" > "$OUTPUT_FOLDER/${file}_output.txt"
         # add new line on end of both files
         sed -i -e '$a\' "$OUTPUT_FOLDER/${file}_output.txt"
-#        sed -i -e '$a\' "$EXPECTED_OUTPUT_FOLDER/$file"
+        sed -i -e '$a\' "$EXPECTED_OUTPUT_FOLDER/$file"
+        perl -pi -e 'chomp if eof' "$OUTPUT_FOLDER/${file}_output.txt"
+        perl -pi -e 'chomp if eof' "$EXPECTED_OUTPUT_FOLDER/$file"
 
-        if diff "$OUTPUT_FOLDER/${file}_output.txt" "$EXPECTED_OUTPUT_FOLDER/$file"; then
+        if diff --strip-trailing-cr -w "$OUTPUT_FOLDER/${file}_output.txt" "$EXPECTED_OUTPUT_FOLDER/$file"; then
             if [ "$HIDE" = false ] ; then
                 echo -e "Result: ${GREEN}PASS${NC}"
             fi

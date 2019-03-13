@@ -1,0 +1,22 @@
+//modulo
+int mod(int a, int m){
+	int div := a/m;
+	int floor := m*div;
+
+	return a-floor;
+}
+
+//greatest common divisor
+int gcd(int a, int b){
+	if(b = 0){
+		return a;
+	}
+	return gcd(b, mod(a,b));
+}
+
+void main(){
+	int d := gcd(1573,1210);
+	PrintInt(d); //should print 121
+}
+
+

@@ -1,0 +1,27 @@
+array IntArray = int[]
+
+class Father {
+	int n;
+	int foo() {
+	    PrintString("foo");
+	}
+}
+
+class Son extends Father {
+	int computeMedian(IntArray arr, int arrSize) {
+		int m := (arr[arrSize / 2] + arr[(arrSize - 1) / 2]) / 2;
+		return m;
+	}
+}
+
+void main() {
+	IntArray arr := new int[4];
+	int size := 4;
+	arr[0] := 1;
+	arr[1] := 13;
+	arr[2] := 56;
+	arr[3] := 91;
+	Son s := new Son;
+	int res := s.computeMedian(arr, size);
+	PrintInt(res);
+}

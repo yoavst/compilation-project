@@ -1,0 +1,33 @@
+
+class MyClass
+{	
+	
+	void printExteriorBlockVarAndInnerBlockVar()
+	{
+		
+		
+		if (1 < 3)
+		{
+			int x := 5;
+			PrintInt(x); // should print 5
+			
+			if (1 < 2)
+			{
+				int x := 10;
+				PrintInt(x); // should print 10
+			}
+			
+			PrintInt(x); // should print 5
+			
+			x := 7;
+			PrintInt(x); // should print 7
+		}
+	}
+}
+
+
+	void main()
+	{
+		MyClass obj := new MyClass;
+		obj.printExteriorBlockVarAndInnerBlockVar(); // should print 5 10 5 7 
+	}

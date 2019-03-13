@@ -1,0 +1,36 @@
+	// should print 7 -1 12 1 0 0 5 1 0 1 5 0 1 1 5 0 0 1 5 1 1 0 
+	void main()
+	{
+		
+		int i := 3;
+		int j := 4;
+		
+		// Arithmetic operations
+		PrintInt(i + j); // should print 7
+		PrintInt(i - j); // should print -1
+		PrintInt(i * j); // should print 12
+		
+		
+		// Boolean operations
+		
+		PrintInt(i < j); 	// should print 1
+		PrintInt(j < i); 	// should print 0
+		PrintInt(i < i); 	// should print 0
+		
+		PrintInt(5);
+		
+
+
+		PrintInt(5);
+		
+	
+		
+		PrintInt(5);
+		
+		PrintInt(i = j); // should print 0
+		PrintInt(j = i); // should print 0
+		PrintInt(i = i); // should print 1
+		
+		PrintInt(5);
+		
+	}

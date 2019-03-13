@@ -1,0 +1,34 @@
+class Father
+{
+	int i:= 3;
+	string s;
+}
+
+class Son extends Father
+{
+	int j;
+}
+
+class GrandSon extends Son
+{
+	int q:= 4;
+}
+
+void main(){
+
+	GrandSon g := new GrandSon;
+	Son s := g;
+	Father f := g;
+
+	PrintInt(f = s);
+	PrintInt(f = g);
+	PrintInt(s = f);
+	PrintInt(g = f);
+	PrintInt(s = g);
+	PrintInt(g = g);
+	PrintInt(f = nil);
+	PrintInt(g = nil);
+	PrintInt(nil = f);
+	
+	PrintInt(f.i = g.q);
+}

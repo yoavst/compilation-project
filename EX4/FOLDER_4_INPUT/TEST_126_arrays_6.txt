@@ -1,0 +1,26 @@
+array strings = string[]
+
+strings mystrs := new string[3];
+
+
+
+void love(){
+	mystrs[1] := "Love";
+}
+
+
+void lazagna(strings arr){
+	arr[2] := "Lazagna";
+}
+
+void main(){
+	mystrs[0]  := "I";
+	love();
+	lazagna(mystrs);
+	mystrs[0] := "You";
+	int i := 0;
+	while(i< 3){
+		PrintString(mystrs[i]);
+		i := i + 1;
+	}
+}

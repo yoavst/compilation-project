@@ -1,0 +1,12 @@
+class UseBeforeDef
+{
+    void foo() { PrintInt(i); }
+int i;
+}
+
+void main(){
+	UseBeforeDef ubd := new UseBeforeDef;
+
+	ubd.i := 456;
+	ubd.foo();
+}

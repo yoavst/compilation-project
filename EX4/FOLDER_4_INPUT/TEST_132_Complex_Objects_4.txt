@@ -1,0 +1,19 @@
+void foo(){
+	PrintString("X");
+}
+
+class A{
+	void foo(){
+		PrintString("B");
+	}
+	void foo2(){
+		PrintString("A");
+		foo();
+	}
+}
+
+void main(){
+	A a := new A;
+
+	a.foo2();
+}

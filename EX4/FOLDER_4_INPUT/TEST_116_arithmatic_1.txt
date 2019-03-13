@@ -1,0 +1,19 @@
+void main(){
+	PrintInt(0-3); 			
+	PrintInt(-17-1);		
+	PrintInt(1-17); 		
+	PrintInt(800+900); 		
+	PrintInt(-32000-1000); 	
+	PrintInt(32000+1000); 	//32767
+
+	PrintInt(32000+1000+1000+100+10+1); 	//32767
+	PrintInt(10+10+10+10+32760); //32767
+	PrintInt(32767+1); //32767
+
+
+	PrintInt(-32000-1000-1000-100-10-1); 	
+	PrintInt(-10-10-10-10-32760); 
+	PrintInt(-32768-1); 
+
+	PrintInt(32760+10-7); //32760
+}

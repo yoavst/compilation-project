@@ -1,0 +1,24 @@
+class MyClass
+{
+	int x;
+	
+	void init(int initValue)
+	{
+		x := initValue;
+	}
+	
+	void printLocalTen()
+	{
+		int x := 10;
+		
+		
+		PrintInt(x); 
+	}
+}
+
+	void main()
+	{
+		MyClass obj := new MyClass;
+		obj.init(6);
+		obj.printLocalTen();
+	}

@@ -1,0 +1,22 @@
+array CharArray = string[]
+
+void main() {
+	CharArray s := new string[4];
+	s[0] := "T";
+	s[1] := "e";
+	s[2] := "s";
+	s[3] := "t";
+	int size := 4;
+	int i := 0;
+	string temp;
+	while(i < size / 2) {
+		temp := s[i];
+		s[i] := s[size - i - 1];
+		s[size - i - 1] := temp;
+		i := i + 1;
+	}
+	PrintString(s[0]);
+	PrintString(s[1]);
+	PrintString(s[2]);
+	PrintString(s[3]);	
+}

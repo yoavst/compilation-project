@@ -1,0 +1,10 @@
+array boom = int[]
+
+void main(){
+	boom b := new int[256*256];
+
+	b[256*128-1] := 777;
+
+	PrintInt(b[256*128-1]);
+	PrintInt(b[256*128]);
+}

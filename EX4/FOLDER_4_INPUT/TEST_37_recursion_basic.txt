@@ -1,0 +1,28 @@
+class Rectest
+{
+	int b;
+
+	void prevb()
+	{
+		
+		if(b>0)
+		{
+			PrintInt(b);
+			b:=b-1;
+			prevb();
+
+		}
+	
+		PrintInt(0);
+		
+	}
+}
+
+
+	void main()
+	{
+	
+		Rectest r:=new Rectest;
+		r.b:=12;
+		r.prevb();
+	}

@@ -1,0 +1,22 @@
+class Song
+{
+	int title := 7;
+	int artist := 9;
+	int album := 11;
+}
+
+	void main()
+	{
+		Song mySong := new Song;
+		
+		if (mySong.title = 7)
+		{
+			if (mySong.artist = 9)
+			{
+				if (mySong.album = 11)
+				{
+					PrintInt(7); 
+				}
+			}
+		}
+	}

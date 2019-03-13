@@ -1,0 +1,8 @@
+void main(){
+	int x := 32767;
+
+	while(x){
+		PrintInt(x);
+		x := x / 2;
+	}
+}

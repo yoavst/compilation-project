@@ -1,0 +1,11 @@
+
+void main(){
+	int i := 25;
+
+	while(i){
+		PrintInt(i);
+		if(i = 20){ return; }
+		i := i - 1;
+	}
+
+}

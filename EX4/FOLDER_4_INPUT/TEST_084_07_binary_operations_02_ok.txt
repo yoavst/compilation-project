@@ -1,0 +1,15 @@
+class Father { string s1; string s2; }
+void foo(Father f)
+{
+    f.s1 := f.s1 + f.s2;
+}
+
+void main(){
+	Father f := new Father;
+	f.s1 := "Abraham";
+	f.s2 := "Issac";
+
+	foo(f);
+
+	PrintString(f.s1);
+}

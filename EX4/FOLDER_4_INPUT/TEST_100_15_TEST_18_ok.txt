@@ -1,0 +1,19 @@
+
+class Father {int i;}
+class Son extends Father {int j;}
+array dadsArray = Father[]
+
+void main() {
+	dadsArray DA := new Father[23];
+
+	Father Hanan := new Father;
+	Father Yoram := new Father;
+	Father Efi := new Father;
+	Son Sunny := new Son;
+
+	DA[1] := Efi;
+	DA[2] := Yoram;
+	DA[3] := Hanan;
+
+	DA[12] := Sunny;
+}

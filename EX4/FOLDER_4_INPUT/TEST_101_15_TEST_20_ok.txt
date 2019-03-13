@@ -1,0 +1,19 @@
+
+class Father {int i;}
+class Son extends Father {int j;}
+array kidsArray = Son[]
+
+void main() {
+kidsArray kA := new Son[23];
+
+Son Ido := new Son;
+Son Yaron := new Son;
+Son Gidi := new Son;
+
+kA[1] := Gidi;
+kA[2] := Yaron;
+kA[3] := Ido;
+
+kA[12] := nil;
+
+}

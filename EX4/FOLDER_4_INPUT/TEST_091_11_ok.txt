@@ -1,0 +1,6 @@
+array IntArray = int[]
+IntArray d := new int[3];
+
+void main(){
+	return;
+}

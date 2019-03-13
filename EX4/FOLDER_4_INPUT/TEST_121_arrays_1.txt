@@ -1,0 +1,46 @@
+class A{
+	string msg := "HELLO";
+}
+
+array arrtype = A[]
+
+class B{
+	arrtype arr;
+	void init(int size){
+		arr := new A[size];
+		int i := size-1;
+		while(i){
+			arr[i] := new A;
+			i := i - 1;
+		}
+		arr[0] := new A;
+	}
+}
+
+class C extends B{
+	void init(int size){
+		arr := new A[size];
+		int i := size-1;
+		while(i){
+			arr[i] := new A;
+			arr[i].msg := "BYE";
+			i := i - 1;
+		}
+
+		arr[0] := new A;
+		arr[0].msg := "BYE";
+	}
+}
+
+void main(){
+	B b := new B;
+	C c := new C;
+
+	b.init(80);
+	c.init(10);
+
+	PrintString(b.arr[0].msg);
+	PrintString(b.arr[1].msg);
+	PrintString(c.arr[1].msg);
+	PrintString(c.arr[4].msg);
+}

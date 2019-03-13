@@ -1,0 +1,21 @@
+array IntArray = int[]
+array Mat      = IntArray[]
+
+void main()
+{
+	IntArray row0 := new int[3];
+	IntArray row1 := new int[3];
+	IntArray row2 := new int[3];
+
+	Mat A := new IntArray[3];
+
+    A[0] := row0;
+    A[1] := row1;
+    A[2] := row2;
+
+    A[0][0] := 3;
+    int x := A[0][0];
+    int y := A[1][2];
+    int z := x + y;
+    PrintInt(z);
+}

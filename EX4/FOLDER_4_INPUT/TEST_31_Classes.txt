@@ -1,0 +1,21 @@
+class A
+{
+    int i;
+    int j := 5;
+    int sum(int l, int k)
+    {
+        string s:= "hello";
+        int m := 1000;
+        int n := i + j;
+        int o := 10000;
+        return o + m + n + l + k;
+    }
+}
+
+void main()
+{
+    A a := new A;
+    a.i := 1;
+    a.j := 10;
+    PrintInt(a.sum(100, 0));
+}

@@ -1,0 +1,15 @@
+class A{
+	void b(){
+		PrintString("B");
+	}
+	void a(){
+		PrintString("A");
+		b();
+	}
+}
+
+void main(){
+	A a := new A;
+
+	a.a();
+}

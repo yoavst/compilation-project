@@ -1,0 +1,9 @@
+void main(){
+	int i := 1;
+	while((i = 32767)=0){
+		i := i * 2;
+	}
+
+	PrintInt(i);
+	PrintString("OK");
+}

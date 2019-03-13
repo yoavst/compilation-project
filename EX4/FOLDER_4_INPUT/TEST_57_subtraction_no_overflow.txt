@@ -1,0 +1,7 @@
+void main()
+{
+    PrintInt(1 - 1);
+    PrintInt(-1000 - 300);
+    PrintInt(-1000 - (-1000));
+    PrintInt(10000 - 20000);
+}

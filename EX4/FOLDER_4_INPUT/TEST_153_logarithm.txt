@@ -1,0 +1,27 @@
+int log2(int k){
+	if(k = 1){ return 0; }
+	int m := 2;
+	int i := 1;
+	while(m * m < k){
+		m := m * m;
+		i := 2*i;
+	}
+	if(m = k){ return i; }
+	return log2(k/m) + i;
+}
+
+void main(){
+	int p1 := 512;
+	int p2 := 2048;
+	int p3 := 4;
+	int p4 := 8;
+	int p5 := 1;
+
+	PrintInt(log2(p1));
+	PrintInt(log2(p2));
+	PrintInt(log2(p3));
+	PrintInt(log2(p4));
+	PrintInt(log2(p5));
+}
+
+

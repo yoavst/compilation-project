@@ -1,0 +1,6 @@
+class Father { int i; int j; }
+void main()
+{
+    Father f;
+    int i := f.i;
+}

@@ -1,0 +1,11 @@
+string s := "Hello";
+
+void main()
+{
+    int i := 3;
+    string t := "Bye";
+    int j := 4;
+
+    PrintInt(i + j);
+    PrintString(s + "Good" + t);
+}

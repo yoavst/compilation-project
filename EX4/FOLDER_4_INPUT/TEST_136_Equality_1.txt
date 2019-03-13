@@ -1,0 +1,25 @@
+array strings = string[]
+
+void main(){
+	strings strs := new string[6];
+	strs[0] := "A";
+	strs[1] := "B";
+	strs[2] := "A";
+	strs[3] := "C";
+	strs[4] := "A";
+	strs[5] := "D";
+
+	int i;
+	while(i<6){
+		if((strs[0] = strs[i]) = 1){
+			if((strs[i] = "C") = 1){
+				PrintString(strs[i]);
+			}
+		}
+		if(i = 0){
+				PrintString(strs[i]);
+		}
+		i := i + 1;
+	}
+}
+

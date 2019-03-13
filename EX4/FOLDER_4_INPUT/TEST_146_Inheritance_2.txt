@@ -1,0 +1,32 @@
+class Cookie{
+	int dontTouch := 777;
+	Cookie eat(Cookie c){
+		PrintString("YAM");
+		Cookie another := new Cookie;
+		another.dontTouch := 9001;
+		return another;
+	}
+}
+
+class ChoclateChip extends Cookie{
+	int count;
+}
+
+class ChoclateChipAndSprinkles extends ChoclateChip{
+	int morecount;
+}
+
+class ChoclateChipAndSprinklesAndPeanutButter extends ChoclateChipAndSprinkles{
+	int moreecount;
+} 
+
+
+void main(){
+	Cookie basic := new Cookie;
+	ChoclateChipAndSprinklesAndPeanutButter delicious := new ChoclateChipAndSprinklesAndPeanutButter;
+
+	Cookie received := delicious.eat(basic);
+	PrintInt(received.dontTouch);
+	PrintInt(basic.dontTouch);
+	PrintInt(delicious.dontTouch);
+}

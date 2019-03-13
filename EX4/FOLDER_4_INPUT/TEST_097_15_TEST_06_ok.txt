@@ -1,0 +1,13 @@
+class Father
+{
+    Father dad;
+    int foo(){
+        dad.foo();
+    }
+	
+}
+
+void main(){
+	Father f := new Father;
+	f.foo();
+}

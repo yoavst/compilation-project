@@ -1,0 +1,12 @@
+int Check(string s)
+{
+	return s = "LosPollosHermanos";
+}
+
+void main(){
+	string r := "LosPollosHermanos";
+	string t := "PosLollosHermanos";
+
+	PrintInt(Check(r));
+	PrintInt(Check(t));
+}

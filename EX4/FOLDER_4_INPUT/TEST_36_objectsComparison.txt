@@ -1,0 +1,27 @@
+class MyClass
+{
+	int fieldA;
+}
+
+	void main()
+	{		
+		MyClass obj1 := new MyClass;
+		MyClass obj1Copy := obj1;
+		obj1Copy.fieldA := 100;
+		
+		PrintInt(obj1.fieldA); // should print 100
+		
+		if (obj1 = obj1Copy)
+		{
+			// should get here and print 102
+			PrintInt(102);
+		}
+		
+		MyClass obj2 := new MyClass;
+		obj2.fieldA := 100;
+		if (obj1 = obj2)
+		{
+			// shouldnt get here
+			PrintInt(104);
+		}
+	}

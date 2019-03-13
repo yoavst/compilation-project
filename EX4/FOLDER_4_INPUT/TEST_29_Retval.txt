@@ -1,0 +1,29 @@
+int bar()
+{
+    return 1;
+}
+
+int foo()
+{
+    return 2;
+}
+
+class test
+{
+    int foo()
+    {
+        return 3;
+    }
+
+    int bar()
+    {
+        return 4;
+    }
+}
+
+void main()
+{
+    test x := new test; 
+    PrintInt(foo() + bar());
+    PrintInt(x.foo() + x.bar());
+}

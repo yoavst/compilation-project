@@ -1,0 +1,12 @@
+class A{
+	int B(){return 8;}
+}
+class B{
+	int x;
+}
+
+void main(){
+	A a := new A;
+
+	PrintInt(a.B());
+}

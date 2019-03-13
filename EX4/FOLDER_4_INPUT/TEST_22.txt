@@ -1,5 +1,5 @@
 void g(int n){
-    if(n = 0){
+    if(n = 2){
         PrintTrace();
         return;
     }

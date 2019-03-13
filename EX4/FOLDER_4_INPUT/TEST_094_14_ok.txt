@@ -1,0 +1,12 @@
+void foo(){ PrintInt(8); }
+class Father {
+	int foo() {return 800; }
+	int bar(string s) {return foo(); }
+}
+
+void main(){
+	Father f := new Father;
+
+	PrintInt(f.bar("WOW"));
+	foo();
+}

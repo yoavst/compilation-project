@@ -1,0 +1,18 @@
+string addx(string str){
+	return "x" + str;
+}
+
+void realMain(){
+	string s := "W";
+
+	while((s = "xxxxW") = 1){
+		PrintString(s);
+		s := addx(s);
+	}
+
+	PrintString(s);
+}
+
+void main(){
+	realMain();
+}

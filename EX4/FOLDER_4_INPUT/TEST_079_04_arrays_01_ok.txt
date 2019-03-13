@@ -1,0 +1,3 @@
+array IntArray = int[]
+void F(IntArray A){ PrintInt(A[8]); }
+void main(){ F(nil); }

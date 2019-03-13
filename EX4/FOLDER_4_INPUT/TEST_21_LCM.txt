@@ -1,0 +1,36 @@
+void main() {
+	int m := 12;
+	int n := 4;
+	int lcm;
+	if(n = m) {
+		lcm := m;
+		PrintInt(m);
+		return;
+	}
+	if(n = 1) {
+		lcm := m;
+		PrintInt(m);
+		return;
+	}
+	if(m = 1) {
+		lcm := n;
+		PrintInt(n);
+		return;
+	}
+	if(1 - (m = 1)) {
+		lcm := 0;
+		int mm := m;
+		int nn := n;
+		while(1 - (mm = nn)) {
+			while(mm < nn) {
+				mm := mm + m;
+			}
+			while(nn < mm) {
+				nn := nn + n;
+			}
+		}
+		lcm := mm;
+		PrintInt(mm);
+		return;
+	}
+}

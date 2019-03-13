@@ -1,0 +1,43 @@
+string nowplaying := "nothing";
+
+class Music{
+	string intro := "NOWPLAYING";
+	string getIntro(){
+		return intro;
+	}
+	void stop(){
+		nowplaying := "nothing";
+	}
+}
+
+class Beatles extends Music{
+	void play(){
+		nowplaying := "LucyInTheSkyWithDiamonds";
+	}
+}
+
+
+
+class Queen extends Music{
+	void play(){
+		nowplaying := "IsThisTheRealLifeIsItJustFantasy";
+	}
+}
+ 
+string whatsPlaying(Music m){
+	return m.intro + nowplaying;
+}
+
+void main(){
+	Beatles b := new Beatles;
+	Queen q := new Queen;
+
+	PrintString(whatsPlaying(b));
+	b.play();
+	PrintString(whatsPlaying(b));
+	q.play();
+	PrintString(whatsPlaying(q));
+	q.stop();
+	b.stop();
+	PrintString(whatsPlaying(b));
+}

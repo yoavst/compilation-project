@@ -1,0 +1,38 @@
+class PrintWrapper
+{	
+	int printOne()
+	{
+		PrintInt(1);
+		return 1;	
+	}
+	
+	int printTwo()
+	{
+		PrintInt(2);
+		return 2;
+	}
+	
+	int printThree()
+	{
+		PrintInt(3);
+		return 3;
+	}
+}
+
+class A
+{
+	void foo(int i, int j, int k)
+	{
+int jjj;
+	}
+}
+
+	void main()
+	{
+		PrintWrapper wrapper := new PrintWrapper;
+		A obj := new A;
+		
+		// The following line should print 1 2 3 since the arguments are evaluated
+		// from left to right.
+		obj.foo(wrapper.printOne(), wrapper.printTwo(), wrapper.printThree());
+	}

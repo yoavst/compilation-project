@@ -1,0 +1,38 @@
+class Leg{
+	string dir := "Forward";
+	string walk(){
+		return "Walking" + dir;
+	}
+}
+
+array legs = Leg[]
+
+class Spider{
+	legs spiderLegs := nil;
+	string walk(){
+		string str := "";
+		int i:= 0;
+		while(i<8){
+			str := str + spiderLegs[i].walk();
+			i := i + 1;
+		}
+		return str;
+	}
+
+	void init(){
+		spiderLegs := new Leg[8];
+		int i:= 0;
+		while(i<8){
+			spiderLegs[i] := new Leg;
+			i := i + 1;
+		}
+		spiderLegs[7].dir := "Backwards";
+	}
+}
+
+void main(){
+	Spider spidy := new Spider;
+
+	spidy.init();
+	PrintString(spidy.walk());
+}

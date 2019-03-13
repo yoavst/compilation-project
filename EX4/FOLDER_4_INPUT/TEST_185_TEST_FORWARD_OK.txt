@@ -1,0 +1,18 @@
+class Animal{
+	string getName(){
+		return name;
+	}
+	void setName(string newName){
+		name := newName;
+		return;
+	}
+	string name;
+}
+
+void main(){
+	Animal ani := new Animal;
+
+	ani.setName("salamander");
+	PrintString(ani.getName());
+}
+
