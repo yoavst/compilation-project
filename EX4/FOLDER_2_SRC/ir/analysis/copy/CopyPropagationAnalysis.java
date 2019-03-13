@@ -12,6 +12,7 @@ import ir.commands.functions.IRPushCommand;
 import ir.commands.memory.IRLoadCommand;
 import ir.commands.memory.IRStoreCommand;
 import ir.registers.LocalRegister;
+import ir.registers.ParameterRegister;
 import ir.registers.Register;
 import utils.NotNull;
 import utils.Nullable;
@@ -20,10 +21,22 @@ import java.util.*;
 
 /**
  * copy propagation analysis for set of blocks.
- *
  */
 public class CopyPropagationAnalysis extends Analysis<Map<Register, @Nullable Register>> {
-    private static final Map<Register, @Nullable Register> DEFAULT_VALUE = Collections.emptyMap();
+    private static final Map<Register, @Nullable Register> DEFAULT_VALUE = new HashMap<>();
+
+    static {
+        // put value to all local registers
+        for (int i = 0; i < 100; i++) {
+            Register r = new LocalRegister(i);
+            DEFAULT_VALUE.put(r, r);
+        }
+        // put value to all parameters registers
+        for (int i = 0; i < 100; i++) {
+            Register r = new ParameterRegister(i);
+            DEFAULT_VALUE.put(r, r);
+        }
+    }
 
     public CopyPropagationAnalysis() {
         super(true, DEFAULT_VALUE, Collections.emptyMap());
@@ -87,7 +100,7 @@ public class CopyPropagationAnalysis extends Analysis<Map<Register, @Nullable Re
                 IRCommand command = iterator.next();
                 Map<Register, Register> mappings = info.get(i);
                 mappings.entrySet().removeIf(e -> e.getValue() == null);
-                
+
                 if (command.getDependencies().stream().anyMatch(mappings::containsKey)) {
                     hasChanged[0] = true;
                     // can do replacement
