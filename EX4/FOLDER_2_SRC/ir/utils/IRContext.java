@@ -290,7 +290,7 @@ public class IRContext {
 
         command(new IRBinOpRightConstCommand(temp, register, Operation.Equals, NIL_VALUE));          // temp = register == Nil
         command(new IRIfZeroCommand(temp, notNull));                                                 // if not temp jump notnull
-        command(new IRCallCommand(STDLIB_FUNCTION_THROW_OUT_OF_BOUNDS));                             // call __throw_array_out_of_bounds
+        command(new IRCallCommand(STDLIB_FUNCTION_THROW_NULL));                             // call __throw_array_out_of_bounds
         label(notNull);                                                                              // notnull:
     }
 

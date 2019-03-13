@@ -241,6 +241,10 @@ public class SymbolTable {
         return enclosingFunction;
     }
 
+    public boolean isInFunctionScope() {
+        return scopeStack.search(Scope.Function) != -1;
+    }
+
     /**
      * Return all the classes that were ever loaded to the symbol table
      */
