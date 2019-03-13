@@ -1,6 +1,7 @@
 package ast.expressions;
 
 import ast.variables.AST_VAR;
+import ir.registers.ThisRegister;
 import ir.utils.IRContext;
 import ir.commands.arithmetic.IRBinOpRightConstCommand;
 import ir.commands.arithmetic.Operation;
@@ -143,6 +144,11 @@ public class AST_EXP_FUNC_CALL extends AST_EXP {
     public @NotNull Register irMe(IRContext context) {
         // [this] is the first parameter for instance function
         Register instance = var != null ? var.irMe(context) : null;
+        if (instance == null && symbol.isBounded()) {
+            // calling class method
+            instance = ThisRegister.instance;
+        }
+
         if (instance != null) {
             context.checkNotNull(instance);
             context.command(new IRPushCommand(instance));
