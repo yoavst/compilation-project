@@ -7,6 +7,7 @@ import ir.commands.functions.*;
 import ir.registers.NonExistsRegister;
 import ir.registers.Register;
 import ir.registers.ReturnRegister;
+import ir.registers.ThisRegister;
 import ir.utils.IRContext;
 import symbols.SymbolTable;
 import static types.TYPE_FOR_SCOPE_BOUNDARIES.Scope.ClassScan;
@@ -115,17 +116,9 @@ public class AST_DEC_CLASS extends AST_DEC {
         context.assignVirtualTable(thisReg, representingType);
 
         Register temp = context.newRegister();
-        if (representingType.parent != null) {
-            // call parent internal constructor
-            context.command(new IRPushCommand(thisReg));
-            context.command(new IRCallCommand(context.internalConstructorOf(representingType.parent)));
-            context.command(new IRPopCommand(temp));
-        }
 
-        // call internal constructor
-        context.command(new IRPushCommand(thisReg));
-        context.command(new IRCallCommand(context.internalConstructorOf(representingType)));
-        context.command(new IRPopCommand(temp));
+        callInternalConstructor(representingType, context, thisReg, temp);
+
 
         // return instance
         context.command(new IRSetValueCommand(ReturnRegister.instance, thisReg));
@@ -161,5 +154,15 @@ public class AST_DEC_CLASS extends AST_DEC {
         context.closeObjectScope();
 
         return NonExistsRegister.instance;
+    }
+
+    private void callInternalConstructor(TypeClass current, IRContext context, Register thisRegister, Register temp) {
+        if (current.parent != null) {
+            callInternalConstructor(current.parent, context, thisRegister, temp);
+        }
+
+        context.command(new IRPushCommand(thisRegister));
+        context.command(new IRCallCommand(context.internalConstructorOf(current)));
+        context.command(new IRPopCommand(temp));
     }
 }
