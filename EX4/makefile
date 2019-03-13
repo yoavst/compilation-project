@@ -65,6 +65,7 @@ OUTPUT_IR   = ${OUTPUT_DIR}/Output.ir
 # TARGET #
 ##########
 compile:
+	mkdir -p ${BIN_DIR}
 	clear
 	@echo "*******************************"
 	@echo "*                             *"
