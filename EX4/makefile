@@ -66,6 +66,7 @@ OUTPUT_IR   = ${OUTPUT_DIR}/Output.ir
 ##########
 compile:
 	mkdir -p ${BIN_DIR}
+	mkdir -p ${OUTPUT_DIR}
 	clear
 	@echo "*******************************"
 	@echo "*                             *"
@@ -130,6 +131,7 @@ run: clear
 	spim -f ${OUTPUT}
 
 clear:
+	mkdir -p ${OUTPUT_DIR}
 	rm -rf ${OUTPUT_DIR}/*
 
 test: clear
