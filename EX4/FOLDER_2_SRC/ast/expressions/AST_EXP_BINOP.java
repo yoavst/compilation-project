@@ -183,7 +183,7 @@ public class AST_EXP_BINOP extends AST_EXP {
             return temp;
         }
 
-        if (left.isConst() && op.isSymmetric) {
+        if (left.isConst() && op.isSymmetric && !TypeString.instance.equals(left.getType())) {
             // switch between them
             AST_EXP temp = left;
             left = right;
