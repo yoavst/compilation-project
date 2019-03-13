@@ -22,7 +22,7 @@ public abstract class AST_DEC_VAR extends AST_DEC {
         /*
          * section 3.7:
          *   global function/variable:
-         *     different than defined types, functions, (assuming also variables)
+         *     different than defined types, functions
          *   member function/variables:
          *     if parent had function/variable with same name - invalid.
          *     unless it is a function override
@@ -36,7 +36,10 @@ public abstract class AST_DEC_VAR extends AST_DEC {
             return false;
         } else if (symbolTable.getEnclosingFunction() != null) {
             return symbolTable.findInCurrentScope(name) == null;
-        } else if (symbolTable.getEnclosingClass() != null) {
+        } else if (symbolTable.isInFunctionScope()) {
+            // in function scope but no function symbol - scanning parameters
+            return symbolTable.findGeneralizedType(name) == null && symbolTable.findMethod(name, false) == null;
+        }else if (symbolTable.getEnclosingClass() != null) {
             return symbolTable.getEnclosingClass().queryFieldRecursively(name) == null
                     && symbolTable.getEnclosingClass().queryMethodRecursively(name) == null
                     && symbolTable.findInCurrentScope(name) == null;
