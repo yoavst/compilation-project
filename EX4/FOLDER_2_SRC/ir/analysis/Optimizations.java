@@ -47,23 +47,29 @@ public class Optimizations {
 
 
     private boolean optimize(IRBlock irBlock) {
+        boolean wasOptimized = true;
+        int i = 0;
+        while (i < 3 && wasOptimized) {
+            Set<IRBlock> blocks = irBlock.scanGraph();
+            LivenessAnalysis livenessAnalysis = new LivenessAnalysis();
+            livenessAnalysis.run(blocks);
+            wasOptimized = livenessAnalysis.deadCodeElimination();
+
+
+            CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
+            copyPropagationAnalysis.run(blocks);
+            wasOptimized |= copyPropagationAnalysis.copyPropagation();
+
+            ConstantPropagationAnalysis constantPropagationAnalysis = new ConstantPropagationAnalysis();
+            constantPropagationAnalysis.run(blocks);
+            wasOptimized |= constantPropagationAnalysis.constantPropagation();
+            i++;
+        }
+
         Set<IRBlock> blocks = irBlock.scanGraph();
-        LivenessAnalysis livenessAnalysis = new LivenessAnalysis();
-        livenessAnalysis.run(blocks);
-        boolean wasOptimized = livenessAnalysis.deadCodeElimination();
+        deadBlockElimination(irBlock, blocks);
 
-
-        CopyPropagationAnalysis copyPropagationAnalysis = new CopyPropagationAnalysis();
-        copyPropagationAnalysis.run(blocks);
-        wasOptimized |= copyPropagationAnalysis.copyPropagation();
-
-        ConstantPropagationAnalysis constantPropagationAnalysis = new ConstantPropagationAnalysis();
-        constantPropagationAnalysis.run(blocks);
-        wasOptimized |= constantPropagationAnalysis.constantPropagation();
-
-        wasOptimized |= deadBlockElimination(irBlock, blocks);
-
-        return wasOptimized;
+        return true;
     }
 
     private boolean deadBlockElimination(@NotNull IRBlock first, Set<IRBlock> blocks) {
