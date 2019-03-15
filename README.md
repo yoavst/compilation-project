@@ -1,6 +1,6 @@
 # Compilation project - Arazim team  ![Year](https://img.shields.io/badge/year-2018--19-red.svg) ![CI status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 
-This is the source of our compilation project. WORK IN PROGRESS!
+This is the source of my compilation project.
 
 ### Requirements
 * Linux
