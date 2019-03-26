@@ -1,1 +1,0 @@
-class Classy {string str := "potato"; string asdf := str;}

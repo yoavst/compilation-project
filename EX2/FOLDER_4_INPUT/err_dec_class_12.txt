@@ -1,1 +1,0 @@
-classs class1 {var var1;}

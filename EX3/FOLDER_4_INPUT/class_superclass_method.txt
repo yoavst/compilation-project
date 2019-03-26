@@ -1,1 +1,0 @@
-class Class {int func(){return 5;}} class Class2 extends Class {int funky(){PrintInt(func());}}

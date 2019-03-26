@@ -1,1 +1,0 @@
-class class1 extends {var var1;}

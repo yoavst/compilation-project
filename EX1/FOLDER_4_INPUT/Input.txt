@@ -1,8 +1,0 @@
-// test comment
-/* hello world [-043
- []{} S132Adqolakid aswdlkj
-*/
-x := "Helloworld"
-y := -3
-y := 32454
-y := 3

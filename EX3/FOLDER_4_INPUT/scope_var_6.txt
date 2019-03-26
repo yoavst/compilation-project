@@ -1,1 +1,0 @@
-int myvar := 80;class Father{void foo(){if(myvar){PrintInt(myvar);}}}

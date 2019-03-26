@@ -1,1 +1,0 @@
-func func1(){class class1{cfield cfield1;}}

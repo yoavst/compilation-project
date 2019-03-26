@@ -1,2 +1,0 @@
-TIMES[4,1]
-DIVIDE[4,2]

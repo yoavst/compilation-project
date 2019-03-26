@@ -1,1 +1,0 @@
-class Classy {void funky() {smelly(777);} void smelly(int mint) {PrintInt(mint);}}

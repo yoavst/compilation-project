@@ -1,1 +1,0 @@
-void func(){return var;} int var;

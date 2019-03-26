@@ -1,1 +1,0 @@
-void func(){while(5<5){PrintInt(5);}}

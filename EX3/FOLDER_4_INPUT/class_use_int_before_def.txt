@@ -1,1 +1,0 @@
-class Classy {void funky() {PrintInt(mint);} int mint;}

@@ -1,7 +1,0 @@
-void func(int x){return;}
-class Class{
-	int func(string x){return 5;}
-	void funky(){
-		func(3);
-	}
-}

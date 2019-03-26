@@ -1,1 +1,0 @@
-array Arr=int[] Arr arr1; Arr arr2; int i:=arr1=arr2;

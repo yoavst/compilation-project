@@ -1,1 +1,0 @@
-class Classy{int func(){return 5;}} array Arr = int[] int funky(){Classy classy; Arr arr := new int[classy]; int mint = arr[5]; return 777;}

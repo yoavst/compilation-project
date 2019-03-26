@@ -1,1 +1,0 @@
-class ClassyBase{int mint;} class Classy extends ClassyBase{int sprint;} class VeryClassy extends Classy{int flint;} void funky(ClassyBase base){PrintInt(base.mint);} void main(){ClassyBase base; funky(base);}

@@ -1,1 +1,0 @@
-void func(){if(5<5){PrintInt(5);}}

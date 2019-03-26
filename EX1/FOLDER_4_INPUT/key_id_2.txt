@@ -1,8 +1,0 @@
-/*Keywords and Identifiers*/
-class Main
-classMain
-class"seperate"Main
-
-class	Main
-class
-Main

@@ -1,1 +1,0 @@
-array Arr=int[] class Arr{int mint;}

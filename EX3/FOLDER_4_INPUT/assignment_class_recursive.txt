@@ -1,1 +1,0 @@
-class IntList {void Init() {tail := new IntList;} int head; IntList tail;}

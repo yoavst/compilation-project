@@ -1,1 +1,0 @@
-void funky(int mint){PrintInt(mint);} void main(){funky(nil);}

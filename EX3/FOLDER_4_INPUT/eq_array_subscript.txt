@@ -1,1 +1,0 @@
-array Arr = int[] Arr arr:=new int[8]; int mint:=arr[5]=5;

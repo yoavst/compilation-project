@@ -1,1 +1,0 @@
-class Classy {int flint;} class VeryClassy extends Classy {int mint;}

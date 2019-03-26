@@ -1,1 +1,0 @@
-class Classy {class Classy {int mint;}}

@@ -1,1 +1,0 @@
-class func {int mint;} void func(){int mint;}

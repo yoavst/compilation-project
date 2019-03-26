@@ -1,1 +1,0 @@
-string s1; string s2:="HankSchrader"; int i:=s1=s2;

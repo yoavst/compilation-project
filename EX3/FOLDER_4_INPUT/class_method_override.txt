@@ -1,1 +1,0 @@
-class Classy {int funky(int mint) {return 8;}} class VeryClassy extends Classy {int funky(int sprint) {return sprint;}}

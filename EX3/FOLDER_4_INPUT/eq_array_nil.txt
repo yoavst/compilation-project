@@ -1,1 +1,0 @@
-array Arr=int[] Arr arr1; int i:=arr1=nil;

@@ -1,1 +1,0 @@
-func func1(){stmt stmt1;} var var1; class class1 {var var1;} array arr1 = type[]

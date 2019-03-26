@@ -1,3 +1,0 @@
-string s:="helloworld";
-int x := s.
-	test();

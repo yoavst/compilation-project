@@ -1,1 +1,0 @@
-class Classy {int mint := 5;} Classy classy := new Classy;

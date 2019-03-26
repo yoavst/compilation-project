@@ -1,1 +1,0 @@
-func func1(){func2(arg1);}

@@ -1,7 +1,0 @@
-TIMES[4,1]
-DIVIDE[4,2]
-IF[7,52]
-WHILE[7,55]
-ARRAY[7,61]
-ID(HelloWorld)[12,2]
-STRING("GoodbyeWorld")[12,14]

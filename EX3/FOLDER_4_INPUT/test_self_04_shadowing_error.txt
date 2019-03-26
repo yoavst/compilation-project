@@ -1,2 +1,0 @@
-class A { int b := 3;}
-int A;

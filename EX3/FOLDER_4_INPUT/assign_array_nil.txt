@@ -1,1 +1,0 @@
-array intArray = int[] intArray myArray := nil;

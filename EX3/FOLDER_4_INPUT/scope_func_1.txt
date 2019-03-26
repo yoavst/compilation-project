@@ -1,1 +1,0 @@
-int foo(string s){return 800;} class Father{string foo(string s){return s;}void Print(){PrintString(foo("Jerry"));}}

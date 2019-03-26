@@ -1,1 +1,0 @@
-int mint; array mint = int[]

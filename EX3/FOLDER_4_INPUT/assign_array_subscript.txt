@@ -1,1 +1,0 @@
-array Arr = int[] Arr arr := new int[12]; int var := 8; int main(){arr[var] := 123;}

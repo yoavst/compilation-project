@@ -1,8 +1,0 @@
-void func(int x) { int a := 3;}
-
-class Foo {
-    int func(string y) { int a := 3;}
-    void bar() {
-        func(3);
-    }
-}

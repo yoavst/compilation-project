@@ -1,1 +1,0 @@
-array Arr = int[] void func(){Arr arr1; Arr arr2; arr1 := arr2;}

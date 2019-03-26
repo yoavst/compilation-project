@@ -1,8 +1,0 @@
-class A {
- int x;
- int foo() {
-     return z + 18;
- }
- int y;
- int z;
-}

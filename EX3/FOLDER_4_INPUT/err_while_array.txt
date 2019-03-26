@@ -1,1 +1,0 @@
-array Arr = int[] Arr a := new int[76]; void func(){while(a){PrintInt(5);}}

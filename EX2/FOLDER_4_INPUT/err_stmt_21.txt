@@ -1,1 +1,0 @@
-func func1(){while(new class1){stmt stmt1;}}

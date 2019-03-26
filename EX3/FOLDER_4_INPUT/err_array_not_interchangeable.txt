@@ -1,1 +1,0 @@
-array gradesArray = int[] array IDsArray = int[] IDsArray i := new int[8]; gradesArray g := new int[8]; void foo() {i := g;}

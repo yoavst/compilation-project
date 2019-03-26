@@ -1,1 +1,0 @@
-array Arr = int[] Arr arr; Arr func(){return arr;}

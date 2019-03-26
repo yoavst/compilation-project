@@ -1,1 +1,0 @@
-void func(){while("potato"){PrintInt(5);}}

@@ -1,8 +1,0 @@
-class X{
-	int method(){
-		int a = "error";
-	}
-	nonexistanttype methodical(){
-		PrintString("unreachable");
-	}
-}

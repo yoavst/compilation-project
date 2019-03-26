@@ -1,3 +1,0 @@
-/*Identifiers*/
-int i9 
-:= 8;

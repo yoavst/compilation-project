@@ -1,7 +1,0 @@
-class A {
- int x;
- int foo(int a, string a) {
-     return 3;
- }
-
-}

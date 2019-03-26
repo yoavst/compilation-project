@@ -1,1 +1,0 @@
-void func(){int mint;} void funk(){int mint;} int i := func = funk;

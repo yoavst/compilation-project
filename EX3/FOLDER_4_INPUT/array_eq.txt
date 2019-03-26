@@ -1,6 +1,0 @@
-array intArray = int[]
-void func(intArray a, intArray b){
-      if(a=b){
-          return;
-      }
-}

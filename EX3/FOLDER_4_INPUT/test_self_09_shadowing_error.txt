@@ -1,9 +1,0 @@
-class B {
-    int x := 3;
-}
-
-class A {
-    void func(int x, int B) {
-        return;
-    }
-}
